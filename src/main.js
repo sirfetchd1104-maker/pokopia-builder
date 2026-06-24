@@ -1,5 +1,6 @@
 import { SceneManager } from "./core/SceneManager.js";
 import { CameraController } from "./core/CameraController.js";
+import { TouchOrbitCamera } from "./core/TouchOrbitCamera.js";
 import { InputManager } from "./core/InputManager.js";
 import { BlockManager } from "./systems/BlockManager.js";
 import { GridManager } from "./systems/GridManager.js";
@@ -8,6 +9,7 @@ import { UndoManager } from "./systems/UndoManager.js";
 import { Toolbar } from "./ui/Toolbar.js";
 import { Sidebar } from "./ui/Sidebar.js";
 
+const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 const canvas = document.querySelector("#scene");
 
 let sceneManager;
@@ -23,11 +25,64 @@ try {
   throw error;
 }
 
-const cameraController = new CameraController(sceneManager.camera, canvas);
-const input = new InputManager(canvas);
 const grid = new GridManager(sceneManager.scene);
 const blocks = new BlockManager(sceneManager.scene);
 const saveManager = new SaveManager(blocks);
+
+if (isMobile) {
+  document.body.classList.add("mobile-viewer");
+  const touchCam = new TouchOrbitCamera(sceneManager.camera, canvas);
+
+  function mobileLoadFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        blocks.load(JSON.parse(reader.result));
+        document.querySelector("#mobileBlockCount").textContent = `블록 ${blocks.count}개`;
+        mobileToast("설계를 불러왔습니다.");
+      } catch {
+        mobileToast("파일을 읽을 수 없습니다.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  document.querySelector("#mobileLoadInput").addEventListener("change", (e) => {
+    if (e.target.files?.[0]) mobileLoadFile(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  function mobileToast(message) {
+    const el = document.querySelector("#toast");
+    el.textContent = message;
+    el.classList.add("visible");
+    clearTimeout(mobileToast.t);
+    mobileToast.t = setTimeout(() => el.classList.remove("visible"), 1500);
+  }
+
+  let restored = false;
+  try {
+    const saved = localStorage.getItem("pokopia-builder-autosave");
+    if (saved) {
+      blocks.load(JSON.parse(saved));
+      restored = true;
+    }
+  } catch {}
+
+  if (!restored) blocks.addBlock({ x: 0, y: 0, z: 0 }, "default", "cube");
+  document.querySelector("#mobileBlockCount").textContent = `블록 ${blocks.count}개`;
+  mobileToast(restored ? "자동 저장된 설계를 불러왔습니다." : "뷰어 모드");
+
+  function mobileAnimate() {
+    sceneManager.render();
+    requestAnimationFrame(mobileAnimate);
+  }
+  requestAnimationFrame(mobileAnimate);
+} else {
+  // ── PC Editor Mode ──
+
+const cameraController = new CameraController(sceneManager.camera, canvas);
+const input = new InputManager(canvas);
 const undoManager = new UndoManager();
 const sidebar = new Sidebar();
 const toolbar = new Toolbar({
@@ -430,3 +485,5 @@ sidebar.setSymmetry(state.symmetryMode);
 sidebar.setLayer(state.layerFilter);
 toast(restored ? "자동 저장된 설계를 불러왔습니다." : "준비 완료");
 requestAnimationFrame(animate);
+
+} // end PC editor mode

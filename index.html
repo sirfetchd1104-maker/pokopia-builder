@@ -152,6 +152,14 @@
 
       <div class="hint-bar" aria-label="단축키 안내">
         <div class="hint-item">
+          <span>블록 설치</span>
+          <kbd>마우스 좌클릭</kbd>
+        </div>
+        <div class="hint-item">
+          <span>블록 제거</span>
+          <kbd>마우스 우클릭</kbd>
+        </div>
+        <div class="hint-item">
           <span>이동</span>
           <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
         </div>
@@ -183,6 +191,23 @@
       <button id="lockButton" class="lock-button" type="button">클릭해서 화면고정 해제</button>
       <div class="crosshair" aria-hidden="true"></div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <!-- Mobile Viewer UI -->
+      <div class="mobile-bar" aria-label="모바일 뷰어">
+        <div class="mobile-brand">
+          <span class="brand-mark"></span>
+          <strong>Pokopia Builder</strong>
+        </div>
+        <span id="mobileBlockCount" class="mobile-count">블록 0개</span>
+        <label class="mobile-load-button" title="JSON 불러오기">
+          <span>불러오기</span>
+          <input id="mobileLoadInput" type="file" accept="application/json,.json" />
+        </label>
+      </div>
+      <div class="mobile-notice">
+        <p>뷰어 모드 — 편집은 PC에서 가능합니다</p>
+        <p class="mobile-hint">드래그: 회전 · 핀치: 줌 · 두 손가락 드래그: 이동</p>
+      </div>
     </div>
 
     <script type="module" src="./src/main.js"></script>
