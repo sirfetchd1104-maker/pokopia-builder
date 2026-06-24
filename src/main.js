@@ -238,6 +238,12 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     performRedo();
   }
+  if (event.code === "ArrowUp" || event.code === "ArrowDown" ||
+      event.code === "ArrowLeft" || event.code === "ArrowRight" ||
+      event.code === "Comma" || event.code === "Period") {
+    event.preventDefault();
+    performMoveAll(event.code);
+  }
 }, { capture: true });
 
 window.addEventListener("keydown", (event) => {
@@ -293,6 +299,27 @@ window.addEventListener("beforeunload", (event) => {
   event.preventDefault();
   event.returnValue = "";
 });
+
+function performMoveAll(code) {
+  const dirs = {
+    ArrowUp: [0, 0, -1, "앞"],
+    ArrowDown: [0, 0, 1, "뒤"],
+    ArrowLeft: [-1, 0, 0, "좌"],
+    ArrowRight: [1, 0, 0, "우"],
+    Period: [0, 1, 0, "위"],
+    Comma: [0, -1, 0, "아래"],
+  };
+  const [dx, dy, dz, label] = dirs[code];
+  const before = blocks.getAllBlocks();
+  const moved = blocks.moveAll(dx, dy, dz);
+  if (moved.length > 0) {
+    undoManager.push({ added: moved, removed: before });
+    markChanged();
+    toast(`전체 이동: ${label}`);
+  } else {
+    toast("더 이상 이동할 수 없습니다.");
+  }
+}
 
 function performUndo() {
   const op = undoManager.undo();

@@ -229,6 +229,26 @@ export class BlockManager {
     return this.blocks.get(getKey(normalizeCell(cell))) ?? null;
   }
 
+  moveAll(dx, dy, dz) {
+    const entries = [...this.blocks.values()];
+    if (entries.length === 0) return [];
+
+    const moved = [];
+    const newMap = new Map();
+    for (const block of entries) {
+      const newY = block.y + dy;
+      if (newY < 0) return [];
+      const entry = { ...block, x: block.x + dx, y: newY, z: block.z + dz };
+      const key = getKey(entry);
+      newMap.set(key, entry);
+      moved.push(entry);
+    }
+
+    this.blocks = newMap;
+    this.rebuildMeshes();
+    return moved;
+  }
+
   serialize() {
     return {
       version: 2,
