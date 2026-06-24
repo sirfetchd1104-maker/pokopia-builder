@@ -335,7 +335,7 @@ kbd {
   position: fixed;
   z-index: 12;
   left: 50%;
-  bottom: 100px;
+  bottom: 200px;
   transform: translateX(-50%);
   min-width: min(280px, calc(100vw - 32px));
   min-height: 44px;
