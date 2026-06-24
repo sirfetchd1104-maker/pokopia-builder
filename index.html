@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokopia Building Simulator</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <aside class="panel panel-left" aria-label="도구">
+        <div class="brand">
+          <span class="brand-mark">
+            <img src="./src/images/pokopia_logo.webp" alt="포코피아 로고">
+          </span>
+          <div>
+            <h1>Pokopia Builder</h1>
+            <p>3D block planner</p>
+          </div>
+        </div>
+
+        <div class="tool-group compact-group" role="group" aria-label="블록 추가">
+          <div class="material-header">
+            <label class="field-label" for="materialSelect">블록 추가</label>
+            <div class="material-actions">
+              <button id="addMaterialButton" class="mini-button" type="button" title="새 색상 추가">+</button>
+              <button id="removeMaterialButton" class="mini-button danger-mini" type="button" title="선택한 색상 삭제">&minus;</button>
+            </div>
+          </div>
+          <select id="materialSelect" class="field-control"></select>
+          <div class="inline-fields palette-fields">
+            <input id="materialColor" class="color-control" type="color" value="#bc90e9" title="색상" />
+            <input id="materialMemo" class="field-control" type="text" maxlength="24" placeholder="블록 이름 변경" />
+          </div>
+        </div>
+
+        <div class="tool-group compact-group" role="group" aria-label="회전">
+          <label class="field-label" for="rotationSelect">회전</label>
+          <select id="rotationSelect" class="field-control">
+            <option value="0">0°</option>
+            <option value="1">90°</option>
+            <option value="2">180°</option>
+            <option value="3">270°</option>
+          </select>
+        </div>
+
+        <div class="tool-group compact-group" role="group" aria-label="일괄배치">
+          <label class="field-label" for="batchDirection">일괄배치</label>
+          <div class="inline-fields">
+            <select id="batchDirection" class="field-control">
+              <option value="off" selected>끄기</option>
+              <option value="forward">앞으로</option>
+              <option value="right">오른쪽</option>
+              <option value="up">위로</option>
+            </select>
+            <input id="batchCount" class="field-control number-control" type="number" min="2" max="64" step="1" value="2" disabled />
+          </div>
+        </div>
+
+        <div class="tool-group compact-group" role="group" aria-label="건축 보조">
+          <label class="field-label" for="symmetryMode">대칭배치</label>
+          <select id="symmetryMode" class="field-control">
+            <option value="off">끄기</option>
+            <option value="x">좌우 대칭</option>
+            <option value="z">앞뒤 대칭</option>
+          </select>
+        </div>
+
+        <div class="tool-group compact-group" role="group" aria-label="레이어 보기">
+          <label class="field-label" for="layerMode">레이어 보기</label>
+          <div class="inline-fields">
+            <select id="layerMode" class="field-control">
+              <option value="all">전체</option>
+              <option value="only">해당 층만</option>
+              <option value="below">해당 층 이하</option>
+            </select>
+            <input id="layerValue" class="field-control number-control" type="number" min="0" step="1" value="0" />
+          </div>
+        </div>
+
+        <div class="tool-group" role="group" aria-label="파일">
+          <button class="tool-button" id="saveButton" type="button" title="JSON 저장">
+            <span class="icon">↓</span>
+            <span>저장</span>
+          </button>
+          <label class="tool-button file-button" title="JSON 불러오기">
+            <span class="icon">↑</span>
+            <span>불러오기</span>
+            <input id="loadInput" type="file" accept="application/json,.json" />
+          </label>
+          <button class="tool-button danger-button" id="resetButton" type="button" title="초기화">
+            <span class="icon">!</span>
+            <span>초기화</span>
+          </button>
+        </div>
+
+      </aside>
+
+      <aside class="panel panel-right" aria-label="상태">
+        <dl class="stats">
+          <div>
+            <dt>블록 개수</dt>
+            <dd id="blockCount">0</dd>
+          </div>
+          <div>
+            <dt>선택 좌표</dt>
+            <dd id="selectedCoord">-</dd>
+          </div>
+          <div>
+            <dt>카메라 좌표</dt>
+            <dd id="cameraCoord">-</dd>
+          </div>
+          <div>
+            <dt>블록 색상</dt>
+            <dd id="materialLabel">기본</dd>
+          </div>
+          <div>
+            <dt>블록 종류</dt>
+            <dd id="shapeLabel">블록</dd>
+          </div>
+          <div>
+            <dt>회전</dt>
+            <dd id="rotationLabel">0°</dd>
+          </div>
+          <div>
+            <dt>일괄배치</dt>
+            <dd id="batchLabel">끄기</dd>
+          </div>
+          <div>
+            <dt>대칭</dt>
+            <dd id="symmetryLabel">끄기</dd>
+          </div>
+          <div>
+            <dt>레이어</dt>
+            <dd id="layerLabel">전체</dd>
+          </div>
+          <div>
+            <dt>클립보드</dt>
+            <dd id="clipboardLabel">비어 있음</dd>
+          </div>
+        </dl>
+      </aside>
+
+      <div class="hint-bar" aria-label="단축키 안내">
+        <div class="hint-item">
+          <span>이동</span>
+          <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+        </div>
+        <div class="hint-item">
+          <span>상하</span>
+          <kbd>Space</kbd><kbd>Shift</kbd>
+        </div>
+        <div class="hint-item">
+          <span>블록종류</span>
+          <kbd>1</kbd> 기본 블록 <kbd>2</kbd> 지붕 <kbd>3</kbd> 지붕모서리
+        </div>
+        <div class="hint-item">
+          <span>회전</span><kbd>R</kbd>
+        </div>
+        <div class="hint-item">
+          <span>일괄배치</span><kbd>E</kbd>
+        </div>
+        <div class="hint-item">
+          <span>대칭배치</span><kbd>T</kbd>
+        </div>
+        <div class="hint-item">
+          <span>되돌리기</span><kbd>Ctrl+Z</kbd><kbd>Ctrl+Y</kbd>
+        </div>
+        <div class="hint-item">
+          <span>카메라 고정/해제</span><kbd>Tab</kbd>
+        </div>
+      </div>
+
+      <button id="lockButton" class="lock-button" type="button">클릭해서 화면고정 해제</button>
+      <div class="crosshair" aria-hidden="true"></div>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
