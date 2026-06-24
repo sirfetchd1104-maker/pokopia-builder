@@ -87,6 +87,22 @@
           </div>
         </div>
 
+        <div class="tool-group compact-group" role="group" aria-label="카메라 설정">
+          <label class="field-label">카메라 설정</label>
+          <div class="range-row">
+            <span class="range-label">감도</span>
+            <input id="sensitivityRange" class="range-control" type="range" min="5" max="60" step="1" value="24" />
+          </div>
+          <div class="range-row">
+            <span class="range-label">이동 속도</span>
+            <input id="speedRange" class="range-control" type="range" min="2" max="30" step="1" value="10" />
+          </div>
+          <div class="range-row">
+            <span class="range-label">줌 범위</span>
+            <input id="zoomRange" class="range-control" type="range" min="1" max="10" step="1" value="4" />
+          </div>
+        </div>
+
         <div class="tool-group" role="group" aria-label="파일">
           <button class="tool-button" id="saveButton" type="button" title="JSON 저장">
             <span class="icon">↓</span>

@@ -166,6 +166,21 @@ const toolbar = new Toolbar({
   },
 });
 
+// Camera settings sliders
+document.querySelector("#sensitivityRange").addEventListener("input", (e) => {
+  cameraController.sensitivity = Number(e.target.value) / 10000;
+});
+document.querySelector("#speedRange").addEventListener("input", (e) => {
+  cameraController.speed = Number(e.target.value);
+});
+document.querySelector("#zoomRange").addEventListener("input", (e) => {
+  const spread = Number(e.target.value) * 5;
+  cameraController.minFov = Math.max(5, 55 - spread);
+  cameraController.maxFov = Math.min(120, 55 + spread);
+  cameraController.camera.fov = Math.max(cameraController.minFov, Math.min(cameraController.maxFov, cameraController.camera.fov));
+  cameraController.camera.updateProjectionMatrix();
+});
+
 const state = {
   selectedMaterial: "default",
   selectedShape: "cube",
