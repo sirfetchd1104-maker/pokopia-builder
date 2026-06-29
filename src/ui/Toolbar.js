@@ -5,6 +5,7 @@ export class Toolbar {
     onMaterialUpdate,
     onMaterialAdd,
     onMaterialRemove,
+    onShapeChange,
     onRotationChange,
     onBatchChange,
     onSymmetryChange,
@@ -16,6 +17,7 @@ export class Toolbar {
     this.materialSelect = document.querySelector("#materialSelect");
     this.materialColor = document.querySelector("#materialColor");
     this.materialMemo = document.querySelector("#materialMemo");
+    this.shapeSelect = document.querySelector("#shapeSelect");
     this.rotationSelect = document.querySelector("#rotationSelect");
     this.batchDirection = document.querySelector("#batchDirection");
     this.batchCount = document.querySelector("#batchCount");
@@ -50,6 +52,7 @@ export class Toolbar {
     document.querySelector("#removeMaterialButton").addEventListener("click", () => {
       onMaterialRemove(this.materialSelect.value);
     });
+    this.shapeSelect.addEventListener("change", () => onShapeChange(this.shapeSelect.value));
     this.rotationSelect.addEventListener("change", () => onRotationChange(Number.parseInt(this.rotationSelect.value, 10)));
     this.batchDirection.addEventListener("change", () => {
       this.updateBatchCountVisibility();
@@ -100,6 +103,10 @@ export class Toolbar {
     option.textContent = getMaterialLabel(material);
     option.dataset.color = material.color;
     option.dataset.memo = material.memo;
+  }
+
+  setShape(shape) {
+    this.shapeSelect.value = shape;
   }
 
   setRotation(rotation) {

@@ -8,8 +8,8 @@ export class SceneManager {
     this.scene.fog = new THREE.Fog(0x151719, 42, 130);
 
     this.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
-    this.camera.position.set(8, 7, 10);
-    this.camera.lookAt(0, 1, 0);
+    this.camera.position.set(-8, 7.6, -13.8);
+    this.camera.lookAt(0, 0, -1);
 
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

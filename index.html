@@ -27,24 +27,40 @@
             <p>3D block planner</p>
           </div>
         </div>
+        <div class="tool-group compact-group language" role="group" aria-label="Language">
+          <label class="field-label" for="langSelect" data-i18n="language">Language</label>
+          <select id="langSelect" class="field-control">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+          </select>
+        </div>
 
         <div class="tool-group compact-group" role="group" aria-label="블록 추가">
           <div class="material-header">
-            <label class="field-label" for="materialSelect">블록 추가</label>
+            <label class="field-label" for="materialSelect" data-i18n="add_block">블록 추가</label>
             <div class="material-actions">
-              <button id="addMaterialButton" class="mini-button" type="button" title="새 색상 추가">+</button>
-              <button id="removeMaterialButton" class="mini-button danger-mini" type="button" title="선택한 색상 삭제">&minus;</button>
+              <button id="addMaterialButton" class="mini-button" type="button" data-i18n-title="add_color_title" title="새 색상 추가">+</button>
+              <button id="removeMaterialButton" class="mini-button danger-mini" type="button" data-i18n-title="remove_color_title" title="선택한 색상 삭제">&minus;</button>
             </div>
           </div>
           <select id="materialSelect" class="field-control"></select>
           <div class="inline-fields palette-fields">
-            <input id="materialColor" class="color-control" type="color" value="#bc90e9" title="색상" />
-            <input id="materialMemo" class="field-control" type="text" maxlength="24" placeholder="블록 이름 변경" />
+            <input id="materialColor" class="color-control" type="color" value="#bc90e9" data-i18n-title="color_title" title="색상" />
+            <input id="materialMemo" class="field-control" type="text" maxlength="24" data-i18n-placeholder="rename_placeholder" placeholder="블록 이름 변경" />
           </div>
         </div>
 
+        <div class="tool-group compact-group" role="group" aria-label="블록 종류">
+          <label class="field-label" for="shapeSelect" data-i18n="stat_shape">블록 종류</label>
+          <select id="shapeSelect" class="field-control">
+            <option value="cube" data-i18n="shape_cube">블록</option>
+            <option value="wedge" data-i18n="shape_wedge">지붕</option>
+            <option value="corner" data-i18n="shape_corner">모서리</option>
+          </select>
+        </div>
+
         <div class="tool-group compact-group" role="group" aria-label="회전">
-          <label class="field-label" for="rotationSelect">회전</label>
+          <label class="field-label" for="rotationSelect" data-i18n="rotation">회전</label>
           <select id="rotationSelect" class="field-control">
             <option value="0">0°</option>
             <option value="1">90°</option>
@@ -54,68 +70,68 @@
         </div>
 
         <div class="tool-group compact-group" role="group" aria-label="일괄배치">
-          <label class="field-label" for="batchDirection">일괄배치</label>
+          <label class="field-label" for="batchDirection" data-i18n="batch">일괄배치</label>
           <div class="inline-fields">
             <select id="batchDirection" class="field-control">
-              <option value="off" selected>끄기</option>
-              <option value="forward">앞으로</option>
-              <option value="right">오른쪽</option>
-              <option value="up">위로</option>
+              <option value="off" data-i18n="batch_off" selected>끄기</option>
+              <option value="forward" data-i18n="batch_forward">앞으로</option>
+              <option value="right" data-i18n="batch_right">오른쪽</option>
+              <option value="up" data-i18n="batch_up">위로</option>
             </select>
             <input id="batchCount" class="field-control number-control" type="number" min="2" max="64" step="1" value="2" disabled />
           </div>
         </div>
 
         <div class="tool-group compact-group" role="group" aria-label="건축 보조">
-          <label class="field-label" for="symmetryMode">대칭배치</label>
+          <label class="field-label" for="symmetryMode" data-i18n="symmetry">대칭배치</label>
           <select id="symmetryMode" class="field-control">
-            <option value="off">끄기</option>
-            <option value="x">좌우 대칭</option>
-            <option value="z">앞뒤 대칭</option>
+            <option value="off" data-i18n="sym_off">끄기</option>
+            <option value="x" data-i18n="sym_lr">좌우 대칭</option>
+            <option value="z" data-i18n="sym_fb">앞뒤 대칭</option>
           </select>
         </div>
 
         <div class="tool-group compact-group" role="group" aria-label="레이어 보기">
-          <label class="field-label" for="layerMode">레이어 보기</label>
+          <label class="field-label" for="layerMode" data-i18n="layer">레이어 보기</label>
           <div class="inline-fields">
             <select id="layerMode" class="field-control">
-              <option value="all">전체</option>
-              <option value="only">해당 층만</option>
-              <option value="below">해당 층 이하</option>
+              <option value="all" data-i18n="layer_all">전체</option>
+              <option value="only" data-i18n="layer_only">해당 층만</option>
+              <option value="below" data-i18n="layer_below">해당 층 이하</option>
             </select>
             <input id="layerValue" class="field-control number-control" type="number" min="0" step="1" value="0" />
           </div>
         </div>
 
         <div class="tool-group compact-group" role="group" aria-label="카메라 설정">
-          <label class="field-label">카메라 설정</label>
+          <label class="field-label" data-i18n="camera_settings">카메라 설정</label>
           <div class="range-row">
-            <span class="range-label">감도</span>
+            <span class="range-label" data-i18n="sensitivity">감도</span>
             <input id="sensitivityRange" class="range-control" type="range" min="5" max="60" step="1" value="24" />
           </div>
           <div class="range-row">
-            <span class="range-label">이동 속도</span>
+            <span class="range-label" data-i18n="move_speed">이동 속도</span>
             <input id="speedRange" class="range-control" type="range" min="2" max="30" step="1" value="10" />
           </div>
           <div class="range-row">
-            <span class="range-label">줌 범위</span>
+            <span class="range-label" data-i18n="zoom_range">줌 범위</span>
             <input id="zoomRange" class="range-control" type="range" min="1" max="10" step="1" value="4" />
           </div>
         </div>
 
         <div class="tool-group" role="group" aria-label="파일">
-          <button class="tool-button" id="saveButton" type="button" title="JSON 저장">
+          <button class="tool-button" id="saveButton" type="button" data-i18n-title="save_title" title="JSON 저장">
             <span class="icon">↓</span>
-            <span>저장</span>
+            <span data-i18n="save">저장</span>
           </button>
-          <label class="tool-button file-button" title="JSON 불러오기">
+          <label class="tool-button file-button" data-i18n-title="load_title" title="JSON 불러오기">
             <span class="icon">↑</span>
-            <span>불러오기</span>
+            <span data-i18n="load">불러오기</span>
             <input id="loadInput" type="file" accept="application/json,.json" />
           </label>
           <button class="tool-button danger-button" id="resetButton" type="button" title="초기화">
             <span class="icon">!</span>
-            <span>초기화</span>
+            <span data-i18n="reset">초기화</span>
           </button>
         </div>
 
@@ -124,90 +140,90 @@
       <aside class="panel panel-right" aria-label="상태">
         <dl class="stats">
           <div>
-            <dt>블록 개수</dt>
+            <dt data-i18n="stat_blocks">블록 개수</dt>
             <dd id="blockCount">0</dd>
           </div>
           <div>
-            <dt>선택 좌표</dt>
+            <dt data-i18n="stat_coord">선택 좌표</dt>
             <dd id="selectedCoord">-</dd>
           </div>
           <div>
-            <dt>카메라 좌표</dt>
+            <dt data-i18n="stat_camera">카메라 좌표</dt>
             <dd id="cameraCoord">-</dd>
           </div>
           <div>
-            <dt>블록 색상</dt>
-            <dd id="materialLabel">기본</dd>
+            <dt data-i18n="stat_color">블록 색상</dt>
+            <dd id="materialLabel" data-i18n="default_block">기본</dd>
           </div>
           <div>
-            <dt>블록 종류</dt>
-            <dd id="shapeLabel">블록</dd>
+            <dt data-i18n="stat_shape">블록 종류</dt>
+            <dd id="shapeLabel" data-i18n="shape_cube">블록</dd>
           </div>
           <div>
-            <dt>회전</dt>
+            <dt data-i18n="stat_rotation">회전</dt>
             <dd id="rotationLabel">0°</dd>
           </div>
           <div>
-            <dt>일괄배치</dt>
-            <dd id="batchLabel">끄기</dd>
+            <dt data-i18n="stat_batch">일괄배치</dt>
+            <dd id="batchLabel" data-i18n="off">끄기</dd>
           </div>
           <div>
-            <dt>대칭</dt>
-            <dd id="symmetryLabel">끄기</dd>
+            <dt data-i18n="stat_symmetry">대칭</dt>
+            <dd id="symmetryLabel" data-i18n="off">끄기</dd>
           </div>
           <div>
-            <dt>레이어</dt>
-            <dd id="layerLabel">전체</dd>
+            <dt data-i18n="stat_layer">레이어</dt>
+            <dd id="layerLabel" data-i18n="all">전체</dd>
           </div>
           <div>
-            <dt>클립보드</dt>
-            <dd id="clipboardLabel">비어 있음</dd>
+            <dt data-i18n="stat_clipboard">클립보드</dt>
+            <dd id="clipboardLabel" data-i18n="empty">비어 있음</dd>
           </div>
         </dl>
       </aside>
 
       <div class="hint-bar" aria-label="단축키 안내">
         <div class="hint-item">
-          <span>블록 설치</span>
-          <kbd>마우스 좌클릭</kbd>
+          <span data-i18n="hint_place">블록 설치</span>
+          <kbd data-i18n="hint_lclick">마우스 좌클릭</kbd>
         </div>
         <div class="hint-item">
-          <span>블록 제거</span>
-          <kbd>마우스 우클릭</kbd>
+          <span data-i18n="hint_remove">블록 제거</span>
+          <kbd data-i18n="hint_rclick">마우스 우클릭</kbd>
         </div>
         <div class="hint-item">
-          <span>이동</span>
+          <span data-i18n="hint_move">이동</span>
           <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
         </div>
         <div class="hint-item">
-          <span>상하</span>
+          <span data-i18n="hint_updown">상하</span>
           <kbd>Space</kbd><kbd>Shift</kbd>
         </div>
         <div class="hint-item">
-          <span>블록종류</span>
-          <kbd>1</kbd> 기본 블록 <kbd>2</kbd> 지붕 <kbd>3</kbd> 지붕모서리
+          <span data-i18n="hint_shape">블록종류</span>
+          <kbd>1</kbd> <span data-i18n="shape_cube">기본 블록</span> <kbd>2</kbd> <span data-i18n="shape_wedge">지붕</span> <kbd>3</kbd> <span data-i18n="shape_corner">지붕모서리</span>
         </div>
         <div class="hint-item">
-          <span>회전</span><kbd>R</kbd>
+          <span data-i18n="hint_rotation">회전</span><kbd>R</kbd>
         </div>
         <div class="hint-item">
-          <span>일괄배치</span><kbd>E</kbd>
+          <span data-i18n="hint_batch">일괄배치</span><kbd>E</kbd>
         </div>
         <div class="hint-item">
-          <span>대칭배치</span><kbd>T</kbd>
+          <span data-i18n="hint_symmetry">대칭배치</span><kbd>T</kbd>
         </div>
         <div class="hint-item">
-          <span>되돌리기</span><kbd>Ctrl+Z</kbd><kbd>Ctrl+Y</kbd>
+          <span data-i18n="hint_undo">되돌리기</span><kbd>Ctrl+Z</kbd><kbd>Ctrl+Y</kbd>
         </div>
         <div class="hint-item">
-          <span>카메라 고정/해제</span><kbd>Tab</kbd>
+          <span data-i18n="hint_lock">카메라 고정/해제</span><kbd>Tab</kbd>
         </div>
         <div class="hint-item">
-          <span>블럭 전체이동</span> 상/하/좌/우 <kbd>Ctrl+↑↓←→</kbd> 위/아래 <kbd>Ctrl+.</kbd><kbd>Ctrl+,</kbd>
+          <span data-i18n="hint_moveall">블럭 전체이동</span> <span data-i18n="hint_moveall_dir">상/하/좌/우</span> <kbd>Ctrl+↑↓←→</kbd> <span data-i18n="hint_moveall_ud">위/아래</span> <kbd>Ctrl+.</kbd><kbd>Ctrl+,</kbd>
         </div>
       </div>
 
-      <button id="lockButton" class="lock-button" type="button">클릭해서 화면고정 해제</button>
+      <button id="lockButton" class="lock-button" type="button" data-i18n="lock_release">클릭해서 화면고정 해제</button>
       <div class="crosshair" aria-hidden="true"></div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
@@ -218,14 +234,14 @@
           <strong>Pokopia Builder</strong>
         </div>
         <span id="mobileBlockCount" class="mobile-count">블록 0개</span>
-        <label class="mobile-load-button" title="JSON 불러오기">
-          <span>불러오기</span>
+        <label class="mobile-load-button" data-i18n-title="load_title" title="JSON 불러오기">
+          <span data-i18n="load">불러오기</span>
           <input id="mobileLoadInput" type="file" accept="application/json,.json" />
         </label>
       </div>
       <div class="mobile-notice">
-        <p>뷰어 모드 — 편집은 PC에서 가능합니다</p>
-        <p class="mobile-hint">드래그: 회전 · 핀치: 줌 · 두 손가락 드래그: 이동</p>
+        <p data-i18n="mobile_viewer">뷰어 모드 — 편집은 PC에서 가능합니다</p>
+        <p class="mobile-hint" data-i18n="mobile_hint">드래그: 회전 · 핀치: 줌 · 두 손가락 드래그: 이동</p>
       </div>
     </div>
 
