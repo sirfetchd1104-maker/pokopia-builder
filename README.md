@@ -2,7 +2,7 @@
 
 **포코피아 빌딩 시뮬레이터** — 포코피아에서 건물을 짓기 전에 미리 설계해볼 수 있는 3D 블록 플래너입니다.
 
-> 🔗 **Live**: [Cloudflare Pages에서 운영 중](https://pokopia-builder.pages.dev)
+> 🔗 **Live**: [Cloudflare Pages에서 운영 중](https://pokopia-builder.sirfetchd1104.workers.dev/)
 
 ---
 
