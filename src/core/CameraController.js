@@ -4,8 +4,8 @@ export class CameraController {
   constructor(camera, canvas) {
     this.camera = camera;
     this.canvas = canvas;
-    this.pitch = -0.35;
-    this.yaw = -0.7;
+    this.pitch = -0.47;
+    this.yaw = -2.58;
     this.speed = 10;
     this.sensitivity = 0.0024;
     this.minFov = 35;

@@ -1,3 +1,5 @@
+import { t } from "../i18n.js";
+
 export class Sidebar {
   constructor() {
     this.blockCount = document.querySelector("#blockCount");
@@ -29,8 +31,8 @@ export class Sidebar {
   }
 
   setShape(shape) {
-    const shapeLabels = { cube: "블록", wedge: "지붕", corner: "모서리" };
-    this.shapeLabel.textContent = shapeLabels[shape] ?? "블록";
+    const key = { cube: "shape_cube", wedge: "shape_wedge", corner: "shape_corner" };
+    this.shapeLabel.textContent = t(key[shape] ?? "shape_cube");
   }
 
   setRotation(rotation) {
@@ -39,29 +41,29 @@ export class Sidebar {
 
   setBatch(batch) {
     if (batch.direction === "off") {
-      this.batchLabel.textContent = "끄기";
+      this.batchLabel.textContent = t("off");
       return;
     }
-    const directionLabels = { forward: "앞", right: "오른쪽", up: "위" };
-    this.batchLabel.textContent = `${batch.count}개 ${directionLabels[batch.direction] ?? "앞"}`;
+    const dirKey = { forward: "sidebar_dir_forward", right: "sidebar_dir_right", up: "sidebar_dir_up" };
+    this.batchLabel.textContent = t("n_items", batch.count) + " " + t(dirKey[batch.direction] ?? "sidebar_dir_forward");
   }
 
   setSymmetry(mode) {
-    const labels = { off: "끄기", x: "좌우", z: "앞뒤" };
-    this.symmetryLabel.textContent = labels[mode] ?? "끄기";
+    const key = { off: "off", x: "sidebar_sym_lr", z: "sidebar_sym_fb" };
+    this.symmetryLabel.textContent = t(key[mode] ?? "off");
   }
 
   setLayer(filter) {
     if (filter.mode === "only") {
-      this.layerLabel.textContent = `${filter.value}층만`;
+      this.layerLabel.textContent = t("layer_only_n", filter.value);
     } else if (filter.mode === "below") {
-      this.layerLabel.textContent = `${filter.value}층 이하`;
+      this.layerLabel.textContent = t("layer_below_n", filter.value);
     } else {
-      this.layerLabel.textContent = "전체";
+      this.layerLabel.textContent = t("all");
     }
   }
 
   setClipboard(count) {
-    this.clipboardLabel.textContent = count > 0 ? `${count}개` : "비어 있음";
+    this.clipboardLabel.textContent = count > 0 ? t("n_items", count) : t("empty");
   }
 }

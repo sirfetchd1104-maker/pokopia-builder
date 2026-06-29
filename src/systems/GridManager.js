@@ -1,8 +1,11 @@
 import * as THREE from "three";
+import { t } from "../i18n.js";
 
 export class GridManager {
   constructor(scene) {
+    this.scene = scene;
     this.size = 96;
+    this.labelSprites = [];
 
     const grid = new THREE.GridHelper(this.size, this.size, 0x2d3533, 0x2d3533);
     grid.position.set(0.5, -0.501, 0.5);
@@ -22,6 +25,7 @@ export class GridManager {
     scene.add(this.ground);
 
     this.addDirectionGuides(scene);
+    this.updateLabels();
   }
 
   addDirectionGuides(scene) {
@@ -48,11 +52,29 @@ export class GridManager {
       zMat,
     );
     scene.add(xLineA, xLineB, zLineA, zLineB);
+  }
 
-    scene.add(this.createLabel("좌", -half + 4, 0, 0x65b86f));
-    scene.add(this.createLabel("우", half - 4, 0, 0x65b86f));
-    scene.add(this.createLabel("앞", 0, -half + 4, 0x4b8ba4));
-    scene.add(this.createLabel("뒤", 0, half - 4, 0x4b8ba4));
+  updateLabels() {
+    for (const sprite of this.labelSprites) {
+      this.scene.remove(sprite);
+      sprite.material.map.dispose();
+      sprite.material.dispose();
+    }
+    this.labelSprites = [];
+
+    const half = this.size / 2;
+    const items = [
+      [t("dir_left"), -half + 4, 0, 0x65b86f],
+      [t("dir_right"), half - 4, 0, 0x65b86f],
+      [t("dir_front"), 0, -half + 4, 0x4b8ba4],
+      [t("dir_back"), 0, half - 4, 0x4b8ba4],
+    ];
+
+    for (const [text, x, z, color] of items) {
+      const sprite = this.createLabel(text, x, z, color);
+      this.scene.add(sprite);
+      this.labelSprites.push(sprite);
+    }
   }
 
   createLabel(text, x, z, color) {

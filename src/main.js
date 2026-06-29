@@ -8,6 +8,7 @@ import { SaveManager } from "./systems/SaveManager.js";
 import { UndoManager } from "./systems/UndoManager.js";
 import { Toolbar } from "./ui/Toolbar.js";
 import { Sidebar } from "./ui/Sidebar.js";
+import { t, getLang, setLang, applyLang } from "./i18n.js";
 
 const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 const canvas = document.querySelector("#scene");
@@ -18,8 +19,8 @@ try {
 } catch (error) {
   document.querySelector("#app").innerHTML =
     '<div style="display:grid;place-items:center;height:100vh;color:#eef3f0;font-family:sans-serif;text-align:center;padding:2rem">' +
-    "<h2>WebGL을 사용할 수 없습니다</h2>" +
-    "<p>브라우저가 WebGL을 지원하는지 확인해 주세요.</p>" +
+    `<h2>${t("webgl_title")}</h2>` +
+    `<p>${t("webgl_msg")}</p>` +
     `<p style="color:#aab6b0;font-size:13px">${error.message}</p>` +
     "</div>";
   throw error;
@@ -29,19 +30,30 @@ const grid = new GridManager(sceneManager.scene);
 const blocks = new BlockManager(sceneManager.scene);
 const saveManager = new SaveManager(blocks);
 
+// Apply saved language on load
+applyLang();
+
 if (isMobile) {
   document.body.classList.add("mobile-viewer");
   const touchCam = new TouchOrbitCamera(sceneManager.camera, canvas);
+
+  // Mobile language toggle
+  const mobileLangSelect = document.querySelector("#langSelect");
+  mobileLangSelect.value = getLang();
+  mobileLangSelect.addEventListener("change", () => {
+    setLang(mobileLangSelect.value);
+    document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+  });
 
   function mobileLoadFile(file) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
         blocks.load(JSON.parse(reader.result));
-        document.querySelector("#mobileBlockCount").textContent = `블록 ${blocks.count}개`;
-        mobileToast("설계를 불러왔습니다.");
+        document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+        mobileToast(t("toast_loaded"));
       } catch {
-        mobileToast("파일을 읽을 수 없습니다.");
+        mobileToast(t("toast_load_error"));
       }
     };
     reader.readAsText(file);
@@ -70,8 +82,8 @@ if (isMobile) {
   } catch {}
 
   if (!restored) blocks.addBlock({ x: 0, y: 0, z: 0 }, "default", "cube");
-  document.querySelector("#mobileBlockCount").textContent = `블록 ${blocks.count}개`;
-  mobileToast(restored ? "자동 저장된 설계를 불러왔습니다." : "뷰어 모드");
+  document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+  mobileToast(restored ? t("toast_autosave") : t("toast_viewer"));
 
   function mobileAnimate() {
     sceneManager.render();
@@ -105,11 +117,11 @@ const toolbar = new Toolbar({
     state.selectedMaterial = created.id;
     sidebar.setMaterial(getMaterialLabel(created));
     markChanged();
-    toast("새 색상을 추가했습니다.");
+    toast(t("toast_color_added"));
   },
   onMaterialRemove: (materialId) => {
     if (materialId === "default") {
-      toast("기본 색상은 삭제할 수 없습니다.");
+      toast(t("toast_cant_remove"));
       return;
     }
     if (!blocks.removeMaterial(materialId)) return;
@@ -117,7 +129,12 @@ const toolbar = new Toolbar({
     state.selectedMaterial = "default";
     sidebar.setMaterial(getMaterialLabel(blocks.getMaterial("default")));
     markChanged();
-    toast("색상을 삭제했습니다.");
+    toast(t("toast_color_removed"));
+  },
+  onShapeChange: (shape) => {
+    state.selectedShape = shape;
+    sidebar.setShape(shape);
+    toast(t("toast_shape", t("shape_" + shape)));
   },
   onRotationChange: (rotation) => {
     state.selectedRotation = rotation;
@@ -148,13 +165,13 @@ const toolbar = new Toolbar({
       sidebar.setMaterial(getMaterialLabel(blocks.getMaterial(state.selectedMaterial)));
       markChanged();
       undoManager.clear();
-      toast("설계를 불러왔습니다.");
+      toast(t("toast_loaded"));
     } catch (error) {
       toast(error.message);
     }
   },
   onReset: () => {
-    if (!window.confirm("현재 배치된 모든 요소를 초기화할까요? 저장하지 않은 내용은 사라집니다.")) return;
+    if (!window.confirm(t("confirm_reset"))) return;
     const allBlocks = blocks.getAllBlocks();
     blocks.clear();
     if (allBlocks.length > 0) {
@@ -162,7 +179,7 @@ const toolbar = new Toolbar({
     }
     state.clipboard = [];
     markChanged();
-    toast("설계를 초기화했습니다.");
+    toast(t("toast_reset"));
   },
 });
 
@@ -180,6 +197,25 @@ document.querySelector("#zoomRange").addEventListener("input", (e) => {
   cameraController.camera.fov = Math.max(cameraController.minFov, Math.min(cameraController.maxFov, cameraController.camera.fov));
   cameraController.camera.updateProjectionMatrix();
 });
+
+// Language toggle
+const langSelect = document.querySelector("#langSelect");
+langSelect.value = getLang();
+langSelect.addEventListener("change", () => {
+  setLang(langSelect.value);
+  grid.updateLabels();
+  refreshSidebar();
+});
+
+function refreshSidebar() {
+  sidebar.setMaterial(getMaterialLabel(blocks.getMaterial(state.selectedMaterial)));
+  sidebar.setShape(state.selectedShape);
+  sidebar.setRotation(state.selectedRotation);
+  sidebar.setBatch(state.batch);
+  sidebar.setSymmetry(state.symmetryMode);
+  sidebar.setLayer(state.layerFilter);
+  sidebar.setClipboard(state.clipboard.length);
+}
 
 const state = {
   selectedMaterial: "default",
@@ -209,7 +245,7 @@ input.onPrimaryAction = () => {
   if (added.length > 0) {
     undoManager.push({ added, removed: [] });
     markChanged();
-    toast(added.length > 1 ? `${added.length}개를 배치했습니다.` : "블록을 배치했습니다.");
+    toast(added.length > 1 ? t("toast_placed_n", added.length) : t("toast_placed"));
   }
 };
 
@@ -221,7 +257,7 @@ input.onSecondaryAction = () => {
   if (removed.length > 0) {
     undoManager.push({ added: [], removed });
     markChanged();
-    toast("블록을 삭제했습니다.");
+    toast(t("toast_removed"));
   }
 };
 
@@ -231,7 +267,7 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (!event.repeat) {
-      toast(event.code === "KeyD" ? "북마크 단축키를 막았습니다." : "창 닫기 단축키를 막았습니다.");
+      toast(event.code === "KeyD" ? t("toast_bookmark") : t("toast_close"));
     }
     return;
   }
@@ -276,16 +312,16 @@ window.addEventListener("keydown", (event) => {
   if (event.ctrlKey || event.altKey) return;
   if (!event.repeat && (event.code === "Digit1" || event.code === "Digit2" || event.code === "Digit3")) {
     const shapes = { Digit1: "cube", Digit2: "wedge", Digit3: "corner" };
-    const labels = { cube: "블록", wedge: "지붕", corner: "모서리" };
     state.selectedShape = shapes[event.code];
+    toolbar.setShape(state.selectedShape);
     sidebar.setShape(state.selectedShape);
-    toast(`블록 종류: ${labels[state.selectedShape]}`);
+    toast(t("toast_shape", t("shape_" + state.selectedShape)));
   }
   if (event.code === "KeyR" && !event.repeat) {
     state.selectedRotation = (state.selectedRotation + 1) % 4;
     toolbar.setRotation(state.selectedRotation);
     sidebar.setRotation(state.selectedRotation);
-    toast(`회전: ${state.selectedRotation * 90}°`);
+    toast(t("toast_rotation", state.selectedRotation * 90));
   }
   if (event.code === "KeyE" && !event.repeat) {
     const directions = ["off", "forward", "right", "up"];
@@ -295,17 +331,16 @@ window.addEventListener("keydown", (event) => {
     state.batch = { direction: nextDirection, count: count === 1 && nextDirection !== "off" ? 2 : count };
     toolbar.setBatch(state.batch);
     sidebar.setBatch(state.batch);
-    const labels = { off: "끄기", forward: "앞으로", right: "오른쪽", up: "위로" };
-    toast(`일괄배치: ${labels[nextDirection]}`);
+    toast(t("toast_batch", t("batch_dir_" + nextDirection)));
   }
   if (event.code === "KeyT" && !event.repeat) {
     const modes = ["off", "x", "z"];
+    const labels = { off: "sym_label_off", x: "sym_label_lr", z: "sym_label_fb" };
     const currentIndex = modes.indexOf(state.symmetryMode);
     state.symmetryMode = modes[(currentIndex + 1) % modes.length];
     toolbar.setSymmetry(state.symmetryMode);
     sidebar.setSymmetry(state.symmetryMode);
-    const labels = { off: "끄기", x: "좌우 대칭", z: "앞뒤 대칭" };
-    toast(`대칭: ${labels[state.symmetryMode]}`);
+    toast(t("toast_symmetry", t(labels[state.symmetryMode])));
   }
 });
 
@@ -317,43 +352,43 @@ window.addEventListener("beforeunload", (event) => {
 
 function performMoveAll(code) {
   const dirs = {
-    ArrowUp: [0, 0, -1, "앞"],
-    ArrowDown: [0, 0, 1, "뒤"],
-    ArrowLeft: [-1, 0, 0, "좌"],
-    ArrowRight: [1, 0, 0, "우"],
-    Period: [0, 1, 0, "위"],
-    Comma: [0, -1, 0, "아래"],
+    ArrowUp: [0, 0, -1, "dir_front"],
+    ArrowDown: [0, 0, 1, "dir_back"],
+    ArrowLeft: [-1, 0, 0, "dir_left"],
+    ArrowRight: [1, 0, 0, "dir_right"],
+    Period: [0, 1, 0, "dir_up"],
+    Comma: [0, -1, 0, "dir_down"],
   };
-  const [dx, dy, dz, label] = dirs[code];
+  const [dx, dy, dz, labelKey] = dirs[code];
   const before = blocks.getAllBlocks();
   const moved = blocks.moveAll(dx, dy, dz);
   if (moved.length > 0) {
     undoManager.push({ added: moved, removed: before });
     markChanged();
-    toast(`전체 이동: ${label}`);
+    toast(t("toast_moved", t(labelKey)));
   } else {
-    toast("더 이상 이동할 수 없습니다.");
+    toast(t("toast_cant_move"));
   }
 }
 
 function performUndo() {
   const op = undoManager.undo();
   if (!op) {
-    toast("되돌릴 작업이 없습니다.");
+    toast(t("toast_no_undo"));
     return;
   }
   applyUndoRedo(op);
-  toast("실행 취소했습니다.");
+  toast(t("toast_undo"));
 }
 
 function performRedo() {
   const op = undoManager.redo();
   if (!op) {
-    toast("다시 실행할 작업이 없습니다.");
+    toast(t("toast_no_redo"));
     return;
   }
   applyUndoRedo(op);
-  toast("다시 실행했습니다.");
+  toast(t("toast_redo"));
 }
 
 function applyUndoRedo(operation) {
@@ -390,28 +425,28 @@ function updateSidebar() {
 
 function copyTargetBlock() {
   if (!state.removeCell) {
-    toast("복사할 블록을 조준해 주세요.");
+    toast(t("toast_aim_copy"));
     return;
   }
 
   const block = blocks.getBlock(state.removeCell);
   if (!block) {
-    toast("복사할 블록을 찾지 못했습니다.");
+    toast(t("toast_copy_fail"));
     return;
   }
 
   state.clipboard = [{ x: 0, y: 0, z: 0, materialId: block.materialId, shape: block.shape, rotation: block.rotation }];
   sidebar.setClipboard(state.clipboard.length);
-  toast("블록 1개를 복사했습니다.");
+  toast(t("toast_copied"));
 }
 
 function pasteClipboard() {
   if (state.clipboard.length === 0) {
-    toast("클립보드가 비어 있습니다.");
+    toast(t("toast_clipboard_empty"));
     return;
   }
   if (!state.selectedCell) {
-    toast("붙여넣을 위치를 조준해 주세요.");
+    toast(t("toast_aim_paste"));
     return;
   }
 
@@ -431,7 +466,7 @@ function pasteClipboard() {
   if (added.length > 0) {
     undoManager.push({ added, removed: [] });
     markChanged();
-    toast("붙여넣었습니다.");
+    toast(t("toast_pasted"));
   }
 }
 
@@ -482,7 +517,9 @@ function markChanged() {
 }
 
 function getMaterialLabel(material) {
-  return material.memo?.trim() || material.label || material.id;
+  if (material.memo?.trim()) return material.memo.trim();
+  if (material.id === "default") return t("default_block");
+  return material.label || material.id;
 }
 
 function toast(message) {
@@ -525,7 +562,7 @@ sidebar.setRotation(state.selectedRotation);
 sidebar.setBatch(state.batch);
 sidebar.setSymmetry(state.symmetryMode);
 sidebar.setLayer(state.layerFilter);
-toast(restored ? "자동 저장된 설계를 불러왔습니다." : "준비 완료");
+toast(restored ? t("toast_autosave") : t("toast_ready"));
 requestAnimationFrame(animate);
 
 } // end PC editor mode
