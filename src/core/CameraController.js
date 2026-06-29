@@ -19,7 +19,9 @@ export class CameraController {
 
     this.lockButton.addEventListener("click", () => this.canvas.requestPointerLock());
     document.addEventListener("pointerlockchange", () => {
-      this.lockButton.classList.toggle("hidden", document.pointerLockElement === this.canvas);
+      const locked = document.pointerLockElement === this.canvas;
+      this.lockButton.classList.toggle("hidden", locked);
+      if (locked) document.activeElement?.blur();
     });
     document.addEventListener("mousemove", (event) => this.rotate(event));
     canvas.addEventListener("wheel", (event) => this.zoom(event), { passive: false });
