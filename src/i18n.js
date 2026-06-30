@@ -143,6 +143,7 @@ const dict = {
     patch_title: "패치 노트",
     patch_close: "닫기",
     patch_button: "패치노트",
+    patch_feedback: "버그 및 피드백은 {0}으로 제보해 주시면 감사하겠습니다.",
 
     // WebGL error
     webgl_title: "WebGL을 사용할 수 없습니다",
@@ -281,6 +282,7 @@ const dict = {
     patch_title: "Patch Notes",
     patch_close: "Close",
     patch_button: "Patch Notes",
+    patch_feedback: "For bugs and feedback, please contact {0}.",
 
     webgl_title: "WebGL Unavailable",
     webgl_msg: "Please check if your browser supports WebGL.",

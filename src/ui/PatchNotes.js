@@ -67,6 +67,8 @@ export class PatchNotesModal {
         html += `<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0">`;
       }
     }
+    const email = "sirfetchd1104@gmail.com";
+    html += `<p style="margin-top:18px;font-size:0.85em;color:rgba(255,255,255,0.45)">${t("patch_feedback", email)}</p>`;
     return html;
   }
 
