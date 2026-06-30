@@ -9,6 +9,7 @@ import { UndoManager } from "./systems/UndoManager.js";
 import { Toolbar } from "./ui/Toolbar.js";
 import { Sidebar } from "./ui/Sidebar.js";
 import { t, getLang, setLang, applyLang } from "./i18n.js";
+import { PatchNotesModal } from "./ui/PatchNotes.js";
 
 const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 const canvas = document.querySelector("#scene");
@@ -563,6 +564,17 @@ sidebar.setBatch(state.batch);
 sidebar.setSymmetry(state.symmetryMode);
 sidebar.setLayer(state.layerFilter);
 toast(restored ? t("toast_autosave") : t("toast_ready"));
+
+// Patch notes modal
+const patchModal = new PatchNotesModal();
+const versionBtn = document.querySelector("#versionButton");
+versionBtn.textContent = t("patch_button");
+versionBtn.addEventListener("click", () => patchModal.open());
+
+if (patchModal.shouldShow()) {
+  patchModal.open();
+}
+
 requestAnimationFrame(animate);
 
 } // end PC editor mode
