@@ -1,9 +1,26 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pokopia Building Simulator</title>
+    <meta name="description" content="Plan your Pokopia buildings in 3D before you build. Free browser-based block planner with rotation, symmetry, batch placement, and more." />
+    <meta name="theme-color" content="#151719" />
+    <link rel="icon" href="./src/images/favicon.png" type="image/png" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pokopia Building Simulator" />
+    <meta property="og:description" content="Plan your Pokopia buildings in 3D before you build." />
+    <meta property="og:url" content="https://pokopia-builder.sirfetchd1104.workers.dev/" />
+    <meta property="og:image" content="https://pokopia-builder.sirfetchd1104.workers.dev/src/images/meta_tag_image.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Pokopia Building Simulator" />
+    <meta name="twitter:description" content="Plan your Pokopia buildings in 3D before you build." />
+    <meta name="twitter:image" content="https://pokopia-builder.sirfetchd1104.workers.dev/src/images/meta_tag_image.png" />
+
     <link rel="stylesheet" href="./src/style.css" />
     <script type="importmap">
       {
@@ -20,7 +37,7 @@
       <aside class="panel panel-left" aria-label="도구">
         <div class="brand">
           <span class="brand-mark">
-            <img src="./src/images/pokopia_logo.webp" alt="포코피아 로고">
+            <img src="./src/images/pokopia_logo.png" alt="포코피아 로고">
           </span>
           <div>
             <h1>Pokopia Builder</h1>
@@ -135,6 +152,8 @@
           </button>
         </div>
 
+        <button id="versionButton" class="version-button" type="button" data-i18n="patch_button">Patch Notes</button>
+
       </aside>
 
       <aside class="panel panel-right" aria-label="상태">
@@ -226,6 +245,18 @@
       <button id="lockButton" class="lock-button" type="button" data-i18n="lock_release">클릭해서 화면고정 해제</button>
       <div class="crosshair" aria-hidden="true"></div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <!-- Patch Notes Modal -->
+      <div id="patchModal" class="modal-overlay hidden">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 id="patchModalTitle"></h2>
+            <button id="patchModalClose" class="modal-close" type="button">&times;</button>
+          </div>
+          <div id="patchModalBody" class="modal-body"></div>
+          <button id="patchModalOk" class="modal-ok" type="button" data-i18n="patch_close">닫기</button>
+        </div>
+      </div>
 
       <!-- Mobile Viewer UI -->
       <div class="mobile-bar" aria-label="모바일 뷰어">

@@ -139,6 +139,11 @@ const dict = {
     mobile_viewer: "뷰어 모드 — 편집은 PC에서 가능합니다",
     mobile_hint: "드래그: 회전 · 핀치: 줌 · 두 손가락 드래그: 이동",
 
+    // Patch notes
+    patch_title: "패치 노트",
+    patch_close: "닫기",
+    patch_button: "패치노트",
+
     // WebGL error
     webgl_title: "WebGL을 사용할 수 없습니다",
     webgl_msg: "브라우저가 WebGL을 지원하는지 확인해 주세요.",
@@ -273,12 +278,21 @@ const dict = {
     mobile_viewer: "Viewer mode \u2014 Edit on PC",
     mobile_hint: "Drag: Rotate \u00B7 Pinch: Zoom \u00B7 Two fingers: Pan",
 
+    patch_title: "Patch Notes",
+    patch_close: "Close",
+    patch_button: "Patch Notes",
+
     webgl_title: "WebGL Unavailable",
     webgl_msg: "Please check if your browser supports WebGL.",
   },
 };
 
-const state = { lang: localStorage.getItem("pokopia-lang") || "en" };
+function detectDefaultLang() {
+  const browserLang = navigator.language || "";
+  return browserLang.startsWith("ko") ? "ko" : "en";
+}
+
+const state = { lang: localStorage.getItem("pokopia-lang") || detectDefaultLang() };
 
 export function t(key, ...args) {
   let text = dict[state.lang]?.[key] ?? dict.ko[key] ?? key;
