@@ -7,7 +7,7 @@ export class InputManager {
 
     window.addEventListener("keydown", (event) => {
       if (event.code === "Tab") event.preventDefault();
-      if (event.ctrlKey && (event.code === "KeyC" || event.code === "KeyV")) return;
+      if ((event.ctrlKey || event.metaKey) && (event.code === "KeyC" || event.code === "KeyV")) return;
       if (isTyping()) return;
       this.keys.add(event.code);
     });

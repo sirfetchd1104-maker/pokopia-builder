@@ -1,9 +1,21 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "1.6";
+const CURRENT_VERSION = "1.7";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "1.7",
+    date: "2026.07.01",
+    changes: {
+      ko: [
+        { title: "Mac 단축키 호환", items: ["Cmd 키로 단축키 사용 가능 (복사, 붙여넣기, 실행취소, 전체이동 등)"] },
+      ],
+      en: [
+        { title: "Mac Shortcut Support", items: ["Cmd key now works for shortcuts (copy, paste, undo, move all, etc.)"] },
+      ],
+    },
+  },
   {
     version: "1.6",
     date: "2026.06.30",
@@ -64,7 +76,9 @@ export class PatchNotesModal {
         html += "</ul>";
       }
       if (patch !== patchNotes[patchNotes.length - 1]) {
+        const next = patchNotes[patchNotes.indexOf(patch) + 1];
         html += `<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0">`;
+        html += `<p style="margin:0 0 8px;font-size:12px;color:rgba(255,255,255,0.35)">v${next.version} — ${next.date}</p>`;
       }
     }
     const email = "sirfetchd1104@gmail.com";
