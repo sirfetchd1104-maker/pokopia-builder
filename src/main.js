@@ -263,7 +263,8 @@ input.onSecondaryAction = () => {
 };
 
 document.addEventListener("keydown", (event) => {
-  if (document.pointerLockElement === canvas && event.ctrlKey && (event.code === "KeyD" || event.code === "KeyW")) {
+  const mod = event.ctrlKey || event.metaKey;
+  if (document.pointerLockElement === canvas && mod && (event.code === "KeyD" || event.code === "KeyW")) {
     input.keys.add(event.code);
     event.preventDefault();
     event.stopPropagation();
@@ -273,7 +274,7 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
-  if (!event.ctrlKey) return;
+  if (!mod) return;
   if (event.code === "KeyC") {
     event.preventDefault();
     copyTargetBlock();
@@ -310,7 +311,7 @@ window.addEventListener("keydown", (event) => {
   }
 
   if (document.pointerLockElement !== canvas) return;
-  if (event.ctrlKey || event.altKey) return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
   if (!event.repeat && (event.code === "Digit1" || event.code === "Digit2" || event.code === "Digit3")) {
     const shapes = { Digit1: "cube", Digit2: "wedge", Digit3: "corner" };
     state.selectedShape = shapes[event.code];
