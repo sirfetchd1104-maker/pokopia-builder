@@ -39,11 +39,16 @@
           <span class="brand-mark">
             <img src="./src/images/pokopia_logo.png" alt="포코피아 로고">
           </span>
-          <div>
+          <div class="brand-title">
             <h1>Pokopia Builder</h1>
             <p>3D block planner</p>
+            <div class="brand-patch-note">
+              <span id="versionLabel" class="version-label"></span>
+              <button id="versionButton" class="version-button" type="button" data-i18n="patch_button">패치노트</button>
+            </div>
           </div>
         </div>
+
         <div class="tool-group compact-group language" role="group" aria-label="Language">
           <label class="field-label" for="langSelect" data-i18n="language">Language</label>
           <select id="langSelect" class="field-control">
@@ -135,8 +140,15 @@
             <input id="zoomRange" class="range-control" type="range" min="1" max="10" step="1" value="4" />
           </div>
         </div>
-
-        <div class="tool-group" role="group" aria-label="파일">
+        <div class="tool-group grid-2" role="group" aria-label="파일">
+          <button class="tool-button" id="dotViewButton" type="button">
+            <span class="icon">▦</span>
+            <span data-i18n="dotview">평면도</span>
+          </button>
+          <button class="tool-button danger-button reset" id="resetButton" type="button" title="초기화">
+            <span class="icon">!</span>
+            <span data-i18n="reset">초기화</span>
+          </button>
           <button class="tool-button" id="saveButton" type="button" data-i18n-title="save_title" title="JSON 저장">
             <span class="icon">↓</span>
             <span data-i18n="save">저장</span>
@@ -146,14 +158,7 @@
             <span data-i18n="load">불러오기</span>
             <input id="loadInput" type="file" accept="application/json,.json" />
           </label>
-          <button class="tool-button danger-button" id="resetButton" type="button" title="초기화">
-            <span class="icon">!</span>
-            <span data-i18n="reset">초기화</span>
-          </button>
         </div>
-
-        <button id="versionButton" class="version-button" type="button" data-i18n="patch_button">Patch Notes</button>
-
       </aside>
 
       <aside class="panel panel-right" aria-label="상태">
@@ -199,9 +204,11 @@
             <dd id="clipboardLabel" data-i18n="empty">비어 있음</dd>
           </div>
         </dl>
+        <div id="colorStats" class="color-stats"></div>
       </aside>
 
       <div class="hint-bar" aria-label="단축키 안내">
+        <button id="guideButton" class="control-guide" type="button" data-i18n="guide_button">조작 가이드</button>
         <div class="hint-item">
           <span data-i18n="hint_place">블록 설치</span>
           <kbd data-i18n="hint_lclick">마우스 좌클릭</kbd>
@@ -232,6 +239,9 @@
           <span data-i18n="hint_symmetry">대칭배치</span><kbd>T</kbd>
         </div>
         <div class="hint-item">
+          <span data-i18n="hint_select">범위 선택</span><kbd>F</kbd>
+        </div>
+        <div class="hint-item">
           <span data-i18n="hint_undo">되돌리기</span><kbd>Ctrl+Z</kbd><kbd>Ctrl+Y</kbd>
         </div>
         <div class="hint-item">
@@ -246,6 +256,20 @@
       <div class="crosshair" aria-hidden="true"></div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+      <!-- Dot View -->
+      <div id="dotView" class="dot-view hidden">
+        <div class="dot-view-header">
+          <button id="dotViewBack" class="dot-view-btn" type="button">&larr; <span data-i18n="dotview_back">돌아가기</span></button>
+          <div class="dot-view-nav">
+            <button id="dotViewPrev" class="dot-view-btn" type="button">&lsaquo;</button>
+            <span id="dotViewFloorLabel" class="dot-view-floor">Y=0</span>
+            <button id="dotViewNext" class="dot-view-btn" type="button">&rsaquo;</button>
+          </div>
+          <button id="dotViewSave" class="dot-view-btn" type="button">&darr; <span data-i18n="dotview_save">PNG 저장</span></button>
+        </div>
+        <canvas id="dotViewCanvas"></canvas>
+      </div>
+
       <!-- Patch Notes Modal -->
       <div id="patchModal" class="modal-overlay hidden">
         <div class="modal">
@@ -255,6 +279,18 @@
           </div>
           <div id="patchModalBody" class="modal-body"></div>
           <button id="patchModalOk" class="modal-ok" type="button" data-i18n="patch_close">닫기</button>
+        </div>
+      </div>
+
+      <!-- Guide Modal -->
+      <div id="guideModal" class="modal-overlay hidden">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 id="guideModalTitle"></h2>
+            <button id="guideModalClose" class="modal-close" type="button">&times;</button>
+          </div>
+          <div id="guideModalBody" class="modal-body"></div>
+          <button id="guideModalOk" class="modal-ok" type="button" data-i18n="patch_close">닫기</button>
         </div>
       </div>
 

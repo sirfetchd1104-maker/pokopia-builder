@@ -1,9 +1,29 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "1.7";
+const CURRENT_VERSION = "1.8";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "1.8",
+    date: "2026.07.03",
+    changes: {
+      ko: [
+        { title: "색상별 블록 수", items: ["우측 패널 하단에 색상별 블록 개수 표시", "접기/펼치기 토글 지원"] },
+        { title: "범위 선택 (Box Select)", items: ["블록을 조준하고 F를 두 번 눌러 3D 범위 지정", "선택 범위가 시안색 와이어프레임 박스로 표시", "Ctrl+C로 범위 내 블록 복사, Delete/Backspace로 삭제", "좌/우클릭 시 선택 자동 해제"] },
+        { title: "2D 평면도 뷰 (Dot View)", items: ["좌측 패널 평면도 버튼 클릭 → 전체 화면 2D 뷰 전환", "블록을 Y층별로 그룹화, 각 블록을 색상 도트로 렌더링", "◀ ▶ 버튼 또는 화살표 키로 층 이동", "PNG 저장 기능"] },
+        { title: "패치노트 버튼 이동", items: ["좌측 패널 하단 → 브랜드 영역(3D block planner) 아래로 이동"] },
+        { title: "조작 가이드 모달 추가", items: ["단축키 박스 좌측 상단에 조작가이드 버튼 추가"] },
+      ],
+      en: [
+        { title: "Blocks by Color", items: ["Color-based block count in right panel", "Collapsible toggle support"] },
+        { title: "Box Select", items: ["Aim at a block and press F twice to define 3D selection", "Cyan wireframe box shows selection range", "Ctrl+C to copy, Delete/Backspace to delete selected blocks", "Selection auto-clears on left/right click"] },
+        { title: "2D Floor Plan (Dot View)", items: ["Click Floor Plan button in left panel → full-screen 2D view", "Blocks grouped by Y level, rendered as colored dots", "◀ ▶ buttons or arrow keys to navigate floors", "PNG save feature"] },
+        { title: "Patch Notes Button Moved", items: ["Moved from bottom of left panel to under brand area"] },
+        { title: "Controls Guide Modal", items: ["Controls guide button added above shortcut bar"] },
+      ],
+    },
+  },
   {
     version: "1.7",
     date: "2026.07.01",

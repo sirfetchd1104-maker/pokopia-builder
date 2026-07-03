@@ -225,6 +225,14 @@ export class BlockManager {
     return this.materials.get(id) ?? this.materials.get("default");
   }
 
+  getColorStats() {
+    const stats = {};
+    for (const block of this.blocks.values()) {
+      stats[block.materialId] = (stats[block.materialId] || 0) + 1;
+    }
+    return stats;
+  }
+
   getBlock(cell) {
     return this.blocks.get(getKey(normalizeCell(cell))) ?? null;
   }

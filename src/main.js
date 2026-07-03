@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { SceneManager } from "./core/SceneManager.js";
 import { CameraController } from "./core/CameraController.js";
 import { TouchOrbitCamera } from "./core/TouchOrbitCamera.js";
@@ -10,6 +11,7 @@ import { Toolbar } from "./ui/Toolbar.js";
 import { Sidebar } from "./ui/Sidebar.js";
 import { t, getLang, setLang, applyLang } from "./i18n.js";
 import { PatchNotesModal } from "./ui/PatchNotes.js";
+import { DotView } from "./ui/DotView.js";
 
 const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 const canvas = document.querySelector("#scene");
@@ -98,6 +100,15 @@ const cameraController = new CameraController(sceneManager.camera, canvas);
 const input = new InputManager(canvas);
 const undoManager = new UndoManager();
 const sidebar = new Sidebar();
+
+const selectionBoxEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1));
+const selectionBox = new THREE.LineSegments(
+  selectionBoxEdges,
+  new THREE.LineBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.85 })
+);
+selectionBox.visible = false;
+selectionBox.renderOrder = 999;
+sceneManager.scene.add(selectionBox);
 const toolbar = new Toolbar({
   materials: blocks.getMaterialOptions(),
   onMaterialChange: (materialId) => {
@@ -218,6 +229,25 @@ function refreshSidebar() {
   sidebar.setClipboard(state.clipboard.length);
 }
 
+const dotView = new DotView(blocks);
+dotView.onClose(() => {
+  document.querySelector("#scene").style.display = "";
+  document.querySelector(".panel-left").style.display = "";
+  document.querySelector(".panel-right").style.display = "";
+  document.querySelector(".hint-bar").style.display = "";
+});
+document.querySelector("#dotViewButton").addEventListener("click", () => {
+  if (document.pointerLockElement) document.exitPointerLock();
+  if (!dotView.open()) {
+    toast(t("toast_export_empty"));
+    return;
+  }
+  document.querySelector("#scene").style.display = "none";
+  document.querySelector(".panel-left").style.display = "none";
+  document.querySelector(".panel-right").style.display = "none";
+  document.querySelector(".hint-bar").style.display = "none";
+});
+
 const state = {
   selectedMaterial: "default",
   selectedShape: "cube",
@@ -230,9 +260,11 @@ const state = {
   removeCell: null,
   hasUnsavedChanges: false,
   lastTime: performance.now(),
+  boxSelect: { pointA: null, pointB: null },
 };
 
 input.onPrimaryAction = () => {
+  if (state.boxSelect.pointA) clearBoxSelection();
   if (!state.selectedCell) return;
   const targets = getPlacementCells(state.selectedCell)
     .flatMap((cell) => getSymmetryCells(cell))
@@ -251,6 +283,7 @@ input.onPrimaryAction = () => {
 };
 
 input.onSecondaryAction = () => {
+  if (state.boxSelect.pointA) clearBoxSelection();
   const target = state.removeCell ?? state.selectedCell;
   if (!target) return;
   const cells = getSymmetryCells(target);
@@ -277,7 +310,11 @@ document.addEventListener("keydown", (event) => {
   if (!mod) return;
   if (event.code === "KeyC") {
     event.preventDefault();
-    copyTargetBlock();
+    if (state.boxSelect.pointA && state.boxSelect.pointB) {
+      copySelectedBlocks();
+    } else {
+      copyTargetBlock();
+    }
   }
   if (event.code === "KeyV") {
     event.preventDefault();
@@ -343,6 +380,12 @@ window.addEventListener("keydown", (event) => {
     toolbar.setSymmetry(state.symmetryMode);
     sidebar.setSymmetry(state.symmetryMode);
     toast(t("toast_symmetry", t(labels[state.symmetryMode])));
+  }
+  if (event.code === "KeyF" && !event.repeat) {
+    handleBoxSelectPoint();
+  }
+  if ((event.code === "Delete" || event.code === "Backspace") && !event.repeat && state.boxSelect.pointA && state.boxSelect.pointB) {
+    deleteSelectedBlocks();
   }
 });
 
@@ -423,6 +466,7 @@ function updateSidebar() {
   sidebar.setSelectedCell(state.selectedCell);
   sidebar.setCamera(sceneManager.camera.position);
   sidebar.setClipboard(state.clipboard.length);
+  sidebar.setColorStats(blocks.getColorStats(), blocks.getMaterialOptions());
 }
 
 function copyTargetBlock() {
@@ -470,6 +514,99 @@ function pasteClipboard() {
     markChanged();
     toast(t("toast_pasted"));
   }
+}
+
+function updateSelectionBox() {
+  const { pointA, pointB } = state.boxSelect;
+  if (!pointA) {
+    selectionBox.visible = false;
+    return;
+  }
+  if (!pointB) {
+    selectionBox.position.set(pointA.x, pointA.y, pointA.z);
+    selectionBox.scale.set(1.02, 1.02, 1.02);
+    selectionBox.visible = true;
+    return;
+  }
+  const minX = Math.min(pointA.x, pointB.x);
+  const maxX = Math.max(pointA.x, pointB.x);
+  const minY = Math.min(pointA.y, pointB.y);
+  const maxY = Math.max(pointA.y, pointB.y);
+  const minZ = Math.min(pointA.z, pointB.z);
+  const maxZ = Math.max(pointA.z, pointB.z);
+  const sizeX = maxX - minX + 1;
+  const sizeY = maxY - minY + 1;
+  const sizeZ = maxZ - minZ + 1;
+  selectionBox.position.set(minX + (sizeX - 1) / 2, minY + (sizeY - 1) / 2, minZ + (sizeZ - 1) / 2);
+  selectionBox.scale.set(sizeX + 0.02, sizeY + 0.02, sizeZ + 0.02);
+  selectionBox.visible = true;
+}
+
+function clearBoxSelection() {
+  state.boxSelect.pointA = null;
+  state.boxSelect.pointB = null;
+  updateSelectionBox();
+}
+
+function getSelectedBlocks() {
+  const { pointA, pointB } = state.boxSelect;
+  if (!pointA || !pointB) return [];
+  const minX = Math.min(pointA.x, pointB.x);
+  const maxX = Math.max(pointA.x, pointB.x);
+  const minY = Math.min(pointA.y, pointB.y);
+  const maxY = Math.max(pointA.y, pointB.y);
+  const minZ = Math.min(pointA.z, pointB.z);
+  const maxZ = Math.max(pointA.z, pointB.z);
+  return blocks.getAllBlocks().filter((b) =>
+    b.x >= minX && b.x <= maxX && b.y >= minY && b.y <= maxY && b.z >= minZ && b.z <= maxZ
+  );
+}
+
+function handleBoxSelectPoint() {
+  if (!state.removeCell) {
+    toast(t("toast_aim_select"));
+    return;
+  }
+  if (!state.boxSelect.pointA || state.boxSelect.pointB) {
+    state.boxSelect.pointA = { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z };
+    state.boxSelect.pointB = null;
+    updateSelectionBox();
+    toast(t("toast_select_start"));
+  } else {
+    state.boxSelect.pointB = { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z };
+    updateSelectionBox();
+    toast(t("toast_select_done", getSelectedBlocks().length));
+  }
+}
+
+function copySelectedBlocks() {
+  const selected = getSelectedBlocks();
+  if (selected.length === 0) {
+    toast(t("toast_select_empty"));
+    return;
+  }
+  const origin = state.boxSelect.pointA;
+  state.clipboard = selected.map((b) => ({
+    x: b.x - origin.x, y: b.y - origin.y, z: b.z - origin.z,
+    materialId: b.materialId, shape: b.shape, rotation: b.rotation,
+  }));
+  sidebar.setClipboard(state.clipboard.length);
+  toast(t("toast_copied_n", selected.length));
+}
+
+function deleteSelectedBlocks() {
+  const selected = getSelectedBlocks();
+  if (selected.length === 0) {
+    toast(t("toast_select_empty"));
+    return;
+  }
+  const removed = blocks.removeBlocks(selected);
+  if (removed.length > 0) {
+    undoManager.push({ added: [], removed });
+    markChanged();
+  }
+  clearBoxSelection();
+  toast(t("toast_removed_n", removed.length));
 }
 
 function getSymmetryCells(cell) {
@@ -568,6 +705,7 @@ toast(restored ? t("toast_autosave") : t("toast_ready"));
 
 // Patch notes modal
 const patchModal = new PatchNotesModal();
+document.querySelector("#versionLabel").textContent = "v" + patchModal.getVersion();
 const versionBtn = document.querySelector("#versionButton");
 versionBtn.textContent = t("patch_button");
 versionBtn.addEventListener("click", () => patchModal.open());
@@ -575,6 +713,109 @@ versionBtn.addEventListener("click", () => patchModal.open());
 if (patchModal.shouldShow()) {
   patchModal.open();
 }
+
+// Guide modal
+const guideOverlay = document.querySelector("#guideModal");
+const guideTitle = document.querySelector("#guideModalTitle");
+const guideBody = document.querySelector("#guideModalBody");
+
+function openGuide() {
+  guideTitle.textContent = t("guide_title");
+  guideBody.innerHTML = renderGuide();
+  guideOverlay.classList.remove("hidden");
+}
+
+function closeGuide() {
+  guideOverlay.classList.add("hidden");
+}
+
+function renderGuide() {
+  const lang = getLang();
+  const sections = lang === "ko" ? [
+    { title: "카메라", items: [
+      ["Tab", "카메라 잠금 / 해제"],
+      ["W A S D", "이동"],
+      ["Space", "위로 이동"],
+      ["Shift", "아래로 이동"],
+      ["마우스 휠", "줌 인/아웃"],
+    ]},
+    { title: "건축", items: [
+      ["좌클릭", "블록 설치"],
+      ["우클릭", "블록 제거"],
+      ["1 / 2 / 3", "블록 종류 (블록 / 지붕 / 모서리)"],
+      ["R", "회전 (0° → 90° → 180° → 270°)"],
+      ["E", "일괄배치 방향 전환 (끄기 → 앞 → 오른쪽 → 위)"],
+      ["T", "대칭배치 전환 (끄기 → 좌우 → 앞뒤)"],
+    ]},
+    { title: "범위 선택", items: [
+      ["F", "선택 시작점/끝점 지정 (블록 조준 후)"],
+      ["Delete / Backspace", "선택 범위 블록 삭제"],
+    ]},
+    { title: "클립보드", items: [
+      ["Ctrl+C", "복사 (범위 선택 또는 단일 블록)"],
+      ["Ctrl+V", "붙여넣기"],
+    ]},
+    { title: "기록", items: [
+      ["Ctrl+Z", "실행 취소"],
+      ["Ctrl+Y", "다시 실행"],
+    ]},
+    { title: "전체 이동", items: [
+      ["Ctrl+↑↓←→", "전체 블록 이동 (앞/뒤/좌/우)"],
+      ["Ctrl+.", "전체 블록 위로"],
+      ["Ctrl+,", "전체 블록 아래로"],
+    ]},
+  ] : [
+    { title: "Camera", items: [
+      ["Tab", "Lock / Unlock camera"],
+      ["W A S D", "Move"],
+      ["Space", "Move up"],
+      ["Shift", "Move down"],
+      ["Scroll", "Zoom in/out"],
+    ]},
+    { title: "Building", items: [
+      ["Left Click", "Place block"],
+      ["Right Click", "Remove block"],
+      ["1 / 2 / 3", "Shape (Block / Wedge / Corner)"],
+      ["R", "Rotate (0° → 90° → 180° → 270°)"],
+      ["E", "Batch direction (Off → Fwd → Right → Up)"],
+      ["T", "Symmetry (Off → L-R → F-B)"],
+    ]},
+    { title: "Box Select", items: [
+      ["F", "Set start/end point (aim at a block)"],
+      ["Delete / Backspace", "Delete selected blocks"],
+    ]},
+    { title: "Clipboard", items: [
+      ["Ctrl+C", "Copy (selection or single block)"],
+      ["Ctrl+V", "Paste"],
+    ]},
+    { title: "History", items: [
+      ["Ctrl+Z", "Undo"],
+      ["Ctrl+Y", "Redo"],
+    ]},
+    { title: "Move All", items: [
+      ["Ctrl+↑↓←→", "Move all blocks (F/B/L/R)"],
+      ["Ctrl+.", "Move all up"],
+      ["Ctrl+,", "Move all down"],
+    ]},
+  ];
+
+  let html = "";
+  for (const section of sections) {
+    html += `<h3>${section.title}</h3><ul>`;
+    for (const [key, desc] of section.items) {
+      html += `<li><kbd style="margin-right:8px">${key}</kbd> ${desc}</li>`;
+    }
+    html += "</ul>";
+  }
+  return html;
+}
+
+document.querySelector("#guideButton").addEventListener("click", () => openGuide());
+document.querySelector("#guideModalClose").addEventListener("click", () => closeGuide());
+document.querySelector("#guideModalOk").addEventListener("click", () => closeGuide());
+guideOverlay.addEventListener("click", (e) => {
+  if (e.target === guideOverlay) closeGuide();
+});
 
 requestAnimationFrame(animate);
 

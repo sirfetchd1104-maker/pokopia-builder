@@ -12,6 +12,16 @@ export class Sidebar {
     this.symmetryLabel = document.querySelector("#symmetryLabel");
     this.layerLabel = document.querySelector("#layerLabel");
     this.clipboardLabel = document.querySelector("#clipboardLabel");
+    this.colorStats = document.querySelector("#colorStats");
+    this.colorStats.addEventListener("click", (e) => {
+      if (e.target.closest(".color-stats-toggle")) {
+        this._colorStatsExpanded = !this._colorStatsExpanded;
+        this._colorStatsKey = null;
+        if (this._lastColorStats) {
+          this.setColorStats(this._lastColorStats.stats, this._lastColorStats.materials, true);
+        }
+      }
+    });
   }
 
   setBlockCount(count) {
@@ -65,5 +75,37 @@ export class Sidebar {
 
   setClipboard(count) {
     this.clipboardLabel.textContent = count > 0 ? t("n_items", count) : t("empty");
+  }
+
+  setColorStats(stats, materials, force) {
+    this._lastColorStats = { stats, materials };
+    const key = JSON.stringify(stats) + this._colorStatsExpanded;
+    if (!force && key === this._colorStatsKey) return;
+    this._colorStatsKey = key;
+
+    const entries = materials
+      .filter((m) => stats[m.id] > 0)
+      .map((m) => ({ color: m.color, label: m.memo || m.label, count: stats[m.id] }));
+    if (entries.length === 0) {
+      this.colorStats.innerHTML = "";
+      this._colorStatsExpanded = false;
+      return;
+    }
+    const limit = 3;
+    const hasMore = entries.length > limit;
+    const expanded = this._colorStatsExpanded && hasMore;
+    const toggleLabel = expanded ? "−" : "+";
+
+    let html = `<div class="color-stats-header"><h4 class="color-stats-title" data-i18n="stat_color_stats">${t("stat_color_stats")}</h4>`;
+    if (hasMore) {
+      html += `<button class="color-stats-toggle" type="button">${toggleLabel}</button>`;
+    }
+    html += `</div>`;
+
+    const visible = expanded ? entries : entries.slice(0, limit);
+    for (const entry of visible) {
+      html += `<div class="color-stats-row"><span class="color-dot" style="background:${entry.color}"></span><span class="color-label">${entry.label}</span><span class="color-count">${entry.count}</span></div>`;
+    }
+    this.colorStats.innerHTML = html;
   }
 }

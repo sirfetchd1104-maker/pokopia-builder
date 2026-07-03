@@ -42,6 +42,7 @@ const dict = {
     stat_symmetry: "대칭",
     stat_layer: "레이어",
     stat_clipboard: "클립보드",
+    stat_color_stats: "색상별 블록 수",
 
     // Shapes
     shape_cube: "블록",
@@ -81,6 +82,7 @@ const dict = {
     hint_rotation: "회전",
     hint_batch: "일괄배치",
     hint_symmetry: "대칭배치",
+    hint_select: "범위 선택",
     hint_undo: "되돌리기",
     hint_lock: "카메라 고정/해제",
     hint_moveall: "블럭 전체이동",
@@ -122,6 +124,24 @@ const dict = {
     toast_clipboard_empty: "클립보드가 비어 있습니다.",
     toast_aim_paste: "붙여넣을 위치를 조준해 주세요.",
     toast_pasted: "붙여넣었습니다.",
+    toast_aim_select: "선택할 블록을 조준해 주세요.",
+    toast_select_start: "시작점 설정. 두 번째 지점을 선택하세요.",
+    toast_select_done: "블록 {0}개가 선택 범위에 있습니다.",
+    toast_select_cleared: "선택 해제",
+    toast_select_empty: "선택 범위에 블록이 없습니다.",
+    toast_copied_n: "블록 {0}개 복사",
+    toast_removed_n: "블록 {0}개 삭제",
+    toast_exported: "평면도를 저장했습니다.",
+    toast_export_empty: "내보낼 블록이 없습니다.",
+
+    // Dot view
+    dotview: "평면도",
+    dotview_back: "돌아가기",
+    dotview_save: "PNG 저장",
+
+    // Guide
+    guide_button: "조작 가이드",
+    guide_title: "조작 가이드",
 
     // Batch direction labels (toast)
     batch_dir_off: "끄기",
@@ -191,6 +211,7 @@ const dict = {
     stat_symmetry: "Symmetry",
     stat_layer: "Layer",
     stat_clipboard: "Clipboard",
+    stat_color_stats: "Blocks by Color",
 
     shape_cube: "Block",
     shape_wedge: "Wedge",
@@ -226,6 +247,7 @@ const dict = {
     hint_rotation: "Rotate",
     hint_batch: "Batch",
     hint_symmetry: "Symmetry",
+    hint_select: "Box Select",
     hint_undo: "Undo/Redo",
     hint_lock: "Lock/Unlock",
     hint_moveall: "Move All",
@@ -265,6 +287,22 @@ const dict = {
     toast_clipboard_empty: "Clipboard is empty.",
     toast_aim_paste: "Aim at a position to paste.",
     toast_pasted: "Pasted.",
+    toast_aim_select: "Aim at a block to select.",
+    toast_select_start: "Start point set. Select second point.",
+    toast_select_done: "{0} blocks in selection.",
+    toast_select_cleared: "Selection cleared.",
+    toast_select_empty: "No blocks in selection.",
+    toast_copied_n: "Copied {0} blocks.",
+    toast_removed_n: "Removed {0} blocks.",
+    toast_exported: "Floor plan saved.",
+    toast_export_empty: "No blocks to export.",
+
+    dotview: "Floor Plan",
+    dotview_back: "Back",
+    dotview_save: "Save PNG",
+
+    guide_button: "Controls",
+    guide_title: "Controls Guide",
 
     batch_dir_off: "Off",
     batch_dir_forward: "Forward",
