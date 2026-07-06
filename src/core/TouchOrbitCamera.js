@@ -94,20 +94,11 @@ export class TouchOrbitCamera {
       }
     } else if (touches.length === 2) {
       const dist = this.getTouchDistance(touches);
-      const mid = this.getTouchMidpoint(touches);
 
       const pinchDelta = dist / this.prevTouchDist;
       this.distance = Math.max(this.minDistance, Math.min(this.maxDistance, this.distance / pinchDelta));
 
-      const panX = (mid.x - this.prevTouchMid.x) * 0.02;
-      const panY = (mid.y - this.prevTouchMid.y) * 0.02;
-      const right = new THREE.Vector3();
-      right.crossVectors(this.camera.getWorldDirection(new THREE.Vector3()), new THREE.Vector3(0, 1, 0)).normalize();
-      this.target.addScaledVector(right, -panX);
-      this.target.y += panY;
-
       this.prevTouchDist = dist;
-      this.prevTouchMid = mid;
       this.applyPosition();
       if (this.onCameraMove) this.onCameraMove();
     }

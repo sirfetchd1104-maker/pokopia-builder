@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Pokopia builder</title>
     <meta name="description" content="Plan your Pokopia buildings in 3D before you build. Free browser-based block planner with rotation, symmetry, batch placement, and more." />
     <meta name="theme-color" content="#151719" />
@@ -309,6 +309,13 @@
           <span data-i18n="load">불러오기</span>
           <input id="mobileLoadInput" type="file" accept="application/json,.json" />
         </label>
+      </div>
+
+      <!-- Mobile Joystick -->
+      <div id="mobileJoystick" class="mobile-joystick">
+        <div class="joystick-base">
+          <div id="joystickKnob" class="joystick-knob"></div>
+        </div>
       </div>
 
       <!-- Mobile Editor Bottom Toolbar -->

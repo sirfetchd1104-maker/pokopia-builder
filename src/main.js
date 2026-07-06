@@ -310,8 +310,90 @@ if (isMobile) {
   // ── Init UI ──
   updateMobileColorIndicator();
 
+  // ── Joystick ──
+  const joystickBase = document.querySelector(".joystick-base");
+  const joystickKnob = document.querySelector("#joystickKnob");
+  const joy = { x: 0, y: 0, active: false, touchId: null };
+  const JOYSTICK_RADIUS = 26; // max knob offset from center
+  const JOYSTICK_SPEED = 8;
+
+  joystickBase.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.changedTouches[0];
+    joy.active = true;
+    joy.touchId = touch.identifier;
+    updateJoystick(touch);
+  }, { passive: false });
+
+  window.addEventListener("touchmove", (e) => {
+    if (!joy.active) return;
+    for (const touch of e.changedTouches) {
+      if (touch.identifier === joy.touchId) {
+        updateJoystick(touch);
+        break;
+      }
+    }
+  }, { passive: true });
+
+  window.addEventListener("touchend", (e) => {
+    if (!joy.active) return;
+    for (const touch of e.changedTouches) {
+      if (touch.identifier === joy.touchId) {
+        joy.active = false;
+        joy.touchId = null;
+        joy.x = 0;
+        joy.y = 0;
+        joystickKnob.style.transform = "translate(-50%, -50%)";
+        joystickKnob.style.left = "50%";
+        joystickKnob.style.top = "50%";
+        break;
+      }
+    }
+  });
+
+  function updateJoystick(touch) {
+    const rect = joystickBase.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let dx = touch.clientX - cx;
+    let dy = touch.clientY - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > JOYSTICK_RADIUS) {
+      dx = (dx / dist) * JOYSTICK_RADIUS;
+      dy = (dy / dist) * JOYSTICK_RADIUS;
+    }
+
+    joy.x = dx / JOYSTICK_RADIUS;  // -1 to 1 (right positive)
+    joy.y = -dy / JOYSTICK_RADIUS; // -1 to 1 (up/forward positive)
+
+    joystickKnob.style.left = `calc(50% + ${dx}px)`;
+    joystickKnob.style.top = `calc(50% + ${dy}px)`;
+    joystickKnob.style.transform = "translate(-50%, -50%)";
+  }
+
   // ── Animation Loop ──
-  function mobileAnimate() {
+  let lastTime = performance.now();
+  function mobileAnimate(now) {
+    const delta = Math.min((now - lastTime) / 1000, 0.1);
+    lastTime = now;
+
+    // Apply joystick movement to camera target
+    if (joy.active && (joy.x !== 0 || joy.y !== 0)) {
+      const fwd_x = -Math.sin(touchCam.theta);
+      const fwd_z = -Math.cos(touchCam.theta);
+      const right_x = Math.cos(touchCam.theta);
+      const right_z = -Math.sin(touchCam.theta);
+
+      const moveX = (joy.x * right_x + joy.y * fwd_x) * JOYSTICK_SPEED * delta;
+      const moveZ = (joy.x * right_z + joy.y * fwd_z) * JOYSTICK_SPEED * delta;
+
+      touchCam.target.x += moveX;
+      touchCam.target.z += moveZ;
+      touchCam.applyPosition();
+    }
+
     updateMobileGhost();
     sceneManager.render();
     requestAnimationFrame(mobileAnimate);

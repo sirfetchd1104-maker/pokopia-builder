@@ -789,6 +789,13 @@ kbd {
   background: rgba(255, 255, 255, 0.18);
 }
 
+.mobile-toolbar,
+.mobile-toolbar button,
+.mobile-bar,
+.mobile-bar label {
+  touch-action: manipulation;
+}
+
 .mobile-color-btn {
   min-width: 44px;
   min-height: 44px;
@@ -809,6 +816,42 @@ kbd {
   border-radius: 50%;
   display: block;
   border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Joystick */
+.mobile-joystick {
+  display: none;
+}
+
+.mobile-editor .mobile-joystick {
+  display: block;
+  position: fixed;
+  z-index: 11;
+  left: 16px;
+  bottom: 80px;
+  touch-action: none;
+}
+
+.joystick-base {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.joystick-knob {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: absolute;
+  transition: none;
+  pointer-events: none;
 }
 
 /* Mobile Color Picker Modal */
