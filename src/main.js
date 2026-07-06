@@ -75,18 +75,43 @@ if (isMobile) {
     mobileToast.t = setTimeout(() => el.classList.remove("visible"), 1500);
   }
 
-  let restored = false;
-  try {
-    const saved = localStorage.getItem("pokopia-builder-autosave");
-    if (saved) {
-      blocks.load(JSON.parse(saved));
-      restored = true;
-    }
-  } catch {}
+  // Auto-load shared design from URL
+  const mobileShareAPI = "https://pokopia-builder-api.sirfetchd1104.workers.dev";
+  const mobileHash = location.hash.slice(1);
+  const mobileShareCode = new URLSearchParams(mobileHash).get("s");
+  let sharedLoaded = false;
 
-  if (!restored) blocks.addBlock({ x: 0, y: 0, z: 0 }, "default", "cube");
-  document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
-  mobileToast(restored ? t("toast_autosave") : t("toast_viewer"));
+  if (mobileShareCode) {
+    (async () => {
+      try {
+        const res = await fetch(mobileShareAPI + "/api/share/" + mobileShareCode);
+        if (!res.ok) { mobileToast(t("toast_shared_not_found")); return; }
+        const data = await res.json();
+        blocks.load(data);
+        document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+        mobileToast(t("toast_shared_loaded"));
+        history.replaceState(null, "", location.pathname);
+      } catch {
+        mobileToast(t("toast_shared_not_found"));
+      }
+    })();
+    sharedLoaded = true;
+  }
+
+  if (!sharedLoaded) {
+    let restored = false;
+    try {
+      const saved = localStorage.getItem("pokopia-builder-autosave");
+      if (saved) {
+        blocks.load(JSON.parse(saved));
+        restored = true;
+      }
+    } catch {}
+
+    if (!restored) blocks.addBlock({ x: 0, y: 0, z: 0 }, "default", "cube");
+    document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+    mobileToast(restored ? t("toast_autosave") : t("toast_viewer"));
+  }
 
   function mobileAnimate() {
     sceneManager.render();
