@@ -83,8 +83,8 @@ export class DotView {
 
     const cols = maxX - minX + 1;
     const rows = maxZ - minZ + 1;
-    const w = cols * CELL_SIZE;
-    const h = rows * CELL_SIZE;
+    const w = cols * CELL_SIZE + 1;
+    const h = rows * CELL_SIZE + 1;
 
     this.canvas.width = w;
     this.canvas.height = h;

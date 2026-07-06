@@ -375,6 +375,11 @@ if (isMobile) {
     joystickKnob.style.transform = "translate(-50%, -50%)";
   }
 
+  // ── Patch Notes ──
+  const mobilePatchModal = new PatchNotesModal();
+  document.querySelector("#mobilePatchBtn").addEventListener("click", () => mobilePatchModal.open());
+  if (mobilePatchModal.shouldShow()) mobilePatchModal.open();
+
   // ── Animation Loop ──
   let lastTime = performance.now();
   function mobileAnimate(now) {
