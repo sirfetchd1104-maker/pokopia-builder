@@ -185,6 +185,19 @@ if (isMobile) {
       });
       list.append(btn);
     }
+    // Add color button
+    const addBtn = document.createElement("button");
+    addBtn.className = "mobile-color-item mobile-color-add";
+    addBtn.innerHTML = `<span class="mobile-color-dot mobile-color-dot-add">+</span><span class="mobile-color-name">${t("add_color_title")}</span>`;
+    addBtn.addEventListener("click", () => {
+      const created = blocks.addMaterial();
+      mobileState.selectedMaterial = created.id;
+      updateMobileColorIndicator();
+      markChanged();
+      mobileToast(t("toast_color_added"));
+      openMobileColorPicker(); // refresh list
+    });
+    list.append(addBtn);
     modal.classList.remove("hidden");
   }
 

@@ -746,7 +746,50 @@ kbd {
   flex-wrap: nowrap;
   overflow-x: auto;
   width: 100%;
-  justify-content: center;
+  justify-content: flex-start;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 0 24px;
+}
+
+.mobile-toolbar-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scroll fade indicators */
+.mobile-editor .mobile-toolbar {
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.mobile-toolbar-scroll-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mobile-toolbar-scroll-wrap::before,
+.mobile-toolbar-scroll-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mobile-toolbar-scroll-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(22, 27, 28, 0.92), transparent);
+}
+
+.mobile-toolbar-scroll-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(22, 27, 28, 0.92), transparent);
 }
 
 .mobile-toolbar-hint {
@@ -951,6 +994,20 @@ kbd {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.mobile-color-dot-add {
+  background: transparent !important;
+  border-style: dashed !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mobile-color-add .mobile-color-name {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Mobile toast position */
