@@ -1,9 +1,21 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "1.8";
+const CURRENT_VERSION = "1.9";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "1.9",
+    date: "2026.07.06",
+    changes: {
+      ko: [
+        { title: "설계도 공유", items: ["공유 버튼 클릭 → 공유 링크 생성 및 클립보드 복사", "링크 접속 시 설계도 자동 로드", "설계도는 90일간 보관"] },
+      ],
+      en: [
+        { title: "Design Sharing", items: ["Click Share button → creates share link and copies to clipboard", "Auto-loads design when visiting shared link", "Designs are stored for 90 days"] },
+      ],
+    },
+  },
   {
     version: "1.8",
     date: "2026.07.03",

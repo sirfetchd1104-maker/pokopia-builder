@@ -817,6 +817,58 @@ guideOverlay.addEventListener("click", (e) => {
   if (e.target === guideOverlay) closeGuide();
 });
 
+// Share feature
+const SHARE_API = "https://pokopia-builder-api.sirfetchd1104.workers.dev";
+
+document.querySelector("#shareButton").addEventListener("click", async () => {
+  const data = blocks.serialize();
+  if (!data.blocks || data.blocks.length === 0) {
+    toast(t("toast_share_empty"));
+    return;
+  }
+  toast(t("toast_share_loading"));
+  try {
+    const res = await fetch(SHARE_API + "/api/share", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error();
+    const { code } = await res.json();
+    const shareUrl = location.origin + location.pathname + "?s=" + code;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast(t("toast_share_ok"));
+    } catch {
+      window.prompt(t("toast_share_ok"), shareUrl);
+    }
+  } catch {
+    toast(t("toast_share_fail"));
+  }
+});
+
+// Auto-load shared design from URL
+(async () => {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("s");
+  if (!code) return;
+  try {
+    const res = await fetch(SHARE_API + "/api/share/" + code);
+    if (!res.ok) { toast(t("toast_shared_not_found")); return; }
+    const data = await res.json();
+    blocks.load(data);
+    toolbar.renderMaterials(blocks.getMaterialOptions());
+    state.selectedMaterial = blocks.getMaterialOptions()[0]?.id ?? "default";
+    sidebar.setMaterial(getMaterialLabel(blocks.getMaterial(state.selectedMaterial)));
+    markChanged();
+    undoManager.clear();
+    toast(t("toast_shared_loaded"));
+    history.replaceState(null, "", location.pathname);
+  } catch {
+    toast(t("toast_shared_not_found"));
+  }
+})();
+
 requestAnimationFrame(animate);
 
 } // end PC editor mode
