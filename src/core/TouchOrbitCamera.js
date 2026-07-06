@@ -56,7 +56,7 @@ export class TouchOrbitCamera {
       clearTimeout(this.longPressTimer);
       this.longPressTimer = setTimeout(() => {
         if (!this.isSingleDragging && this.touches.length === 1) {
-          if (this.onLongPress) this.onLongPress();
+          if (this.onLongPress) this.onLongPress(this.touchStartPos.x, this.touchStartPos.y);
           this.longPressTimer = null;
         }
       }, this.LONG_PRESS_TIME);
@@ -111,7 +111,7 @@ export class TouchOrbitCamera {
     if (event.touches.length === 0 && this.touches.length === 1) {
       const elapsed = performance.now() - this.touchStartTime;
       if (!this.isSingleDragging && elapsed < this.TAP_MAX_TIME) {
-        if (this.onTap) this.onTap();
+        if (this.onTap) this.onTap(this.touchStartPos.x, this.touchStartPos.y);
       }
     }
 

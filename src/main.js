@@ -74,30 +74,18 @@ if (isMobile) {
     updateBlockCount();
   }
 
-  // ── Ghost Preview ──
-  function updateMobileGhost() {
-    const hit = sceneManager.raycastFromCenter([grid.ground, ...blocks.getRaycastTargets()]);
-    const result = blocks.getPlacementFromHit(hit);
-    mobileState.selectedCell = result?.placeCell ?? null;
-    mobileState.removeCell = result?.removeCell ?? null;
-
-    if (mobileState.selectedCell) {
-      blocks.setGhost(
-        [mobileState.selectedCell],
-        mobileState.selectedShape,
-        mobileState.selectedMaterial,
-        mobileState.selectedRotation
-      );
-    } else {
-      blocks.setGhost(null);
-    }
+  // ── Raycast from touch position ──
+  function raycastAt(sx, sy) {
+    const hit = sceneManager.raycastFromScreen(sx, sy, [grid.ground, ...blocks.getRaycastTargets()]);
+    return blocks.getPlacementFromHit(hit);
   }
 
   // ── Touch Gestures ──
-  touchCam.onTap = () => {
-    if (!mobileState.selectedCell) return;
+  touchCam.onTap = (sx, sy) => {
+    const result = raycastAt(sx, sy);
+    if (!result?.placeCell) return;
     const target = {
-      ...mobileState.selectedCell,
+      ...result.placeCell,
       materialId: mobileState.selectedMaterial,
       shape: mobileState.selectedShape,
       rotation: mobileState.selectedRotation,
@@ -110,8 +98,9 @@ if (isMobile) {
     }
   };
 
-  touchCam.onLongPress = () => {
-    const target = mobileState.removeCell ?? mobileState.selectedCell;
+  touchCam.onLongPress = (sx, sy) => {
+    const result = raycastAt(sx, sy);
+    const target = result?.removeCell ?? result?.placeCell;
     if (!target) return;
     const removed = blocks.removeBlocks([target]);
     if (removed.length > 0) {
@@ -394,7 +383,6 @@ if (isMobile) {
       touchCam.applyPosition();
     }
 
-    updateMobileGhost();
     sceneManager.render();
     requestAnimationFrame(mobileAnimate);
   }

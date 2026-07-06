@@ -57,6 +57,17 @@ export class SceneManager {
     return hits[0] ?? null;
   }
 
+  raycastFromScreen(screenX, screenY, objects) {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const ndc = new THREE.Vector2(
+      ((screenX - rect.left) / rect.width) * 2 - 1,
+      -((screenY - rect.top) / rect.height) * 2 + 1
+    );
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const hits = this.raycaster.intersectObjects(objects.filter(Boolean), false);
+    return hits[0] ?? null;
+  }
+
   render() {
     this.renderer.render(this.scene, this.camera);
   }

@@ -655,7 +655,8 @@ kbd {
 
 .mobile-editor .panel,
 .mobile-editor .hint-bar,
-.mobile-editor .lock-button {
+.mobile-editor .lock-button,
+.mobile-editor .crosshair {
   display: none !important;
 }
 
@@ -684,7 +685,6 @@ kbd {
 
 .mobile-brand .brand-mark {
   width: 28px;
-  height: 28px;
 }
 
 .mobile-brand strong {
@@ -732,7 +732,7 @@ kbd {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 8px 10px;
+  padding: 20px 10px 8px;
   padding-bottom: max(8px, env(safe-area-inset-bottom));
   background: rgba(22, 27, 28, 0.92);
   backdrop-filter: blur(14px);
@@ -827,14 +827,14 @@ kbd {
   display: block;
   position: fixed;
   z-index: 11;
-  left: 16px;
-  bottom: 80px;
+  left: 20px;
+  bottom: 100px;
   touch-action: none;
 }
 
 .joystick-base {
-  width: 90px;
-  height: 90px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -844,8 +844,8 @@ kbd {
 }
 
 .joystick-knob {
-  width: 38px;
-  height: 38px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -955,7 +955,8 @@ kbd {
 
 /* Mobile toast position */
 .mobile-editor .toast {
-  top: 56px;
+  top: 60px;
+  z-index: 20;
 }
 
 /* ── Patch Notes Modal ── */
