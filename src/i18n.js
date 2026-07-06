@@ -166,6 +166,9 @@ const dict = {
     mobile_blocks: "블록 {0}개",
     mobile_viewer: "뷰어 모드 — 편집은 PC에서 가능합니다",
     mobile_hint: "드래그: 회전 · 핀치: 줌 · 두 손가락 드래그: 이동",
+    mobile_edit_hint: "탭: 배치 · 길게: 삭제 · 드래그: 회전",
+    toast_saved_mobile: "설계를 저장했습니다.",
+    toast_color_selected: "색상 선택: {0}",
 
     // Patch notes
     patch_title: "패치 노트",
@@ -332,6 +335,9 @@ const dict = {
     mobile_blocks: "{0} blocks",
     mobile_viewer: "Viewer mode \u2014 Edit on PC",
     mobile_hint: "Drag: Rotate \u00B7 Pinch: Zoom \u00B7 Two fingers: Pan",
+    mobile_edit_hint: "Tap: Place \u00B7 Hold: Delete \u00B7 Drag: Rotate",
+    toast_saved_mobile: "Design saved.",
+    toast_color_selected: "Color: {0}",
 
     patch_title: "Patch Notes",
     patch_close: "Close",

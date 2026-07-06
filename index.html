@@ -298,8 +298,8 @@
         </div>
       </div>
 
-      <!-- Mobile Viewer UI -->
-      <div class="mobile-bar" aria-label="모바일 뷰어">
+      <!-- Mobile UI -->
+      <div class="mobile-bar" aria-label="모바일 에디터">
         <div class="mobile-brand">
           <span class="brand-mark"></span>
           <strong>Pokopia Builder</strong>
@@ -310,9 +310,37 @@
           <input id="mobileLoadInput" type="file" accept="application/json,.json" />
         </label>
       </div>
-      <div class="mobile-notice">
-        <p data-i18n="mobile_viewer">뷰어 모드 — 편집은 PC에서 가능합니다</p>
-        <p class="mobile-hint" data-i18n="mobile_hint">드래그: 회전 · 핀치: 줌 · 두 손가락 드래그: 이동</p>
+
+      <!-- Mobile Editor Bottom Toolbar -->
+      <div class="mobile-toolbar" id="mobileToolbar">
+        <div class="mobile-toolbar-row">
+          <button id="mobileShapeCube" class="mobile-shape-btn active" data-shape="cube" type="button" title="Block">&#9632;</button>
+          <button id="mobileShapeWedge" class="mobile-shape-btn" data-shape="wedge" type="button" title="Wedge">&#9650;</button>
+          <button id="mobileShapeCorner" class="mobile-shape-btn" data-shape="corner" type="button" title="Corner">&#9699;</button>
+          <span class="mobile-toolbar-divider"></span>
+          <button id="mobileColorBtn" class="mobile-color-btn" type="button">
+            <span id="mobileColorIndicator" class="mobile-color-indicator"></span>
+          </button>
+          <button id="mobileRotateBtn" class="mobile-tool-btn" type="button">0°</button>
+          <span class="mobile-toolbar-divider"></span>
+          <button id="mobileUndoBtn" class="mobile-tool-btn" type="button" title="Undo">&#8630;</button>
+          <button id="mobileRedoBtn" class="mobile-tool-btn" type="button" title="Redo">&#8631;</button>
+          <span class="mobile-toolbar-divider"></span>
+          <button id="mobileSaveBtn" class="mobile-tool-btn" type="button" title="Save">&#8615;</button>
+          <button id="mobileShareBtn" class="mobile-tool-btn" type="button" title="Share">&#128279;</button>
+        </div>
+        <p class="mobile-toolbar-hint" data-i18n="mobile_edit_hint">탭: 배치 · 길게: 삭제 · 드래그: 회전</p>
+      </div>
+
+      <!-- Mobile Color Picker Modal -->
+      <div id="mobileColorModal" class="mobile-color-modal hidden">
+        <div class="mobile-color-modal-content">
+          <div class="mobile-color-modal-header">
+            <span data-i18n="color_title">색상</span>
+            <button id="mobileColorModalClose" type="button">&times;</button>
+          </div>
+          <div id="mobileColorList" class="mobile-color-list"></div>
+        </div>
       </div>
     </div>
 

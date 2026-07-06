@@ -19,6 +19,22 @@ export class TouchOrbitCamera {
     this.prevTouchMid = { x: 0, y: 0 };
     this.prevSingleTouch = { x: 0, y: 0 };
 
+    // Gesture detection
+    this.touchStartTime = 0;
+    this.touchStartPos = { x: 0, y: 0 };
+    this.isSingleDragging = false;
+    this.longPressTimer = null;
+
+    // Callbacks (set from main.js)
+    this.onTap = null;
+    this.onLongPress = null;
+    this.onCameraMove = null;
+
+    // Thresholds
+    this.TAP_MAX_TIME = 200;
+    this.DRAG_THRESHOLD = 10;
+    this.LONG_PRESS_TIME = 400;
+
     canvas.addEventListener("touchstart", (e) => this.onTouchStart(e), { passive: false });
     canvas.addEventListener("touchmove", (e) => this.onTouchMove(e), { passive: false });
     canvas.addEventListener("touchend", (e) => this.onTouchEnd(e));
@@ -29,9 +45,24 @@ export class TouchOrbitCamera {
   onTouchStart(event) {
     event.preventDefault();
     this.touches = [...event.touches];
+
     if (this.touches.length === 1) {
-      this.prevSingleTouch = { x: this.touches[0].clientX, y: this.touches[0].clientY };
+      const touch = this.touches[0];
+      this.prevSingleTouch = { x: touch.clientX, y: touch.clientY };
+      this.touchStartTime = performance.now();
+      this.touchStartPos = { x: touch.clientX, y: touch.clientY };
+      this.isSingleDragging = false;
+
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = setTimeout(() => {
+        if (!this.isSingleDragging && this.touches.length === 1) {
+          if (this.onLongPress) this.onLongPress();
+          this.longPressTimer = null;
+        }
+      }, this.LONG_PRESS_TIME);
     } else if (this.touches.length === 2) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
       this.prevTouchDist = this.getTouchDistance(this.touches);
       this.prevTouchMid = this.getTouchMidpoint(this.touches);
     }
@@ -42,11 +73,25 @@ export class TouchOrbitCamera {
     const touches = [...event.touches];
 
     if (touches.length === 1) {
-      const dx = touches[0].clientX - this.prevSingleTouch.x;
-      const dy = touches[0].clientY - this.prevSingleTouch.y;
-      this.theta -= dx * 0.005;
-      this.phi = Math.max(this.minPhi, Math.min(this.maxPhi, this.phi - dy * 0.005));
-      this.prevSingleTouch = { x: touches[0].clientX, y: touches[0].clientY };
+      const dx = touches[0].clientX - this.touchStartPos.x;
+      const dy = touches[0].clientY - this.touchStartPos.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (!this.isSingleDragging && dist > this.DRAG_THRESHOLD) {
+        this.isSingleDragging = true;
+        clearTimeout(this.longPressTimer);
+        this.longPressTimer = null;
+      }
+
+      if (this.isSingleDragging) {
+        const moveDx = touches[0].clientX - this.prevSingleTouch.x;
+        const moveDy = touches[0].clientY - this.prevSingleTouch.y;
+        this.theta -= moveDx * 0.005;
+        this.phi = Math.max(this.minPhi, Math.min(this.maxPhi, this.phi - moveDy * 0.005));
+        this.prevSingleTouch = { x: touches[0].clientX, y: touches[0].clientY };
+        this.applyPosition();
+        if (this.onCameraMove) this.onCameraMove();
+      }
     } else if (touches.length === 2) {
       const dist = this.getTouchDistance(touches);
       const mid = this.getTouchMidpoint(touches);
@@ -63,13 +108,24 @@ export class TouchOrbitCamera {
 
       this.prevTouchDist = dist;
       this.prevTouchMid = mid;
+      this.applyPosition();
+      if (this.onCameraMove) this.onCameraMove();
     }
-
-    this.applyPosition();
   }
 
-  onTouchEnd(_event) {
-    this.touches = [];
+  onTouchEnd(event) {
+    clearTimeout(this.longPressTimer);
+    this.longPressTimer = null;
+
+    if (event.touches.length === 0 && this.touches.length === 1) {
+      const elapsed = performance.now() - this.touchStartTime;
+      if (!this.isSingleDragging && elapsed < this.TAP_MAX_TIME) {
+        if (this.onTap) this.onTap();
+      }
+    }
+
+    this.touches = [...event.touches];
+    this.isSingleDragging = false;
   }
 
   getTouchDistance(touches) {

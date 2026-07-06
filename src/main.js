@@ -37,36 +37,21 @@ const saveManager = new SaveManager(blocks);
 applyLang();
 
 if (isMobile) {
-  document.body.classList.add("mobile-viewer");
+  document.body.classList.add("mobile-editor");
   const touchCam = new TouchOrbitCamera(sceneManager.camera, canvas);
+  const undoMgr = new UndoManager();
+  const SHARE_API_MOBILE = "https://pokopia-builder-api.sirfetchd1104.workers.dev";
+  const AUTOSAVE_KEY = "pokopia-builder-autosave";
 
-  // Mobile language toggle
-  const mobileLangSelect = document.querySelector("#langSelect");
-  mobileLangSelect.value = getLang();
-  mobileLangSelect.addEventListener("change", () => {
-    setLang(mobileLangSelect.value);
-    document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
-  });
+  const mobileState = {
+    selectedMaterial: "default",
+    selectedShape: "cube",
+    selectedRotation: 0,
+    selectedCell: null,
+    removeCell: null,
+  };
 
-  function mobileLoadFile(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        blocks.load(JSON.parse(reader.result));
-        document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
-        mobileToast(t("toast_loaded"));
-      } catch {
-        mobileToast(t("toast_load_error"));
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  document.querySelector("#mobileLoadInput").addEventListener("change", (e) => {
-    if (e.target.files?.[0]) mobileLoadFile(e.target.files[0]);
-    e.target.value = "";
-  });
-
+  // ── Toast ──
   function mobileToast(message) {
     const el = document.querySelector("#toast");
     el.textContent = message;
@@ -75,8 +60,216 @@ if (isMobile) {
     mobileToast.t = setTimeout(() => el.classList.remove("visible"), 1500);
   }
 
-  // Auto-load shared design from URL
-  const mobileShareAPI = "https://pokopia-builder-api.sirfetchd1104.workers.dev";
+  // ── Utility ──
+  function updateBlockCount() {
+    document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+  }
+
+  function autoSave() {
+    try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(blocks.serialize())); } catch {}
+  }
+
+  function markChanged() {
+    autoSave();
+    updateBlockCount();
+  }
+
+  // ── Ghost Preview ──
+  function updateMobileGhost() {
+    const hit = sceneManager.raycastFromCenter([grid.ground, ...blocks.getRaycastTargets()]);
+    const result = blocks.getPlacementFromHit(hit);
+    mobileState.selectedCell = result?.placeCell ?? null;
+    mobileState.removeCell = result?.removeCell ?? null;
+
+    if (mobileState.selectedCell) {
+      blocks.setGhost(
+        [mobileState.selectedCell],
+        mobileState.selectedShape,
+        mobileState.selectedMaterial,
+        mobileState.selectedRotation
+      );
+    } else {
+      blocks.setGhost(null);
+    }
+  }
+
+  // ── Touch Gestures ──
+  touchCam.onTap = () => {
+    if (!mobileState.selectedCell) return;
+    const target = {
+      ...mobileState.selectedCell,
+      materialId: mobileState.selectedMaterial,
+      shape: mobileState.selectedShape,
+      rotation: mobileState.selectedRotation,
+    };
+    const added = blocks.addBlocks([target]);
+    if (added.length > 0) {
+      undoMgr.push({ added, removed: [] });
+      markChanged();
+      mobileToast(t("toast_placed"));
+    }
+  };
+
+  touchCam.onLongPress = () => {
+    const target = mobileState.removeCell ?? mobileState.selectedCell;
+    if (!target) return;
+    const removed = blocks.removeBlocks([target]);
+    if (removed.length > 0) {
+      undoMgr.push({ added: [], removed });
+      markChanged();
+      mobileToast(t("toast_removed"));
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+  };
+
+  // ── Undo / Redo ──
+  function applyUndoRedo(op) {
+    if (op.removed.length > 0) blocks.removeBlocks(op.removed);
+    if (op.added.length > 0) blocks.addBlocks(op.added);
+    markChanged();
+  }
+
+  document.querySelector("#mobileUndoBtn").addEventListener("click", () => {
+    const op = undoMgr.undo();
+    if (!op) { mobileToast(t("toast_no_undo")); return; }
+    applyUndoRedo(op);
+    mobileToast(t("toast_undo"));
+  });
+
+  document.querySelector("#mobileRedoBtn").addEventListener("click", () => {
+    const op = undoMgr.redo();
+    if (!op) { mobileToast(t("toast_no_redo")); return; }
+    applyUndoRedo(op);
+    mobileToast(t("toast_redo"));
+  });
+
+  // ── Shape Buttons ──
+  function updateMobileShapeUI() {
+    document.querySelectorAll(".mobile-shape-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.shape === mobileState.selectedShape);
+    });
+  }
+
+  document.querySelector("#mobileShapeCube").addEventListener("click", () => {
+    mobileState.selectedShape = "cube";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_cube")));
+  });
+  document.querySelector("#mobileShapeWedge").addEventListener("click", () => {
+    mobileState.selectedShape = "wedge";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_wedge")));
+  });
+  document.querySelector("#mobileShapeCorner").addEventListener("click", () => {
+    mobileState.selectedShape = "corner";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_corner")));
+  });
+
+  // ── Rotation Button ──
+  document.querySelector("#mobileRotateBtn").addEventListener("click", () => {
+    mobileState.selectedRotation = (mobileState.selectedRotation + 1) % 4;
+    document.querySelector("#mobileRotateBtn").textContent = mobileState.selectedRotation * 90 + "°";
+    mobileToast(t("toast_rotation", mobileState.selectedRotation * 90));
+  });
+
+  // ── Color Picker ──
+  function updateMobileColorIndicator() {
+    const mat = blocks.getMaterial(mobileState.selectedMaterial);
+    document.querySelector("#mobileColorIndicator").style.background = mat.color;
+  }
+
+  function openMobileColorPicker() {
+    const modal = document.querySelector("#mobileColorModal");
+    const list = document.querySelector("#mobileColorList");
+    list.replaceChildren();
+    for (const mat of blocks.getMaterialOptions()) {
+      const btn = document.createElement("button");
+      btn.className = "mobile-color-item";
+      if (mat.id === mobileState.selectedMaterial) btn.classList.add("active");
+      btn.innerHTML = `<span class="mobile-color-dot" style="background:${mat.color}"></span><span class="mobile-color-name">${mat.memo?.trim() || mat.label || mat.id}</span>`;
+      btn.addEventListener("click", () => {
+        mobileState.selectedMaterial = mat.id;
+        updateMobileColorIndicator();
+        closeMobileColorPicker();
+        mobileToast(t("toast_color_selected", mat.memo?.trim() || mat.label));
+      });
+      list.append(btn);
+    }
+    modal.classList.remove("hidden");
+  }
+
+  function closeMobileColorPicker() {
+    document.querySelector("#mobileColorModal").classList.add("hidden");
+  }
+
+  document.querySelector("#mobileColorBtn").addEventListener("click", openMobileColorPicker);
+  document.querySelector("#mobileColorModalClose").addEventListener("click", closeMobileColorPicker);
+  document.querySelector("#mobileColorModal").addEventListener("click", (e) => {
+    if (e.target.id === "mobileColorModal") closeMobileColorPicker();
+  });
+
+  // ── Save / Share ──
+  document.querySelector("#mobileSaveBtn").addEventListener("click", () => {
+    saveManager.download();
+    mobileToast(t("toast_saved_mobile"));
+  });
+
+  document.querySelector("#mobileShareBtn").addEventListener("click", async () => {
+    const data = blocks.serialize();
+    if (!data.blocks || data.blocks.length === 0) {
+      mobileToast(t("toast_share_empty"));
+      return;
+    }
+    mobileToast(t("toast_share_loading"));
+    try {
+      const res = await fetch(SHARE_API_MOBILE + "/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      const { code } = await res.json();
+      const shareUrl = location.origin + location.pathname + "#s=" + code;
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        mobileToast(t("toast_share_ok"));
+      } catch {
+        window.prompt(t("toast_share_ok"), shareUrl);
+      }
+    } catch {
+      mobileToast(t("toast_share_fail"));
+    }
+  });
+
+  // ── File Load ──
+  document.querySelector("#mobileLoadInput").addEventListener("change", (e) => {
+    if (!e.target.files?.[0]) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        blocks.load(JSON.parse(reader.result));
+        undoMgr.clear();
+        updateMobileColorIndicator();
+        markChanged();
+        mobileToast(t("toast_loaded"));
+      } catch {
+        mobileToast(t("toast_load_error"));
+      }
+    };
+    reader.readAsText(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  // ── Language Toggle ──
+  const mobileLangSelect = document.querySelector("#langSelect");
+  mobileLangSelect.value = getLang();
+  mobileLangSelect.addEventListener("change", () => {
+    setLang(mobileLangSelect.value);
+    updateBlockCount();
+  });
+
+  // ── Auto-load shared design from URL ──
   const mobileHash = location.hash.slice(1);
   const mobileShareCode = new URLSearchParams(mobileHash).get("s");
   let sharedLoaded = false;
@@ -84,11 +277,12 @@ if (isMobile) {
   if (mobileShareCode) {
     (async () => {
       try {
-        const res = await fetch(mobileShareAPI + "/api/share/" + mobileShareCode);
+        const res = await fetch(SHARE_API_MOBILE + "/api/share/" + mobileShareCode);
         if (!res.ok) { mobileToast(t("toast_shared_not_found")); return; }
         const data = await res.json();
         blocks.load(data);
-        document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
+        updateMobileColorIndicator();
+        markChanged();
         mobileToast(t("toast_shared_loaded"));
         history.replaceState(null, "", location.pathname);
       } catch {
@@ -101,7 +295,7 @@ if (isMobile) {
   if (!sharedLoaded) {
     let restored = false;
     try {
-      const saved = localStorage.getItem("pokopia-builder-autosave");
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
       if (saved) {
         blocks.load(JSON.parse(saved));
         restored = true;
@@ -109,11 +303,16 @@ if (isMobile) {
     } catch {}
 
     if (!restored) blocks.addBlock({ x: 0, y: 0, z: 0 }, "default", "cube");
-    document.querySelector("#mobileBlockCount").textContent = t("mobile_blocks", blocks.count);
-    mobileToast(restored ? t("toast_autosave") : t("toast_viewer"));
+    updateBlockCount();
+    mobileToast(restored ? t("toast_autosave") : t("toast_ready"));
   }
 
+  // ── Init UI ──
+  updateMobileColorIndicator();
+
+  // ── Animation Loop ──
   function mobileAnimate() {
+    updateMobileGhost();
     sceneManager.render();
     requestAnimationFrame(mobileAnimate);
   }
