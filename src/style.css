@@ -1010,10 +1010,19 @@ kbd {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Mobile toast position */
+/* Mobile toast */
 .mobile-editor .toast {
   top: 60px;
   z-index: 20;
+  transform: translate(-50%, 0);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.mobile-editor .toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 /* ── Patch Notes Modal ── */
