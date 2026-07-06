@@ -80,6 +80,24 @@ if (isMobile) {
     return blocks.getPlacementFromHit(hit);
   }
 
+  // ── Ghost Preview ──
+  let lastTapScreen = null;
+
+  function updateMobileGhost() {
+    if (!lastTapScreen) { blocks.setGhost([]); return; }
+    const result = raycastAt(lastTapScreen.sx, lastTapScreen.sy);
+    if (result?.placeCell) {
+      blocks.setGhost(
+        [result.placeCell],
+        mobileState.selectedShape,
+        mobileState.selectedMaterial,
+        mobileState.selectedRotation
+      );
+    } else {
+      blocks.setGhost([]);
+    }
+  }
+
   // ── Touch Gestures ──
   touchCam.onTap = (sx, sy) => {
     const result = raycastAt(sx, sy);
@@ -96,6 +114,8 @@ if (isMobile) {
       markChanged();
       mobileToast(t("toast_placed"));
     }
+    lastTapScreen = { sx, sy };
+    updateMobileGhost();
   };
 
   touchCam.onLongPress = (sx, sy) => {
@@ -109,6 +129,13 @@ if (isMobile) {
       mobileToast(t("toast_removed"));
       if (navigator.vibrate) navigator.vibrate(30);
     }
+    lastTapScreen = { sx, sy };
+    updateMobileGhost();
+  };
+
+  touchCam.onCameraMove = () => {
+    lastTapScreen = null;
+    blocks.setGhost([]);
   };
 
   // ── Undo / Redo ──
@@ -143,16 +170,19 @@ if (isMobile) {
     mobileState.selectedShape = "cube";
     updateMobileShapeUI();
     mobileToast(t("toast_shape", t("shape_cube")));
+    updateMobileGhost();
   });
   document.querySelector("#mobileShapeWedge").addEventListener("click", () => {
     mobileState.selectedShape = "wedge";
     updateMobileShapeUI();
     mobileToast(t("toast_shape", t("shape_wedge")));
+    updateMobileGhost();
   });
   document.querySelector("#mobileShapeCorner").addEventListener("click", () => {
     mobileState.selectedShape = "corner";
     updateMobileShapeUI();
     mobileToast(t("toast_shape", t("shape_corner")));
+    updateMobileGhost();
   });
 
   // ── Rotation Button ──
@@ -160,6 +190,7 @@ if (isMobile) {
     mobileState.selectedRotation = (mobileState.selectedRotation + 1) % 4;
     document.querySelector("#mobileRotateBtn").textContent = mobileState.selectedRotation * 90 + "°";
     mobileToast(t("toast_rotation", mobileState.selectedRotation * 90));
+    updateMobileGhost();
   });
 
   // ── Color Picker ──
@@ -182,6 +213,7 @@ if (isMobile) {
         updateMobileColorIndicator();
         closeMobileColorPicker();
         mobileToast(t("toast_color_selected", mat.memo?.trim() || mat.label));
+        updateMobileGhost();
       });
       list.append(btn);
     }
@@ -242,6 +274,23 @@ if (isMobile) {
     } catch {
       mobileToast(t("toast_share_fail"));
     }
+  });
+
+  // ── Reset ──
+  document.querySelector("#mobileResetBtn").addEventListener("click", () => {
+    if (!confirm(t("confirm_reset"))) return;
+    blocks.clear();
+    undoMgr.clear();
+    lastTapScreen = null;
+    blocks.setGhost([]);
+    mobileState.selectedMaterial = "default";
+    mobileState.selectedShape = "cube";
+    mobileState.selectedRotation = 0;
+    updateMobileColorIndicator();
+    updateMobileShapeUI();
+    document.querySelector("#mobileRotateBtn").textContent = "0°";
+    markChanged();
+    mobileToast(t("toast_reset"));
   });
 
   // ── File Load ──

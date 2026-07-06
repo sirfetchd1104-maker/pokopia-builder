@@ -806,6 +806,14 @@ kbd {
   flex-shrink: 0;
 }
 
+.mobile-toolbar-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 2px;
+}
+
 .mobile-shape-btn,
 .mobile-tool-btn {
   min-width: 44px;
@@ -814,13 +822,26 @@ kbd {
   border-radius: 8px;
   color: #eef3f0;
   background: rgba(255, 255, 255, 0.08);
-  font-size: 18px;
+  font-size: 14px;
   cursor: pointer;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+}
+
+#mobilePatchBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.mobile-reset-btn {
+  border-color: rgba(200, 80, 80, 0.5);
+  color: #e07070;
 }
 
 .mobile-shape-btn.active {
@@ -1050,7 +1071,7 @@ kbd {
 
 .modal {
   width: min(600px, calc(100vw - 40px));
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(255, 255, 255, 0.14);
