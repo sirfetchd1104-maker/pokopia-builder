@@ -1,9 +1,21 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "1.9";
+const CURRENT_VERSION = "1.91";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "1.91",
+    date: "2026.07.06",
+    changes: {
+      ko: [
+        { title: "공유 링크 호환성 개선", items: ["카카오톡 등 메신저에서 공유 링크가 잘리는 문제 수정"] },
+      ],
+      en: [
+        { title: "Share Link Compatibility", items: ["Fixed share links being truncated in messengers like KakaoTalk"] },
+      ],
+    },
+  },
   {
     version: "1.9",
     date: "2026.07.06",

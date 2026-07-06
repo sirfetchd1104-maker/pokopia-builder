@@ -835,7 +835,7 @@ document.querySelector("#shareButton").addEventListener("click", async () => {
     });
     if (!res.ok) throw new Error();
     const { code } = await res.json();
-    const shareUrl = location.origin + location.pathname + "?s=" + code;
+    const shareUrl = location.origin + location.pathname + "#s=" + code;
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast(t("toast_share_ok"));
@@ -849,8 +849,8 @@ document.querySelector("#shareButton").addEventListener("click", async () => {
 
 // Auto-load shared design from URL
 (async () => {
-  const params = new URLSearchParams(location.search);
-  const code = params.get("s");
+  const hash = location.hash.slice(1);
+  const code = new URLSearchParams(hash).get("s");
   if (!code) return;
   try {
     const res = await fetch(SHARE_API + "/api/share/" + code);
