@@ -1,9 +1,33 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "1.91";
+const CURRENT_VERSION = "2.0";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.0",
+    date: "2026.07.06",
+    changes: {
+      ko: [
+        { title: "모바일 간편 편집 모드 추가", items: [
+          "터치로 블록 배치/삭제 가능 (탭: 배치, 길게 누르기: 삭제)",
+          "드래그로 카메라 회전 및 시야 상하 조절",
+          "하단 툴바: 블록 종류, 색상, 회전, 실행취소/다시실행, 저장, 공유, 패치노트",
+          "가상 조이스틱으로 카메라 이동",
+          "색상 추가 기능 지원",
+        ] },
+      ],
+      en: [
+        { title: "Mobile Simple Editor Added", items: [
+          "Place and remove blocks with touch (Tap: place, Hold: remove)",
+          "Drag to rotate camera and adjust vertical view angle",
+          "Bottom toolbar: shape, color, rotation, undo/redo, save, share, patch notes",
+          "Virtual joystick for camera movement",
+          "Color add support",
+        ] },
+      ],
+    },
+  },
   {
     version: "1.91",
     date: "2026.07.06",
