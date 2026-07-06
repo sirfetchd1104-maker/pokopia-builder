@@ -203,11 +203,19 @@ if (isMobile) {
     const modal = document.querySelector("#mobileColorModal");
     const list = document.querySelector("#mobileColorList");
     list.replaceChildren();
+
+    // Count blocks per material
+    const colorCounts = {};
+    for (const b of blocks.getAllBlocks()) {
+      colorCounts[b.materialId] = (colorCounts[b.materialId] || 0) + 1;
+    }
+
     for (const mat of blocks.getMaterialOptions()) {
       const btn = document.createElement("button");
       btn.className = "mobile-color-item";
       if (mat.id === mobileState.selectedMaterial) btn.classList.add("active");
-      btn.innerHTML = `<span class="mobile-color-dot" style="background:${mat.color}"></span><span class="mobile-color-name">${mat.memo?.trim() || mat.label || mat.id}</span>`;
+      const count = colorCounts[mat.id] || 0;
+      btn.innerHTML = `<span class="mobile-color-dot" style="background:${mat.color}"></span><span class="mobile-color-name">${mat.memo?.trim() || mat.label || mat.id}</span><span class="mobile-color-count">${count}</span>`;
       btn.addEventListener("click", () => {
         mobileState.selectedMaterial = mat.id;
         updateMobileColorIndicator();
