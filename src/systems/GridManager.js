@@ -7,7 +7,7 @@ export class GridManager {
     this.size = 96;
     this.labelSprites = [];
 
-    const grid = new THREE.GridHelper(this.size, this.size, 0x2d3533, 0x2d3533);
+    const grid = new THREE.GridHelper(this.size, this.size, 0x3a4540, 0x3a4540);
     grid.position.set(0.5, -0.501, 0.5);
     scene.add(grid);
 
@@ -19,7 +19,7 @@ export class GridManager {
     });
     this.ground = new THREE.Mesh(geometry, material);
     this.ground.rotation.x = -Math.PI / 2;
-    this.ground.position.y = -0.51;
+    this.ground.position.set(0.5, -0.51, 0.5);
     this.ground.receiveShadow = true;
     this.ground.userData.kind = "ground";
     scene.add(this.ground);

@@ -1,9 +1,45 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.0";
+const CURRENT_VERSION = "2.1";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.1",
+    date: "2026.07.07",
+    changes: {
+      ko: [
+        { title: "이미지 → 픽셀아트 변환", items: [
+          "이미지를 업로드하면 픽셀아트 스타일로 블록 자동 배치",
+          "최대 해상도(8~64) 및 색상 수(2~16) 슬라이더로 조절",
+          "바닥(XZ) / 벽(XY) 방향 선택 가능",
+          "실시간 미리보기 및 자동 재질 생성",
+          "PC + 모바일 모두 지원",
+        ] },
+        { title: "UI 개선", items: [
+          "버튼 활성 색상을 보라색 계열로 통일",
+          "그리드 선과 바닥 정렬 수정",
+          "그리드 선 가시성 개선",
+          "평면도(Dot View) 앞 방향이 화면 하단에 표시되도록 수정",
+        ] },
+      ],
+      en: [
+        { title: "Image → Pixel Art Conversion", items: [
+          "Upload an image to auto-place blocks in pixel art style",
+          "Adjust max resolution (8–64) and color count (2–16) with sliders",
+          "Choose floor (XZ) or wall (XY) orientation",
+          "Real-time preview with auto material creation",
+          "Supports both PC and mobile",
+        ] },
+        { title: "UI Improvements", items: [
+          "Unified active button color to purple theme",
+          "Fixed grid line and ground plane alignment",
+          "Improved grid line visibility",
+          "Floor plan (Dot View) now shows front at screen bottom",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.0",
     date: "2026.07.06",

@@ -113,8 +113,8 @@ export class DotView {
 
     // Blocks
     for (const block of blocks) {
-      const col = block.x - minX;
-      const row = block.z - minZ;
+      const col = maxX - block.x;
+      const row = maxZ - block.z;
       const material = this.blockManager.getMaterial(block.materialId);
       this.ctx.fillStyle = material.color;
       this.ctx.fillRect(col * CELL_SIZE + 1, row * CELL_SIZE + 1, CELL_SIZE - 1, CELL_SIZE - 1);

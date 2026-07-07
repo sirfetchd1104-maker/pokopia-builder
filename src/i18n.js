@@ -176,6 +176,21 @@ const dict = {
     patch_button: "패치노트",
     patch_feedback: "버그 및 피드백은 {0}으로 제보해 주시면 감사하겠습니다.",
 
+    // Pixel Art Converter
+    pixelart_title: "이미지 → 블록 변환",
+    pixelart_button: "픽셀아트",
+    pixelart_drop: "이미지를 드래그하거나 클릭하여 업로드",
+    pixelart_resolution: "최대 해상도",
+    pixelart_colors: "색상 수",
+    pixelart_orientation: "방향",
+    pixelart_floor: "바닥 (XZ)",
+    pixelart_wall: "벽 (XY)",
+    pixelart_apply: "적용",
+    pixelart_info: "{0} × {1}, {2}색, 블록 {3}개",
+    toast_pixelart_applied: "픽셀아트 적용! 블록 {0}개 배치",
+    toast_pixelart_no_image: "먼저 이미지를 업로드해 주세요.",
+    toast_pixelart_no_blocks: "변환할 블록이 없습니다.",
+
     // WebGL error
     webgl_title: "WebGL을 사용할 수 없습니다",
     webgl_msg: "브라우저가 WebGL을 지원하는지 확인해 주세요.",
@@ -343,6 +358,21 @@ const dict = {
     patch_close: "Close",
     patch_button: "Patch Notes",
     patch_feedback: "For bugs and feedback, please contact {0}.",
+
+    // Pixel Art Converter
+    pixelart_title: "Image \u2192 Blocks",
+    pixelart_button: "Pixel Art",
+    pixelart_drop: "Drag & drop or click to upload image",
+    pixelart_resolution: "Max Resolution",
+    pixelart_colors: "Color Count",
+    pixelart_orientation: "Orientation",
+    pixelart_floor: "Floor (XZ)",
+    pixelart_wall: "Wall (XY)",
+    pixelart_apply: "Apply",
+    pixelart_info: "{0} \u00D7 {1}, {2} colors, {3} blocks",
+    toast_pixelart_applied: "Pixel art applied! {0} blocks placed.",
+    toast_pixelart_no_image: "Please upload an image first.",
+    toast_pixelart_no_blocks: "No blocks to convert.",
 
     webgl_title: "WebGL Unavailable",
     webgl_msg: "Please check if your browser supports WebGL.",

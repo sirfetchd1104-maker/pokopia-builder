@@ -12,6 +12,7 @@ import { Sidebar } from "./ui/Sidebar.js";
 import { t, getLang, setLang, applyLang } from "./i18n.js";
 import { PatchNotesModal } from "./ui/PatchNotes.js";
 import { DotView } from "./ui/DotView.js";
+import { PixelArtConverter } from "./ui/PixelArtConverter.js";
 
 const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 const canvas = document.querySelector("#scene");
@@ -437,6 +438,21 @@ if (isMobile) {
   document.querySelector("#mobilePatchBtn").addEventListener("click", () => mobilePatchModal.open());
   if (mobilePatchModal.shouldShow()) mobilePatchModal.open();
 
+  // ── Pixel Art Converter ──
+  const pixelArtMobile = new PixelArtConverter({
+    blocks,
+    undoManager: undoMgr,
+    markChanged,
+    toast: mobileToast,
+    onMaterialsChanged: () => {
+      mobileState.selectedMaterial = blocks.getMaterialOptions()[0]?.id ?? "default";
+      updateMobileColorIndicator();
+    },
+  });
+  document.querySelector("#mobilePixelArtBtn").addEventListener("click", () => {
+    pixelArtMobile.open();
+  });
+
   // ── Animation Loop ──
   let lastTime = performance.now();
   function mobileAnimate(now) {
@@ -615,6 +631,21 @@ document.querySelector("#dotViewButton").addEventListener("click", () => {
   document.querySelector(".panel-left").style.display = "none";
   document.querySelector(".panel-right").style.display = "none";
   document.querySelector(".hint-bar").style.display = "none";
+});
+
+// Pixel Art Converter
+const pixelArt = new PixelArtConverter({
+  blocks,
+  undoManager,
+  markChanged: () => { markChanged(); },
+  toast,
+  onMaterialsChanged: () => {
+    toolbar.renderMaterials(blocks.getMaterialOptions());
+  },
+});
+document.querySelector("#pixelArtButton").addEventListener("click", () => {
+  if (document.pointerLockElement) document.exitPointerLock();
+  pixelArt.open();
 });
 
 const state = {
