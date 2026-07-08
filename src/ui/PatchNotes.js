@@ -1,9 +1,36 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.1";
+const CURRENT_VERSION = "2.2";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.2",
+    date: "2026.07.08",
+    changes: {
+      ko: [
+        { title: "일본어(日本語) 지원 추가", items: [
+          "언어 선택에서 日本語 선택 가능",
+          "브라우저 언어가 일본어일 경우 자동 감지",
+          "전체 UI 일본어 번역 완료",
+        ] },
+      ],
+      en: [
+        { title: "Japanese (日本語) Language Support", items: [
+          "Japanese now available in language selector",
+          "Auto-detects Japanese browser language",
+          "Full UI translation to Japanese",
+        ] },
+      ],
+      ja: [
+        { title: "日本語対応を追加", items: [
+          "言語選択で日本語が選べるようになりました",
+          "ブラウザ言語が日本語の場合、自動検出されます",
+          "UI全体の日本語翻訳が完了しました",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.1",
     date: "2026.07.07",

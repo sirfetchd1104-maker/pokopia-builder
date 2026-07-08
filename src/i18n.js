@@ -377,11 +377,210 @@ const dict = {
     webgl_title: "WebGL Unavailable",
     webgl_msg: "Please check if your browser supports WebGL.",
   },
+
+  ja: {
+    // Left panel labels
+    language: "言語",
+    add_block: "ブロック追加",
+    rename_placeholder: "ブロック名を変更",
+    add_color_title: "新しい色を追加",
+    remove_color_title: "選択した色を削除",
+    color_title: "色",
+    rotation: "回転",
+    batch: "一括配置",
+    batch_off: "オフ",
+    batch_forward: "前方",
+    batch_right: "右",
+    batch_up: "上",
+    symmetry: "対称配置",
+    sym_off: "オフ",
+    sym_lr: "左右対称",
+    sym_fb: "前後対称",
+    layer: "レイヤー表示",
+    layer_all: "すべて",
+    layer_only: "この階のみ",
+    layer_below: "この階以下",
+    camera_settings: "カメラ設定",
+    sensitivity: "感度",
+    move_speed: "移動速度",
+    zoom_range: "ズーム範囲",
+    share: "共有",
+    share_title: "共有リンクを作成",
+    toast_share_ok: "共有リンクをクリップボードにコピーしました！",
+    toast_share_empty: "共有するブロックがありません。",
+    toast_share_fail: "共有リンクの作成に失敗しました。",
+    toast_share_loading: "共有リンクを作成中...",
+    toast_shared_loaded: "共有された設計図を読み込みました。",
+    toast_shared_not_found: "共有設計図が見つかりません。",
+    save: "保存",
+    save_title: "JSON保存",
+    load: "読み込み",
+    load_title: "JSON読み込み",
+    reset: "リセット",
+
+    // Right panel
+    stat_blocks: "ブロック数",
+    stat_coord: "選択座標",
+    stat_camera: "カメラ座標",
+    stat_color: "ブロック色",
+    stat_shape: "ブロック種類",
+    stat_rotation: "回転",
+    stat_batch: "一括配置",
+    stat_symmetry: "対称",
+    stat_layer: "レイヤー",
+    stat_clipboard: "クリップボード",
+    stat_color_stats: "色別ブロック数",
+
+    // Shapes
+    shape_cube: "ブロック",
+    shape_wedge: "屋根",
+    shape_corner: "コーナー",
+
+    // Directions
+    dir_front: "前",
+    dir_back: "後",
+    dir_left: "左",
+    dir_right: "右",
+    dir_up: "上",
+    dir_down: "下",
+
+    // Sidebar
+    off: "オフ",
+    all: "すべて",
+    empty: "空",
+    default_block: "デフォルト",
+    sidebar_dir_forward: "前方",
+    sidebar_dir_right: "右",
+    sidebar_dir_up: "上",
+    sidebar_sym_lr: "左右",
+    sidebar_sym_fb: "前後",
+    n_items: "{0}個",
+    layer_only_n: "{0}階のみ",
+    layer_below_n: "{0}階以下",
+
+    // Hint bar
+    hint_place: "ブロック設置",
+    hint_lclick: "左クリック",
+    hint_remove: "ブロック削除",
+    hint_rclick: "右クリック",
+    hint_move: "移動",
+    hint_updown: "上下",
+    hint_shape: "ブロック種類",
+    hint_rotation: "回転",
+    hint_batch: "一括配置",
+    hint_symmetry: "対称配置",
+    hint_select: "範囲選択",
+    hint_undo: "元に戻す",
+    hint_lock: "カメラ固定/解除",
+    hint_moveall: "全体移動",
+    hint_moveall_dir: "上/下/左/右",
+    hint_moveall_ud: "上/下",
+
+    // Lock button
+    lock_release: "クリックで画面固定を解除",
+
+    // Toasts
+    toast_placed: "ブロックを配置しました。",
+    toast_placed_n: "{0}個を配置しました。",
+    toast_removed: "ブロックを削除しました。",
+    toast_bookmark: "ブックマークショートカットをブロックしました。",
+    toast_close: "閉じるショートカットをブロックしました。",
+    toast_no_undo: "元に戻す操作がありません。",
+    toast_no_redo: "やり直す操作がありません。",
+    toast_undo: "元に戻しました。",
+    toast_redo: "やり直しました。",
+    toast_moved: "全体移動: {0}",
+    toast_cant_move: "これ以上移動できません。",
+    toast_loaded: "設計図を読み込みました。",
+    toast_load_error: "ファイルを読み込めません。",
+    toast_autosave: "自動保存された設計図を読み込みました。",
+    toast_ready: "準備完了",
+    toast_viewer: "ビューアーモード",
+    toast_shape: "ブロック種類: {0}",
+    toast_rotation: "回転: {0}\u00B0",
+    toast_batch: "一括配置: {0}",
+    toast_symmetry: "対称: {0}",
+    confirm_reset: "すべてのブロックをリセットしますか？保存していない内容は失われます。",
+    toast_reset: "設計図をリセットしました。",
+    toast_cant_remove: "デフォルトの色は削除できません。",
+    toast_color_removed: "色を削除しました。",
+    toast_color_added: "新しい色を追加しました。",
+    toast_aim_copy: "コピーするブロックを照準してください。",
+    toast_copy_fail: "コピーするブロックが見つかりません。",
+    toast_copied: "ブロック1個をコピーしました。",
+    toast_clipboard_empty: "クリップボードが空です。",
+    toast_aim_paste: "貼り付ける位置を照準してください。",
+    toast_pasted: "貼り付けました。",
+    toast_aim_select: "選択するブロックを照準してください。",
+    toast_select_start: "開始点を設定。2番目の地点を選択してください。",
+    toast_select_done: "ブロック{0}個が選択範囲にあります。",
+    toast_select_cleared: "選択解除",
+    toast_select_empty: "選択範囲にブロックがありません。",
+    toast_copied_n: "ブロック{0}個をコピー",
+    toast_removed_n: "ブロック{0}個を削除",
+    toast_exported: "平面図を保存しました。",
+    toast_export_empty: "エクスポートするブロックがありません。",
+
+    // Dot view
+    dotview: "平面図",
+    dotview_back: "戻る",
+    dotview_save: "PNG保存",
+
+    // Guide
+    guide_button: "操作ガイド",
+    guide_title: "操作ガイド",
+
+    // Batch direction labels (toast)
+    batch_dir_off: "オフ",
+    batch_dir_forward: "前方",
+    batch_dir_right: "右",
+    batch_dir_up: "上",
+
+    // Symmetry labels (toast)
+    sym_label_off: "オフ",
+    sym_label_lr: "左右対称",
+    sym_label_fb: "前後対称",
+
+    // Mobile
+    mobile_blocks: "ブロック{0}個",
+    mobile_viewer: "ビューアーモード \u2014 編集はPCで可能です",
+    mobile_hint: "ドラッグ: 回転 \u00B7 ピンチ: ズーム \u00B7 2本指ドラッグ: 移動",
+    mobile_edit_hint: "タップ: 配置 \u00B7 長押し: 削除 \u00B7 ドラッグ: 回転",
+    toast_saved_mobile: "設計図を保存しました。",
+    toast_color_selected: "色を選択: {0}",
+
+    // Patch notes
+    patch_title: "パッチノート",
+    patch_close: "閉じる",
+    patch_button: "パッチノート",
+    patch_feedback: "バグやフィードバックは{0}までご連絡ください。",
+
+    // Pixel Art Converter
+    pixelart_title: "画像 \u2192 ブロック変換",
+    pixelart_button: "ピクセルアート",
+    pixelart_drop: "画像をドラッグまたはクリックしてアップロード",
+    pixelart_resolution: "最大解像度",
+    pixelart_colors: "色数",
+    pixelart_orientation: "方向",
+    pixelart_floor: "床 (XZ)",
+    pixelart_wall: "壁 (XY)",
+    pixelart_apply: "適用",
+    pixelart_info: "{0} \u00D7 {1}、{2}色、ブロック{3}個",
+    toast_pixelart_applied: "ピクセルアート適用！ブロック{0}個を配置",
+    toast_pixelart_no_image: "まず画像をアップロードしてください。",
+    toast_pixelart_no_blocks: "変換するブロックがありません。",
+
+    // WebGL error
+    webgl_title: "WebGLが利用できません",
+    webgl_msg: "ブラウザがWebGLに対応しているか確認してください。",
+  },
 };
 
 function detectDefaultLang() {
   const browserLang = navigator.language || "";
-  return browserLang.startsWith("ko") ? "ko" : "en";
+  if (browserLang.startsWith("ko")) return "ko";
+  if (browserLang.startsWith("ja")) return "ja";
+  return "en";
 }
 
 const state = { lang: localStorage.getItem("pokopia-lang") || detectDefaultLang() };
