@@ -18,6 +18,7 @@ const patchNotes = [
         ] },
         { title: "UI 개선", items: [
           "'모서리' → '지붕 모서리'로 명칭 변경",
+          "초기화 옵션 분리 — '블록만 초기화' / '전체 초기화 (블록 + 색상)'",
         ] },
       ],
       en: [
@@ -30,6 +31,7 @@ const patchNotes = [
         ] },
         { title: "UI Improvement", items: [
           "'Corner' renamed to 'Roof Corner'",
+          "Reset options — 'Blocks only' / 'Full reset (blocks + colors)'",
         ] },
       ],
       ja: [
@@ -42,6 +44,7 @@ const patchNotes = [
         ] },
         { title: "UI改善", items: [
           "「コーナー」→「屋根コーナー」に名称変更",
+          "リセットオプション分離 —「ブロックのみ」/「全リセット（ブロック＋色）」",
         ] },
       ],
     },

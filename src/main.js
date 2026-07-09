@@ -311,19 +311,21 @@ if (isMobile) {
 
   // ── Reset ──
   document.querySelector("#mobileResetBtn").addEventListener("click", () => {
-    if (!confirm(t("confirm_reset"))) return;
-    blocks.clear();
-    undoMgr.clear();
-    lastTapScreen = null;
-    blocks.setGhost([]);
-    mobileState.selectedMaterial = "default";
-    mobileState.selectedShape = "cube";
-    mobileState.selectedRotation = 0;
-    updateMobileColorIndicator();
-    updateMobileShapeUI();
-    document.querySelector("#mobileRotateBtn").textContent = "0°";
-    markChanged();
-    mobileToast(t("toast_reset"));
+    openResetModal((includeColors) => {
+      blocks.clear();
+      if (includeColors) resetMaterials();
+      undoMgr.clear();
+      lastTapScreen = null;
+      blocks.setGhost([]);
+      mobileState.selectedMaterial = "default";
+      mobileState.selectedShape = "cube";
+      mobileState.selectedRotation = 0;
+      updateMobileColorIndicator();
+      updateMobileShapeUI();
+      document.querySelector("#mobileRotateBtn").textContent = "0°";
+      markChanged();
+      mobileToast(includeColors ? t("toast_reset_all") : t("toast_reset"));
+    });
   });
 
   // ── File Load ──
@@ -592,15 +594,22 @@ const toolbar = new Toolbar({
     }
   },
   onReset: () => {
-    if (!window.confirm(t("confirm_reset"))) return;
-    const allBlocks = blocks.getAllBlocks();
-    blocks.clear();
-    if (allBlocks.length > 0) {
-      undoManager.push({ added: [], removed: allBlocks });
-    }
-    state.clipboard = [];
-    markChanged();
-    toast(t("toast_reset"));
+    openResetModal((includeColors) => {
+      const allBlocks = blocks.getAllBlocks();
+      blocks.clear();
+      if (includeColors) resetMaterials();
+      if (allBlocks.length > 0) {
+        undoManager.push({ added: [], removed: allBlocks });
+      }
+      state.clipboard = [];
+      if (includeColors) {
+        toolbar.renderMaterials(blocks.getMaterialOptions());
+        state.selectedMaterial = "default";
+        sidebar.setMaterial(getMaterialLabel(blocks.getMaterial("default")));
+      }
+      markChanged();
+      toast(includeColors ? t("toast_reset_all") : t("toast_reset"));
+    });
   },
 });
 
@@ -1137,6 +1146,39 @@ versionBtn.addEventListener("click", () => patchModal.open());
 if (patchModal.shouldShow()) {
   patchModal.open();
 }
+
+// Reset modal
+const resetOverlay = document.querySelector("#resetModal");
+let resetCallback = null;
+
+function openResetModal(callback) {
+  resetCallback = callback;
+  resetOverlay.classList.remove("hidden");
+}
+
+function closeResetModal() {
+  resetOverlay.classList.add("hidden");
+  resetCallback = null;
+}
+
+function resetMaterials() {
+  const mats = blocks.getMaterialOptions();
+  for (const mat of mats) {
+    if (mat.id !== "default") blocks.removeMaterial(mat.id);
+  }
+  blocks.updateMaterial("default", { color: "#bc90e9", memo: "" });
+}
+
+document.querySelector("#resetModalClose").addEventListener("click", closeResetModal);
+resetOverlay.addEventListener("click", (e) => { if (e.target === resetOverlay) closeResetModal(); });
+document.querySelector("#resetBlocksOnly").addEventListener("click", () => {
+  if (resetCallback) resetCallback(false);
+  closeResetModal();
+});
+document.querySelector("#resetAll").addEventListener("click", () => {
+  if (resetCallback) resetCallback(true);
+  closeResetModal();
+});
 
 // Guide modal
 const guideOverlay = document.querySelector("#guideModal");

@@ -295,6 +295,21 @@
         </div>
       </div>
 
+      <!-- Reset Modal -->
+      <div id="resetModal" class="modal-overlay hidden">
+        <div class="modal" style="max-width:340px">
+          <div class="modal-header">
+            <h2 data-i18n="reset">초기화</h2>
+            <button id="resetModalClose" class="modal-close" type="button">&times;</button>
+          </div>
+          <div class="modal-body" style="padding:12px 18px">
+            <p id="resetModalDesc" data-i18n="reset_desc" style="margin:0 0 14px;font-size:13px;color:#b0b8b3;"></p>
+            <button id="resetBlocksOnly" class="modal-ok" style="margin:0 0 8px;width:100%" type="button" data-i18n="reset_blocks_only">블록만 초기화</button>
+            <button id="resetAll" class="modal-ok" style="margin:0;width:100%;border-color:rgba(220,80,80,0.5);background:rgba(220,80,80,0.18)" type="button" data-i18n="reset_all">전체 초기화 (블록 + 색상)</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Guide Modal -->
       <div id="guideModal" class="modal-overlay hidden">
         <div class="modal">
