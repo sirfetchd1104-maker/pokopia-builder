@@ -1,9 +1,51 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.2";
+const CURRENT_VERSION = "2.3";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.3",
+    date: "2026.07.09",
+    changes: {
+      ko: [
+        { title: "새 블록 타입 추가", items: [
+          "원기둥 — 수직 원통형 블록",
+          "눕힌 원기둥 — 수평으로 누운 원통형 블록",
+          "반원기둥 — 아래가 평평하고 위가 둥근 반원통 블록",
+          "반블록 — 기본 블록의 절반 높이 직육면체",
+          "키보드 단축키 4~7번으로 선택 가능",
+        ] },
+        { title: "UI 개선", items: [
+          "'모서리' → '지붕 모서리'로 명칭 변경",
+        ] },
+      ],
+      en: [
+        { title: "New Block Types", items: [
+          "Cylinder — vertical cylindrical block",
+          "H-Cylinder — horizontal cylindrical block",
+          "Half Cylinder — flat bottom, curved top half-pipe block",
+          "Half Block — half-height rectangular slab",
+          "Select with keyboard shortcuts 4~7",
+        ] },
+        { title: "UI Improvement", items: [
+          "'Corner' renamed to 'Roof Corner'",
+        ] },
+      ],
+      ja: [
+        { title: "新ブロックタイプ追加", items: [
+          "円柱 — 縦型の円筒ブロック",
+          "横円柱 — 横向きの円筒ブロック",
+          "半円柱 — 下が平らで上が丸いハーフパイプブロック",
+          "ハーフブロック — 基本ブロックの半分の高さの直方体",
+          "キーボードショートカット 4~7 で選択可能",
+        ] },
+        { title: "UI改善", items: [
+          "「コーナー」→「屋根コーナー」に名称変更",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.2",
     date: "2026.07.08",

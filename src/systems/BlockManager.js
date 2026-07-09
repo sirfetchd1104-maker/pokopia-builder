@@ -24,12 +24,20 @@ export class BlockManager {
       cube: [],
       wedge: [],
       corner: [],
+      cylinder: [],
+      hCylinder: [],
+      halfCylinder: [],
+      halfCube: [],
     };
 
     this.geometries = {
       cube: new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE),
       wedge: createWedgeGeometry(),
       corner: createCornerGeometry(),
+      cylinder: createCylinderGeometry(),
+      hCylinder: createHorizontalCylinderGeometry(),
+      halfCylinder: createHalfCylinderGeometry(),
+      halfCube: createHalfCubeGeometry(),
     };
     this.material = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -37,14 +45,15 @@ export class BlockManager {
       metalness: 0.02,
     });
 
-    this.meshCapacity = { cube: INITIAL_CAPACITY, wedge: INITIAL_CAPACITY, corner: INITIAL_CAPACITY };
-    this.meshes = {
-      cube: this.createMesh("cube", INITIAL_CAPACITY),
-      wedge: this.createMesh("wedge", INITIAL_CAPACITY),
-      corner: this.createMesh("corner", INITIAL_CAPACITY),
-    };
+    const shapeNames = Object.keys(this.geometries);
+    this.meshCapacity = {};
+    this.meshes = {};
+    for (const s of shapeNames) {
+      this.meshCapacity[s] = INITIAL_CAPACITY;
+      this.meshes[s] = this.createMesh(s, INITIAL_CAPACITY);
+    }
     this.mesh = this.meshes.cube;
-    scene.add(this.meshes.cube, this.meshes.wedge, this.meshes.corner);
+    scene.add(...Object.values(this.meshes));
 
     this.ghostMaterial = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -53,12 +62,11 @@ export class BlockManager {
       roughness: 0.5,
     });
     this.ghostCapacity = GHOST_CAPACITY;
-    this.ghosts = {
-      cube: this.createGhostMesh("cube"),
-      wedge: this.createGhostMesh("wedge"),
-      corner: this.createGhostMesh("corner"),
-    };
-    scene.add(this.ghosts.cube, this.ghosts.wedge, this.ghosts.corner);
+    this.ghosts = {};
+    for (const s of shapeNames) {
+      this.ghosts[s] = this.createGhostMesh(s);
+    }
+    scene.add(...Object.values(this.ghosts));
 
     this.matrix = new THREE.Matrix4();
     this.normalMatrix = new THREE.Matrix3();
@@ -266,7 +274,7 @@ export class BlockManager {
   }
 
   rebuildMeshes() {
-    this.instanceBlocks = { cube: [], wedge: [], corner: [] };
+    this.instanceBlocks = { cube: [], wedge: [], corner: [], cylinder: [], hCylinder: [], halfCylinder: [], halfCube: [] };
     for (const block of this.blocks.values()) {
       if (this.isVisibleInLayer(block)) {
         this.instanceBlocks[block.shape].push(block);
@@ -404,7 +412,7 @@ export class BlockManager {
   }
 
   getValidShape(shape) {
-    if (shape === "wedge" || shape === "corner") return shape;
+    if (this.geometries[shape]) return shape;
     return "cube";
   }
 
@@ -503,6 +511,78 @@ function createCornerGeometry() {
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
   return geometry;
+}
+
+function createCylinderGeometry() {
+  const geo = new THREE.CylinderGeometry(0.5, 0.5, 1, 16);
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createHalfCylinderGeometry() {
+  const segments = 12;
+  const r = 0.5;
+  const halfLen = 0.5;
+  const bottom = -0.5;
+  const positions = [];
+  const normals = [];
+
+  for (let i = 0; i < segments; i++) {
+    const t1 = (i / segments) * Math.PI;
+    const t2 = ((i + 1) / segments) * Math.PI;
+    const x1 = Math.cos(t1) * r, y1 = bottom + Math.sin(t1) * r;
+    const x2 = Math.cos(t2) * r, y2 = bottom + Math.sin(t2) * r;
+    const nx1 = Math.cos(t1), ny1 = Math.sin(t1);
+    const nx2 = Math.cos(t2), ny2 = Math.sin(t2);
+
+    positions.push(x1, y1, -halfLen, x2, y2, -halfLen, x2, y2, halfLen);
+    normals.push(nx1, ny1, 0, nx2, ny2, 0, nx2, ny2, 0);
+    positions.push(x1, y1, -halfLen, x2, y2, halfLen, x1, y1, halfLen);
+    normals.push(nx1, ny1, 0, nx2, ny2, 0, nx1, ny1, 0);
+  }
+
+  for (let i = 0; i < segments; i++) {
+    const t1 = (i / segments) * Math.PI;
+    const t2 = ((i + 1) / segments) * Math.PI;
+    positions.push(0, bottom, halfLen, Math.cos(t1) * r, bottom + Math.sin(t1) * r, halfLen, Math.cos(t2) * r, bottom + Math.sin(t2) * r, halfLen);
+    normals.push(0, 0, 1, 0, 0, 1, 0, 0, 1);
+  }
+
+  for (let i = 0; i < segments; i++) {
+    const t1 = (i / segments) * Math.PI;
+    const t2 = ((i + 1) / segments) * Math.PI;
+    positions.push(0, bottom, -halfLen, Math.cos(t2) * r, bottom + Math.sin(t2) * r, -halfLen, Math.cos(t1) * r, bottom + Math.sin(t1) * r, -halfLen);
+    normals.push(0, 0, -1, 0, 0, -1, 0, 0, -1);
+  }
+
+  positions.push(-r, bottom, -halfLen, r, bottom, -halfLen, r, bottom, halfLen);
+  normals.push(0, -1, 0, 0, -1, 0, 0, -1, 0);
+  positions.push(-r, bottom, -halfLen, r, bottom, halfLen, -r, bottom, halfLen);
+  normals.push(0, -1, 0, 0, -1, 0, 0, -1, 0);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createHorizontalCylinderGeometry() {
+  const geo = new THREE.CylinderGeometry(0.5, 0.5, 1, 16);
+  geo.rotateX(Math.PI / 2);
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createHalfCubeGeometry() {
+  const geo = new THREE.BoxGeometry(1, 0.5, 1);
+  geo.translate(0, -0.25, 0);
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
 }
 
 function hslToHex(h, s, l) {

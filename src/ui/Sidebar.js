@@ -41,7 +41,7 @@ export class Sidebar {
   }
 
   setShape(shape) {
-    const key = { cube: "shape_cube", wedge: "shape_wedge", corner: "shape_corner" };
+    const key = { cube: "shape_cube", wedge: "shape_wedge", corner: "shape_corner", cylinder: "shape_cylinder", hCylinder: "shape_hCylinder", halfCylinder: "shape_halfCylinder", halfCube: "shape_halfCube" };
     this.shapeLabel.textContent = t(key[shape] ?? "shape_cube");
   }
 

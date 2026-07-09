@@ -55,7 +55,11 @@ const dict = {
     // Shapes
     shape_cube: "블록",
     shape_wedge: "지붕",
-    shape_corner: "모서리",
+    shape_corner: "지붕 모서리",
+    shape_cylinder: "원기둥",
+    shape_hCylinder: "눕힌 원기둥",
+    shape_halfCylinder: "반원기둥",
+    shape_halfCube: "반블록",
 
     // Directions
     dir_front: "앞",
@@ -249,7 +253,11 @@ const dict = {
 
     shape_cube: "Block",
     shape_wedge: "Wedge",
-    shape_corner: "Corner",
+    shape_corner: "Roof Corner",
+    shape_cylinder: "Cylinder",
+    shape_hCylinder: "H-Cylinder",
+    shape_halfCylinder: "Half Cylinder",
+    shape_halfCube: "Half Block",
 
     dir_front: "F",
     dir_back: "B",
@@ -434,7 +442,11 @@ const dict = {
     // Shapes
     shape_cube: "ブロック",
     shape_wedge: "屋根",
-    shape_corner: "コーナー",
+    shape_corner: "屋根コーナー",
+    shape_cylinder: "円柱",
+    shape_hCylinder: "横円柱",
+    shape_halfCylinder: "半円柱",
+    shape_halfCube: "ハーフブロック",
 
     // Directions
     dir_front: "前",

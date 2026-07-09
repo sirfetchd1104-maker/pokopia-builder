@@ -185,6 +185,30 @@ if (isMobile) {
     mobileToast(t("toast_shape", t("shape_corner")));
     updateMobileGhost();
   });
+  document.querySelector("#mobileShapeCylinder").addEventListener("click", () => {
+    mobileState.selectedShape = "cylinder";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_cylinder")));
+    updateMobileGhost();
+  });
+  document.querySelector("#mobileShapeHCylinder").addEventListener("click", () => {
+    mobileState.selectedShape = "hCylinder";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_hCylinder")));
+    updateMobileGhost();
+  });
+  document.querySelector("#mobileShapeHalfCylinder").addEventListener("click", () => {
+    mobileState.selectedShape = "halfCylinder";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_halfCylinder")));
+    updateMobileGhost();
+  });
+  document.querySelector("#mobileShapeHalfCube").addEventListener("click", () => {
+    mobileState.selectedShape = "halfCube";
+    updateMobileShapeUI();
+    mobileToast(t("toast_shape", t("shape_halfCube")));
+    updateMobileGhost();
+  });
 
   // ── Rotation Button ──
   document.querySelector("#mobileRotateBtn").addEventListener("click", () => {
@@ -749,8 +773,8 @@ window.addEventListener("keydown", (event) => {
 
   if (document.pointerLockElement !== canvas) return;
   if (event.ctrlKey || event.metaKey || event.altKey) return;
-  if (!event.repeat && (event.code === "Digit1" || event.code === "Digit2" || event.code === "Digit3")) {
-    const shapes = { Digit1: "cube", Digit2: "wedge", Digit3: "corner" };
+  if (!event.repeat && ["Digit1","Digit2","Digit3","Digit4","Digit5","Digit6","Digit7"].includes(event.code)) {
+    const shapes = { Digit1: "cube", Digit2: "wedge", Digit3: "corner", Digit4: "cylinder", Digit5: "hCylinder", Digit6: "halfCylinder", Digit7: "halfCube" };
     state.selectedShape = shapes[event.code];
     toolbar.setShape(state.selectedShape);
     sidebar.setShape(state.selectedShape);
@@ -1142,7 +1166,7 @@ function renderGuide() {
     { title: "건축", items: [
       ["좌클릭", "블록 설치"],
       ["우클릭", "블록 제거"],
-      ["1 / 2 / 3", "블록 종류 (블록 / 지붕 / 모서리)"],
+      ["1~7", "블록 종류 (블록 / 지붕 / 지붕 모서리 / 원기둥 / 눕힌 원기둥 / 반원기둥 / 반블록)"],
       ["R", "회전 (0° → 90° → 180° → 270°)"],
       ["E", "일괄배치 방향 전환 (끄기 → 앞 → 오른쪽 → 위)"],
       ["T", "대칭배치 전환 (끄기 → 좌우 → 앞뒤)"],
@@ -1175,7 +1199,7 @@ function renderGuide() {
     { title: "Building", items: [
       ["Left Click", "Place block"],
       ["Right Click", "Remove block"],
-      ["1 / 2 / 3", "Shape (Block / Wedge / Corner)"],
+      ["1~7", "Shape (Block / Wedge / Roof Corner / Cylinder / H-Cylinder / Half Cylinder / Half Block)"],
       ["R", "Rotate (0° → 90° → 180° → 270°)"],
       ["E", "Batch direction (Off → Fwd → Right → Up)"],
       ["T", "Symmetry (Off → L-R → F-B)"],
