@@ -183,6 +183,8 @@ const dict = {
     patch_title: "패치 노트",
     patch_close: "닫기",
     patch_button: "패치노트",
+    patch_older_show: "이전 패치 내역 보기",
+    patch_older_hide: "이전 패치 내역 접기",
     patch_feedback: "버그 및 피드백은 {0}으로 제보해 주시면 감사하겠습니다.",
 
     // Pixel Art Converter
@@ -375,6 +377,8 @@ const dict = {
     patch_title: "Patch Notes",
     patch_close: "Close",
     patch_button: "Patch Notes",
+    patch_older_show: "Show older patch notes",
+    patch_older_hide: "Hide older patch notes",
     patch_feedback: "For bugs and feedback, please contact {0}.",
 
     // Pixel Art Converter
@@ -580,6 +584,8 @@ const dict = {
     patch_title: "パッチノート",
     patch_close: "閉じる",
     patch_button: "パッチノート",
+    patch_older_show: "以前のパッチ履歴を表示",
+    patch_older_hide: "以前のパッチ履歴を閉じる",
     patch_feedback: "バグやフィードバックは{0}までご連絡ください。",
 
     // Pixel Art Converter

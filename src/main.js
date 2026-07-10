@@ -288,7 +288,7 @@ if (isMobile) {
   function updateBatchBtn() {
     const dir = mobileState.batch.direction;
     const label = t(batchLabels[dir]) + (dir !== "off" ? ` ×${mobileState.batch.count}` : "");
-    document.querySelector("#mobileBatchBtn").textContent = label;
+    document.querySelector("#mobileBatchValue").textContent = label;
   }
 
   document.querySelector("#mobileBatchBtn").addEventListener("click", () => {
@@ -323,7 +323,7 @@ if (isMobile) {
   document.querySelector("#mobileSymmetryBtn").addEventListener("click", () => {
     const idx = symModes.indexOf(mobileState.symmetryMode);
     mobileState.symmetryMode = symModes[(idx + 1) % symModes.length];
-    document.querySelector("#mobileSymmetryBtn").textContent = t(symLabels[mobileState.symmetryMode]);
+    document.querySelector("#mobileSymmetryValue").textContent = t(symLabels[mobileState.symmetryMode]);
     mobileToast(t("toast_symmetry", t(symLabels[mobileState.symmetryMode])));
     updateMobileGhost();
   });
@@ -483,7 +483,7 @@ if (isMobile) {
       updateMobileShapeUI();
       updateBatchBtn();
       document.querySelector("#mobileRotateBtn").textContent = "0°";
-      document.querySelector("#mobileSymmetryBtn").textContent = t("sym_off");
+      document.querySelector("#mobileSymmetryValue").textContent = t("sym_off");
       markChanged();
       mobileToast(includeColors ? t("toast_reset_all") : t("toast_reset"));
     });
@@ -663,31 +663,58 @@ if (isMobile) {
 
   function updateLayerBtn() {
     const label = t(layerLabels[mobileLayerMode]);
-    document.querySelector("#mobileLayerBtn").textContent = label + (mobileLayerMode !== "all" ? ` Y=${mobileLayerValue}` : "");
+    document.querySelector("#mobileLayerValue").textContent = label + (mobileLayerMode !== "all" ? ` Y=${mobileLayerValue}` : "");
   }
 
-  document.querySelector("#mobileLayerBtn").addEventListener("click", () => {
-    const idx = layerModes.indexOf(mobileLayerMode);
-    mobileLayerMode = layerModes[(idx + 1) % layerModes.length];
-    blocks.setLayerFilter({ mode: mobileLayerMode, value: mobileLayerValue });
-    updateLayerBtn();
-    mobileToast(t(layerLabels[mobileLayerMode]));
+  function updateLayerModal() {
+    document.querySelector("#mobileLayerDisplay").textContent = `Y = ${mobileLayerValue}`;
+    for (const mode of layerModes) {
+      const btn = document.querySelector(`#mobileLayerMode${mode[0].toUpperCase() + mode.slice(1)}`);
+      btn.classList.toggle("active", mobileLayerMode === mode);
+    }
+    // Dim +/- when mode is "all"
+    const valueRow = document.querySelector(".mobile-layer-value-row");
+    valueRow.style.opacity = mobileLayerMode === "all" ? "0.35" : "1";
+  }
+
+  function openLayerModal() {
+    updateLayerModal();
+    document.querySelector("#mobileLayerModal").classList.remove("hidden");
+  }
+  function closeLayerModal() {
+    document.querySelector("#mobileLayerModal").classList.add("hidden");
+  }
+
+  document.querySelector("#mobileLayerBtn").addEventListener("click", openLayerModal);
+  document.querySelector("#mobileLayerModalClose").addEventListener("click", closeLayerModal);
+  document.querySelector("#mobileLayerModal").addEventListener("click", (e) => {
+    if (e.target.id === "mobileLayerModal") closeLayerModal();
   });
 
-  // Long press to change layer value
-  let layerLongTimer = null;
-  document.querySelector("#mobileLayerBtn").addEventListener("touchstart", () => {
-    layerLongTimer = setTimeout(() => {
-      layerLongTimer = null;
-      if (mobileLayerMode === "all") return;
-      mobileLayerValue = (mobileLayerValue + 1) % 20;
+  for (const mode of layerModes) {
+    const btn = document.querySelector(`#mobileLayerMode${mode[0].toUpperCase() + mode.slice(1)}`);
+    btn.addEventListener("click", () => {
+      mobileLayerMode = mode;
       blocks.setLayerFilter({ mode: mobileLayerMode, value: mobileLayerValue });
       updateLayerBtn();
-      mobileToast(`Y=${mobileLayerValue}`);
-    }, 500);
-  }, { passive: true });
-  document.querySelector("#mobileLayerBtn").addEventListener("touchend", () => { clearTimeout(layerLongTimer); });
-  document.querySelector("#mobileLayerBtn").addEventListener("touchcancel", () => { clearTimeout(layerLongTimer); });
+      updateLayerModal();
+    });
+  }
+
+  document.querySelector("#mobileLayerPlus").addEventListener("click", () => {
+    if (mobileLayerMode === "all") return;
+    mobileLayerValue = Math.min(19, mobileLayerValue + 1);
+    blocks.setLayerFilter({ mode: mobileLayerMode, value: mobileLayerValue });
+    updateLayerBtn();
+    updateLayerModal();
+  });
+  document.querySelector("#mobileLayerMinus").addEventListener("click", () => {
+    if (mobileLayerMode === "all") return;
+    mobileLayerValue = Math.max(0, mobileLayerValue - 1);
+    blocks.setLayerFilter({ mode: mobileLayerMode, value: mobileLayerValue });
+    updateLayerBtn();
+    updateLayerModal();
+  });
 
   // ── Move All Modal ──
   function openMoveModal() {

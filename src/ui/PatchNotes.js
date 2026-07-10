@@ -1,9 +1,66 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.3";
+const CURRENT_VERSION = "2.4";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.4",
+    date: "2026.07.10",
+    changes: {
+      ko: [
+        { title: "모바일 에디터 기능 강화", items: [
+          "초기화 기능이 모바일에서 동작하지 않던 버그 수정",
+          "▲▼ 버튼으로 카메라 높이 조절 가능",
+          "블록 종류 선택을 모달 방식으로 변경 (7종 지원)",
+          "색상 관리 — 색상 편집, 이름 변경, 삭제 기능 추가",
+          "일괄 배치(Batch) — 방향 4종, 개수 2~16",
+          "대칭 배치(Symmetry) — X축 / Z축",
+          "레이어 필터 — 전체 / 해당 층만 / 해당 층 이하 (모달에서 층 조절)",
+          "전체 이동 모달 — 6방향 이동 지원",
+          "색상별 블록 수 통계 — 상단 블록 수 탭하여 확인",
+          "조작 가이드 모달 추가",
+        ] },
+        { title: "패치노트 개선", items: [
+          "최근 3개 버전만 기본 표시, '이전 패치 내역 보기' 버튼으로 확장",
+        ] },
+      ],
+      en: [
+        { title: "Mobile Editor Enhancements", items: [
+          "Fixed reset not working on mobile",
+          "▲▼ buttons for camera height control",
+          "Block shape selection changed to modal (7 types)",
+          "Color management — edit color, rename, delete",
+          "Batch placement — 4 directions, count 2~16",
+          "Symmetry placement — X-axis / Z-axis",
+          "Layer filter — all / current only / current and below (modal with level selector)",
+          "Move All modal — 6-directional movement",
+          "Block stats by color — tap block count to view",
+          "Controls guide modal added",
+        ] },
+        { title: "Patch Notes Improvement", items: [
+          "Shows only recent 3 versions by default, expandable 'Show older' button",
+        ] },
+      ],
+      ja: [
+        { title: "モバイルエディタ機能強化", items: [
+          "リセットがモバイルで動作しないバグを修正",
+          "▲▼ボタンでカメラ高さ調整が可能に",
+          "ブロック種類選択をモーダル方式に変更（7種対応）",
+          "色管理 — 色編集、名前変更、削除機能を追加",
+          "一括配置（Batch） — 4方向、個数2~16",
+          "対称配置（Symmetry） — X軸 / Z軸",
+          "レイヤーフィルター — 全体 / 該当階のみ / 該当階以下（モーダルで階数調整）",
+          "全体移動モーダル — 6方向移動対応",
+          "色別ブロック数統計 — 上部のブロック数タップで確認",
+          "操作ガイドモーダル追加",
+        ] },
+        { title: "パッチノート改善", items: [
+          "最新3バージョンのみ表示、「以前のパッチ履歴を表示」ボタンで展開可能",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.3",
     date: "2026.07.09",
@@ -232,6 +289,17 @@ export class PatchNotesModal {
     const lang = getLang();
     this.title.textContent = t("patch_title") + " — v" + CURRENT_VERSION;
     this.body.innerHTML = this.renderNotes(lang);
+
+    const toggle = this.body.querySelector(".patch-older-toggle");
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        const content = this.body.querySelector(".patch-older-content");
+        const expanded = content.style.display !== "none";
+        content.style.display = expanded ? "none" : "block";
+        toggle.textContent = expanded ? t("patch_older_show") : t("patch_older_hide");
+      });
+    }
+
     this.overlay.classList.remove("hidden");
   }
 
@@ -241,24 +309,49 @@ export class PatchNotesModal {
   }
 
   renderNotes(lang) {
+    const RECENT_COUNT = 3;
+    const recent = patchNotes.slice(0, RECENT_COUNT);
+    const older = patchNotes.slice(RECENT_COUNT);
+
     let html = "";
-    for (const patch of patchNotes) {
-      const sections = patch.changes[lang] || patch.changes.en;
-      for (const section of sections) {
-        html += `<h3>${section.title}</h3><ul>`;
-        for (const item of section.items) {
-          html += `<li>${item}</li>`;
-        }
-        html += "</ul>";
-      }
-      if (patch !== patchNotes[patchNotes.length - 1]) {
-        const next = patchNotes[patchNotes.indexOf(patch) + 1];
+    for (let i = 0; i < recent.length; i++) {
+      html += this._renderPatch(recent[i], lang);
+      if (i < recent.length - 1 || older.length > 0) {
+        const next = patchNotes[i + 1];
         html += `<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0">`;
         html += `<p style="margin:0 0 8px;font-size:12px;color:rgba(255,255,255,0.35)">v${next.version} — ${next.date}</p>`;
       }
     }
+
+    if (older.length > 0) {
+      html += `<button type="button" class="patch-older-toggle" data-action="expand">${t("patch_older_show")}</button>`;
+      html += `<div class="patch-older-content" style="display:none">`;
+      for (let i = 0; i < older.length; i++) {
+        html += this._renderPatch(older[i], lang);
+        if (i < older.length - 1) {
+          const next = older[i + 1];
+          html += `<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0">`;
+          html += `<p style="margin:0 0 8px;font-size:12px;color:rgba(255,255,255,0.35)">v${next.version} — ${next.date}</p>`;
+        }
+      }
+      html += `</div>`;
+    }
+
     const email = "sirfetchd1104@gmail.com";
     html += `<p style="margin-top:18px;font-size:0.85em;color:rgba(255,255,255,0.45)">${t("patch_feedback", email)}</p>`;
+    return html;
+  }
+
+  _renderPatch(patch, lang) {
+    let html = "";
+    const sections = patch.changes[lang] || patch.changes.en;
+    for (const section of sections) {
+      html += `<h3>${section.title}</h3><ul>`;
+      for (const item of section.items) {
+        html += `<li>${item}</li>`;
+      }
+      html += "</ul>";
+    }
     return html;
   }
 
