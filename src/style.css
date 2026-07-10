@@ -919,6 +919,34 @@ kbd {
   pointer-events: none;
 }
 
+/* Mobile Camera Vertical Buttons */
+.mobile-cam-vertical {
+  display: none;
+}
+
+.mobile-editor .mobile-cam-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: fixed;
+  z-index: 11;
+  right: 20px;
+  bottom: 120px;
+}
+
+.mobile-cam-vertical-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef3f0;
+  font-size: 18px;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+}
+
 /* Mobile Color Picker Modal */
 .mobile-color-modal {
   position: fixed;

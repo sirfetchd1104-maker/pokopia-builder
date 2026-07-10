@@ -459,6 +459,21 @@ if (isMobile) {
     joystickKnob.style.transform = "translate(-50%, -50%)";
   }
 
+  // ── Camera Vertical Buttons ──
+  const CAM_VERTICAL_SPEED = 6;
+  let camUpPressed = false, camDownPressed = false;
+
+  const camUpBtn = document.querySelector("#mobileCamUp");
+  const camDownBtn = document.querySelector("#mobileCamDown");
+
+  camUpBtn.addEventListener("touchstart", (e) => { e.preventDefault(); camUpPressed = true; }, { passive: false });
+  camUpBtn.addEventListener("touchend", () => { camUpPressed = false; });
+  camUpBtn.addEventListener("touchcancel", () => { camUpPressed = false; });
+
+  camDownBtn.addEventListener("touchstart", (e) => { e.preventDefault(); camDownPressed = true; }, { passive: false });
+  camDownBtn.addEventListener("touchend", () => { camDownPressed = false; });
+  camDownBtn.addEventListener("touchcancel", () => { camDownPressed = false; });
+
   // ── Patch Notes ──
   const mobilePatchModal = new PatchNotesModal();
   document.querySelector("#mobilePatchBtn").addEventListener("click", () => mobilePatchModal.open());
@@ -499,6 +514,10 @@ if (isMobile) {
       touchCam.target.z += moveZ;
       touchCam.applyPosition();
     }
+
+    // Apply vertical camera movement
+    if (camUpPressed) { touchCam.target.y += CAM_VERTICAL_SPEED * delta; touchCam.applyPosition(); }
+    if (camDownPressed) { touchCam.target.y -= CAM_VERTICAL_SPEED * delta; touchCam.applyPosition(); }
 
     sceneManager.render();
     requestAnimationFrame(mobileAnimate);
@@ -1147,39 +1166,6 @@ if (patchModal.shouldShow()) {
   patchModal.open();
 }
 
-// Reset modal
-const resetOverlay = document.querySelector("#resetModal");
-let resetCallback = null;
-
-function openResetModal(callback) {
-  resetCallback = callback;
-  resetOverlay.classList.remove("hidden");
-}
-
-function closeResetModal() {
-  resetOverlay.classList.add("hidden");
-  resetCallback = null;
-}
-
-function resetMaterials() {
-  const mats = blocks.getMaterialOptions();
-  for (const mat of mats) {
-    if (mat.id !== "default") blocks.removeMaterial(mat.id);
-  }
-  blocks.updateMaterial("default", { color: "#bc90e9", memo: "" });
-}
-
-document.querySelector("#resetModalClose").addEventListener("click", closeResetModal);
-resetOverlay.addEventListener("click", (e) => { if (e.target === resetOverlay) closeResetModal(); });
-document.querySelector("#resetBlocksOnly").addEventListener("click", () => {
-  if (resetCallback) resetCallback(false);
-  closeResetModal();
-});
-document.querySelector("#resetAll").addEventListener("click", () => {
-  if (resetCallback) resetCallback(true);
-  closeResetModal();
-});
-
 // Guide modal
 const guideOverlay = document.querySelector("#guideModal");
 const guideTitle = document.querySelector("#guideModalTitle");
@@ -1338,3 +1324,36 @@ document.querySelector("#shareButton").addEventListener("click", async () => {
 requestAnimationFrame(animate);
 
 } // end PC editor mode
+
+// ── Reset modal (shared: mobile + PC) ──
+const resetOverlay = document.querySelector("#resetModal");
+let resetCallback = null;
+
+function openResetModal(callback) {
+  resetCallback = callback;
+  resetOverlay.classList.remove("hidden");
+}
+
+function closeResetModal() {
+  resetOverlay.classList.add("hidden");
+  resetCallback = null;
+}
+
+function resetMaterials() {
+  const mats = blocks.getMaterialOptions();
+  for (const mat of mats) {
+    if (mat.id !== "default") blocks.removeMaterial(mat.id);
+  }
+  blocks.updateMaterial("default", { color: "#bc90e9", memo: "" });
+}
+
+document.querySelector("#resetModalClose").addEventListener("click", closeResetModal);
+resetOverlay.addEventListener("click", (e) => { if (e.target === resetOverlay) closeResetModal(); });
+document.querySelector("#resetBlocksOnly").addEventListener("click", () => {
+  if (resetCallback) resetCallback(false);
+  closeResetModal();
+});
+document.querySelector("#resetAll").addEventListener("click", () => {
+  if (resetCallback) resetCallback(true);
+  closeResetModal();
+});
