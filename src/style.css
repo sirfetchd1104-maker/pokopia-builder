@@ -692,6 +692,10 @@ kbd {
   font-size: 12px;
   color: #aab6b0;
   white-space: nowrap;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
 }
 
 .mobile-load-button {
@@ -810,7 +814,6 @@ kbd {
   padding: 0 2px;
 }
 
-.mobile-shape-btn,
 .mobile-tool-btn {
   min-width: 44px;
   min-height: 44px;
@@ -840,12 +843,6 @@ kbd {
   color: #e07070;
 }
 
-.mobile-shape-btn.active {
-  border-color: rgba(167, 139, 204, 0.84);
-  background: rgba(167, 139, 204, 0.18);
-}
-
-.mobile-shape-btn:active,
 .mobile-tool-btn:active {
   background: rgba(255, 255, 255, 0.18);
 }
@@ -1064,7 +1061,81 @@ kbd {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.65);
   flex-shrink: 0;
-  margin-left: auto;
+}
+
+.mobile-color-input {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.mobile-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.mobile-color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.mobile-color-name-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #eef3f0;
+  font-size: 14px;
+  padding: 4px 0;
+  outline: none;
+}
+
+.mobile-color-name-input:focus {
+  border-bottom-color: rgba(167, 139, 204, 0.6);
+}
+
+.mobile-color-delete {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(220, 80, 80, 0.15);
+  color: #e07070;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* Mobile Move All Grid */
+.mobile-move-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 16px;
+}
+
+.mobile-move-btn {
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef3f0;
+  font-size: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-move-btn:active {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Mobile toast */

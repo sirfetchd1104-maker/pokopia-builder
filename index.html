@@ -396,28 +396,27 @@
       <div class="mobile-toolbar" id="mobileToolbar">
         <div class="mobile-toolbar-scroll-wrap">
           <div class="mobile-toolbar-row">
-            <span class="mobile-toolbar-label" data-i18n="stat_shape">블록 종류</span>
-            <button id="mobileShapeCube" class="mobile-shape-btn active" data-shape="cube" type="button" data-i18n="shape_cube">블록</button>
-            <button id="mobileShapeWedge" class="mobile-shape-btn" data-shape="wedge" type="button" data-i18n="shape_wedge">지붕</button>
-            <button id="mobileShapeCorner" class="mobile-shape-btn" data-shape="corner" type="button" data-i18n="shape_corner">모서리</button>
-            <button id="mobileShapeCylinder" class="mobile-shape-btn" data-shape="cylinder" type="button" data-i18n="shape_cylinder">원기둥</button>
-            <button id="mobileShapeHCylinder" class="mobile-shape-btn" data-shape="hCylinder" type="button" data-i18n="shape_hCylinder">눕힌 원기둥</button>
-            <button id="mobileShapeHalfCylinder" class="mobile-shape-btn" data-shape="halfCylinder" type="button" data-i18n="shape_halfCylinder">반원기둥</button>
-            <button id="mobileShapeHalfCube" class="mobile-shape-btn" data-shape="halfCube" type="button" data-i18n="shape_halfCube">반블록</button>
+            <button id="mobileShapeBtn" class="mobile-tool-btn" type="button"><span id="mobileShapeLabel" data-i18n="shape_cube">블록</span></button>
             <span class="mobile-toolbar-divider"></span>
             <button id="mobileColorBtn" class="mobile-color-btn" type="button">
               <span id="mobileColorIndicator" class="mobile-color-indicator"></span>
             </button>
             <button id="mobileRotateBtn" class="mobile-tool-btn" type="button">0°</button>
+            <button id="mobileBatchBtn" class="mobile-tool-btn" type="button"><span data-i18n="batch_off">끄기</span></button>
+            <button id="mobileSymmetryBtn" class="mobile-tool-btn" type="button"><span data-i18n="sym_off">끄기</span></button>
             <span class="mobile-toolbar-divider"></span>
             <button id="mobileUndoBtn" class="mobile-tool-btn" type="button" title="Undo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
             <button id="mobileRedoBtn" class="mobile-tool-btn" type="button" title="Redo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg></button>
             <span class="mobile-toolbar-divider"></span>
             <button id="mobileSaveBtn" class="mobile-tool-btn" type="button" title="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
             <button id="mobileShareBtn" class="mobile-tool-btn" type="button" title="Share"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+            <button id="mobileLayerBtn" class="mobile-tool-btn" type="button" data-i18n="layer_all">전체</button>
+            <button id="mobileMoveBtn" class="mobile-tool-btn" type="button" title="Move All"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
+            <span class="mobile-toolbar-divider"></span>
             <button id="mobilePixelArtBtn" class="mobile-tool-btn" type="button" title="Pixel Art"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><rect x="13" y="13" width="4" height="4"/></svg>픽셀아트</button>
             <button id="mobileResetBtn" class="mobile-tool-btn mobile-reset-btn" type="button" title="Reset"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>초기화</button>
             <span class="mobile-toolbar-divider"></span>
+            <button id="mobileGuideBtn" class="mobile-tool-btn" type="button" title="Guide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>
             <button id="mobilePatchBtn" class="mobile-tool-btn" type="button" title="Patch Notes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>패치노트</button>
           </div>
         </div>
@@ -432,6 +431,46 @@
             <button id="mobileColorModalClose" type="button">&times;</button>
           </div>
           <div id="mobileColorList" class="mobile-color-list"></div>
+        </div>
+      </div>
+
+      <!-- Mobile Shape Picker Modal -->
+      <div id="mobileShapeModal" class="mobile-color-modal hidden">
+        <div class="mobile-color-modal-content">
+          <div class="mobile-color-modal-header">
+            <span data-i18n="stat_shape">블록 종류</span>
+            <button id="mobileShapeModalClose" type="button">&times;</button>
+          </div>
+          <div id="mobileShapeList" class="mobile-color-list"></div>
+        </div>
+      </div>
+
+      <!-- Mobile Stats Modal -->
+      <div id="mobileStatsModal" class="mobile-color-modal hidden">
+        <div class="mobile-color-modal-content">
+          <div class="mobile-color-modal-header">
+            <span data-i18n="stat_color_stats">색상별 블록 수</span>
+            <button id="mobileStatsModalClose" type="button">&times;</button>
+          </div>
+          <div id="mobileStatsList" class="mobile-color-list"></div>
+        </div>
+      </div>
+
+      <!-- Mobile Move All Modal -->
+      <div id="mobileMoveModal" class="mobile-color-modal hidden">
+        <div class="mobile-color-modal-content">
+          <div class="mobile-color-modal-header">
+            <span data-i18n="move_all">전체 이동</span>
+            <button id="mobileMoveModalClose" type="button">&times;</button>
+          </div>
+          <div class="mobile-move-grid">
+            <button id="mobileMoveUp" class="mobile-move-btn" type="button" data-i18n="batch_up">위로</button>
+            <button id="mobileMoveForward" class="mobile-move-btn" type="button" data-i18n="dir_front">앞</button>
+            <button id="mobileMoveLeft" class="mobile-move-btn" type="button" data-i18n="dir_left">좌</button>
+            <button id="mobileMoveDown" class="mobile-move-btn" type="button" data-i18n="dir_down">아래로</button>
+            <button id="mobileMoveRight" class="mobile-move-btn" type="button" data-i18n="dir_right">우</button>
+            <button id="mobileMoveBack" class="mobile-move-btn" type="button" data-i18n="dir_back">뒤</button>
+          </div>
         </div>
       </div>
     </div>

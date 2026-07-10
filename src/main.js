@@ -50,7 +50,33 @@ if (isMobile) {
     selectedRotation: 0,
     selectedCell: null,
     removeCell: null,
+    batch: { direction: "off", count: 2 },
+    symmetryMode: "off",
   };
+
+  // ── Batch / Symmetry helpers ──
+  function mobileGetBatchDir(dir) {
+    if (dir === "right") return { x: 1, y: 0, z: 0 };
+    if (dir === "up") return { x: 0, y: 1, z: 0 };
+    return { x: 0, y: 0, z: -1 }; // forward
+  }
+
+  function mobileGetPlacementCells(origin) {
+    if (mobileState.batch.direction === "off") return [{ x: origin.x, y: origin.y, z: origin.z }];
+    const d = mobileGetBatchDir(mobileState.batch.direction);
+    const cells = [];
+    for (let i = 0; i < mobileState.batch.count; i++) {
+      cells.push({ x: origin.x + d.x * i, y: origin.y + d.y * i, z: origin.z + d.z * i });
+    }
+    return cells;
+  }
+
+  function mobileGetSymmetryCells(cell) {
+    const cells = [{ x: cell.x, y: cell.y, z: cell.z }];
+    if (mobileState.symmetryMode === "x" && cell.x !== 0) cells.push({ x: -cell.x, y: cell.y, z: cell.z });
+    if (mobileState.symmetryMode === "z" && cell.z !== 0) cells.push({ x: cell.x, y: cell.y, z: -cell.z });
+    return cells;
+  }
 
   // ── Toast ──
   function mobileToast(message) {
@@ -74,6 +100,50 @@ if (isMobile) {
     autoSave();
     updateBlockCount();
   }
+
+  // ── Stats Modal ──
+  function openMobileStatsModal() {
+    const modal = document.querySelector("#mobileStatsModal");
+    const list = document.querySelector("#mobileStatsList");
+    list.replaceChildren();
+
+    const stats = blocks.getColorStats();
+    const materials = blocks.getMaterialOptions();
+    const entries = materials
+      .filter((m) => stats[m.id] > 0)
+      .map((m) => ({ color: m.color, label: m.memo || m.label, count: stats[m.id] }));
+
+    if (entries.length === 0) {
+      const empty = document.createElement("div");
+      empty.style.cssText = "text-align:center;padding:16px;color:#9ca3af;";
+      empty.textContent = t("mobile_blocks", 0);
+      list.append(empty);
+    } else {
+      for (const entry of entries) {
+        const row = document.createElement("div");
+        row.className = "mobile-color-item";
+        row.innerHTML = `<span class="color-dot" style="background:${entry.color}"></span><span class="mobile-color-name">${entry.label}</span><span class="mobile-color-count">${entry.count}</span>`;
+        list.append(row);
+      }
+      // Total row
+      const total = entries.reduce((s, e) => s + e.count, 0);
+      const totalRow = document.createElement("div");
+      totalRow.className = "mobile-color-item";
+      totalRow.style.borderTop = "1px solid rgba(255,255,255,0.1)";
+      totalRow.innerHTML = `<span class="mobile-color-name" style="font-weight:600;">${t("mobile_blocks", total)}</span>`;
+      list.append(totalRow);
+    }
+
+    modal.classList.remove("hidden");
+  }
+
+  document.querySelector("#mobileBlockCount").addEventListener("click", openMobileStatsModal);
+  document.querySelector("#mobileStatsModalClose").addEventListener("click", () => {
+    document.querySelector("#mobileStatsModal").classList.add("hidden");
+  });
+  document.querySelector("#mobileStatsModal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
+  });
 
   // ── Raycast from touch position ──
   function raycastAt(sx, sy) {
@@ -103,13 +173,15 @@ if (isMobile) {
   touchCam.onTap = (sx, sy) => {
     const result = raycastAt(sx, sy);
     if (!result?.placeCell) return;
-    const target = {
-      ...result.placeCell,
-      materialId: mobileState.selectedMaterial,
-      shape: mobileState.selectedShape,
-      rotation: mobileState.selectedRotation,
-    };
-    const added = blocks.addBlocks([target]);
+    const targets = mobileGetPlacementCells(result.placeCell)
+      .flatMap((cell) => mobileGetSymmetryCells(cell))
+      .map((cell) => ({
+        ...cell,
+        materialId: mobileState.selectedMaterial,
+        shape: mobileState.selectedShape,
+        rotation: mobileState.selectedRotation,
+      }));
+    const added = blocks.addBlocks(targets);
     if (added.length > 0) {
       undoMgr.push({ added, removed: [] });
       markChanged();
@@ -160,54 +232,45 @@ if (isMobile) {
     mobileToast(t("toast_redo"));
   });
 
-  // ── Shape Buttons ──
+  // ── Shape Picker (modal) ──
+  const SHAPES = ["cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube"];
+
   function updateMobileShapeUI() {
-    document.querySelectorAll(".mobile-shape-btn").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.shape === mobileState.selectedShape);
-    });
+    document.querySelector("#mobileShapeLabel").textContent = t("shape_" + mobileState.selectedShape);
   }
 
-  document.querySelector("#mobileShapeCube").addEventListener("click", () => {
-    mobileState.selectedShape = "cube";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_cube")));
-    updateMobileGhost();
-  });
-  document.querySelector("#mobileShapeWedge").addEventListener("click", () => {
-    mobileState.selectedShape = "wedge";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_wedge")));
-    updateMobileGhost();
-  });
-  document.querySelector("#mobileShapeCorner").addEventListener("click", () => {
-    mobileState.selectedShape = "corner";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_corner")));
-    updateMobileGhost();
-  });
-  document.querySelector("#mobileShapeCylinder").addEventListener("click", () => {
-    mobileState.selectedShape = "cylinder";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_cylinder")));
-    updateMobileGhost();
-  });
-  document.querySelector("#mobileShapeHCylinder").addEventListener("click", () => {
-    mobileState.selectedShape = "hCylinder";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_hCylinder")));
-    updateMobileGhost();
-  });
-  document.querySelector("#mobileShapeHalfCylinder").addEventListener("click", () => {
-    mobileState.selectedShape = "halfCylinder";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_halfCylinder")));
-    updateMobileGhost();
-  });
-  document.querySelector("#mobileShapeHalfCube").addEventListener("click", () => {
-    mobileState.selectedShape = "halfCube";
-    updateMobileShapeUI();
-    mobileToast(t("toast_shape", t("shape_halfCube")));
-    updateMobileGhost();
+  function openMobileShapePicker() {
+    const modal = document.querySelector("#mobileShapeModal");
+    const list = document.querySelector("#mobileShapeList");
+    list.replaceChildren();
+
+    for (const shape of SHAPES) {
+      const btn = document.createElement("button");
+      btn.className = "mobile-color-item";
+      if (shape === mobileState.selectedShape) btn.classList.add("active");
+      const label = t("shape_" + shape);
+      const check = shape === mobileState.selectedShape ? "✓" : "";
+      btn.innerHTML = `<span class="mobile-color-name">${label}</span><span class="mobile-color-count">${check}</span>`;
+      btn.addEventListener("click", () => {
+        mobileState.selectedShape = shape;
+        updateMobileShapeUI();
+        closeMobileShapePicker();
+        mobileToast(t("toast_shape", label));
+        updateMobileGhost();
+      });
+      list.append(btn);
+    }
+    modal.classList.remove("hidden");
+  }
+
+  function closeMobileShapePicker() {
+    document.querySelector("#mobileShapeModal").classList.add("hidden");
+  }
+
+  document.querySelector("#mobileShapeBtn").addEventListener("click", openMobileShapePicker);
+  document.querySelector("#mobileShapeModalClose").addEventListener("click", closeMobileShapePicker);
+  document.querySelector("#mobileShapeModal").addEventListener("click", (e) => {
+    if (e.target.id === "mobileShapeModal") closeMobileShapePicker();
   });
 
   // ── Rotation Button ──
@@ -215,6 +278,53 @@ if (isMobile) {
     mobileState.selectedRotation = (mobileState.selectedRotation + 1) % 4;
     document.querySelector("#mobileRotateBtn").textContent = mobileState.selectedRotation * 90 + "°";
     mobileToast(t("toast_rotation", mobileState.selectedRotation * 90));
+    updateMobileGhost();
+  });
+
+  // ── Batch Button ──
+  const batchDirections = ["off", "forward", "right", "up"];
+  const batchLabels = { off: "batch_off", forward: "batch_forward", right: "batch_right", up: "batch_up" };
+
+  function updateBatchBtn() {
+    const dir = mobileState.batch.direction;
+    const label = t(batchLabels[dir]) + (dir !== "off" ? ` ×${mobileState.batch.count}` : "");
+    document.querySelector("#mobileBatchBtn").textContent = label;
+  }
+
+  document.querySelector("#mobileBatchBtn").addEventListener("click", () => {
+    const idx = batchDirections.indexOf(mobileState.batch.direction);
+    const next = batchDirections[(idx + 1) % batchDirections.length];
+    mobileState.batch.direction = next;
+    if (next !== "off" && mobileState.batch.count < 2) mobileState.batch.count = 2;
+    updateBatchBtn();
+    mobileToast(t("toast_batch", t(batchLabels[next])));
+    updateMobileGhost();
+  });
+
+  // Long press on batch button to change count
+  let batchLongTimer = null;
+  document.querySelector("#mobileBatchBtn").addEventListener("touchstart", () => {
+    batchLongTimer = setTimeout(() => {
+      batchLongTimer = null;
+      if (mobileState.batch.direction === "off") return;
+      mobileState.batch.count = mobileState.batch.count >= 16 ? 2 : mobileState.batch.count + 1;
+      updateBatchBtn();
+      mobileToast(`×${mobileState.batch.count}`);
+      updateMobileGhost();
+    }, 500);
+  }, { passive: true });
+  document.querySelector("#mobileBatchBtn").addEventListener("touchend", () => { clearTimeout(batchLongTimer); });
+  document.querySelector("#mobileBatchBtn").addEventListener("touchcancel", () => { clearTimeout(batchLongTimer); });
+
+  // ── Symmetry Button ──
+  const symModes = ["off", "x", "z"];
+  const symLabels = { off: "sym_off", x: "sym_lr", z: "sym_fb" };
+
+  document.querySelector("#mobileSymmetryBtn").addEventListener("click", () => {
+    const idx = symModes.indexOf(mobileState.symmetryMode);
+    mobileState.symmetryMode = symModes[(idx + 1) % symModes.length];
+    document.querySelector("#mobileSymmetryBtn").textContent = t(symLabels[mobileState.symmetryMode]);
+    mobileToast(t("toast_symmetry", t(symLabels[mobileState.symmetryMode])));
     updateMobileGhost();
   });
 
@@ -236,19 +346,66 @@ if (isMobile) {
     }
 
     for (const mat of blocks.getMaterialOptions()) {
-      const btn = document.createElement("button");
-      btn.className = "mobile-color-item";
-      if (mat.id === mobileState.selectedMaterial) btn.classList.add("active");
+      const row = document.createElement("div");
+      row.className = "mobile-color-item";
+      if (mat.id === mobileState.selectedMaterial) row.classList.add("active");
       const count = colorCounts[mat.id] || 0;
-      btn.innerHTML = `<span class="mobile-color-dot" style="background:${mat.color}"></span><span class="mobile-color-name">${mat.memo?.trim() || mat.label || mat.id}</span><span class="mobile-color-count">${count}</span>`;
-      btn.addEventListener("click", () => {
+
+      // Color picker input
+      const colorInput = document.createElement("input");
+      colorInput.type = "color";
+      colorInput.value = mat.color;
+      colorInput.className = "mobile-color-input";
+      colorInput.addEventListener("input", (e) => {
+        blocks.updateMaterial(mat.id, { color: e.target.value });
+        updateMobileColorIndicator();
+        markChanged();
+      });
+      colorInput.addEventListener("click", (e) => e.stopPropagation());
+
+      // Name
+      const nameEl = document.createElement("input");
+      nameEl.type = "text";
+      nameEl.className = "mobile-color-name-input";
+      nameEl.value = mat.memo?.trim() || "";
+      nameEl.placeholder = mat.label || mat.id;
+      nameEl.maxLength = 24;
+      nameEl.addEventListener("change", (e) => {
+        blocks.updateMaterial(mat.id, { memo: e.target.value });
+        markChanged();
+      });
+      nameEl.addEventListener("click", (e) => e.stopPropagation());
+
+      // Count
+      const countEl = document.createElement("span");
+      countEl.className = "mobile-color-count";
+      countEl.textContent = count;
+
+      // Delete button (not for default)
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "mobile-color-delete";
+      deleteBtn.innerHTML = "✕";
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (mat.id === "default") { mobileToast(t("toast_cant_remove")); return; }
+        blocks.removeMaterial(mat.id);
+        if (mobileState.selectedMaterial === mat.id) mobileState.selectedMaterial = "default";
+        updateMobileColorIndicator();
+        markChanged();
+        mobileToast(t("toast_color_removed"));
+        openMobileColorPicker(); // refresh
+      });
+
+      row.append(colorInput, nameEl, countEl);
+      if (mat.id !== "default") row.append(deleteBtn);
+      row.addEventListener("click", () => {
         mobileState.selectedMaterial = mat.id;
         updateMobileColorIndicator();
         closeMobileColorPicker();
         mobileToast(t("toast_color_selected", mat.memo?.trim() || mat.label));
         updateMobileGhost();
       });
-      list.append(btn);
+      list.append(row);
     }
     // Add color button
     const addBtn = document.createElement("button");
@@ -320,9 +477,13 @@ if (isMobile) {
       mobileState.selectedMaterial = "default";
       mobileState.selectedShape = "cube";
       mobileState.selectedRotation = 0;
+      mobileState.batch = { direction: "off", count: 2 };
+      mobileState.symmetryMode = "off";
       updateMobileColorIndicator();
       updateMobileShapeUI();
+      updateBatchBtn();
       document.querySelector("#mobileRotateBtn").textContent = "0°";
+      document.querySelector("#mobileSymmetryBtn").textContent = t("sym_off");
       markChanged();
       mobileToast(includeColors ? t("toast_reset_all") : t("toast_reset"));
     });
@@ -493,6 +654,131 @@ if (isMobile) {
   document.querySelector("#mobilePixelArtBtn").addEventListener("click", () => {
     pixelArtMobile.open();
   });
+
+  // ── Layer Filter ──
+  const layerModes = ["all", "only", "below"];
+  const layerLabels = { all: "layer_all", only: "layer_only", below: "layer_below" };
+  let mobileLayerMode = "all";
+  let mobileLayerValue = 0;
+
+  function updateLayerBtn() {
+    const label = t(layerLabels[mobileLayerMode]);
+    document.querySelector("#mobileLayerBtn").textContent = label + (mobileLayerMode !== "all" ? ` Y=${mobileLayerValue}` : "");
+  }
+
+  document.querySelector("#mobileLayerBtn").addEventListener("click", () => {
+    const idx = layerModes.indexOf(mobileLayerMode);
+    mobileLayerMode = layerModes[(idx + 1) % layerModes.length];
+    blocks.setLayerFilter({ mode: mobileLayerMode, value: mobileLayerValue });
+    updateLayerBtn();
+    mobileToast(t(layerLabels[mobileLayerMode]));
+  });
+
+  // Long press to change layer value
+  let layerLongTimer = null;
+  document.querySelector("#mobileLayerBtn").addEventListener("touchstart", () => {
+    layerLongTimer = setTimeout(() => {
+      layerLongTimer = null;
+      if (mobileLayerMode === "all") return;
+      mobileLayerValue = (mobileLayerValue + 1) % 20;
+      blocks.setLayerFilter({ mode: mobileLayerMode, value: mobileLayerValue });
+      updateLayerBtn();
+      mobileToast(`Y=${mobileLayerValue}`);
+    }, 500);
+  }, { passive: true });
+  document.querySelector("#mobileLayerBtn").addEventListener("touchend", () => { clearTimeout(layerLongTimer); });
+  document.querySelector("#mobileLayerBtn").addEventListener("touchcancel", () => { clearTimeout(layerLongTimer); });
+
+  // ── Move All Modal ──
+  function openMoveModal() {
+    document.querySelector("#mobileMoveModal").classList.remove("hidden");
+  }
+  function closeMoveModal() {
+    document.querySelector("#mobileMoveModal").classList.add("hidden");
+  }
+
+  document.querySelector("#mobileMoveBtn").addEventListener("click", openMoveModal);
+  document.querySelector("#mobileMoveModalClose").addEventListener("click", closeMoveModal);
+  document.querySelector("#mobileMoveModal").addEventListener("click", (e) => {
+    if (e.target.id === "mobileMoveModal") closeMoveModal();
+  });
+
+  const moveActions = {
+    mobileMoveForward: [0, 0, -1],
+    mobileMoveBack: [0, 0, 1],
+    mobileMoveLeft: [-1, 0, 0],
+    mobileMoveRight: [1, 0, 0],
+    mobileMoveUp: [0, 1, 0],
+    mobileMoveDown: [0, -1, 0],
+  };
+  for (const [id, [dx, dy, dz]] of Object.entries(moveActions)) {
+    document.querySelector("#" + id).addEventListener("click", () => {
+      blocks.moveAll(dx, dy, dz);
+      markChanged();
+      updateBlockCount();
+    });
+  }
+
+  // ── Guide Button ──
+  const mobileGuideOverlay = document.querySelector("#guideModal");
+  document.querySelector("#mobileGuideBtn").addEventListener("click", () => {
+    document.querySelector("#guideModalTitle").textContent = t("guide_title");
+    document.querySelector("#guideModalBody").innerHTML = renderMobileGuide();
+    mobileGuideOverlay.classList.remove("hidden");
+  });
+  document.querySelector("#guideModalClose").addEventListener("click", () => mobileGuideOverlay.classList.add("hidden"));
+  document.querySelector("#guideModalOk").addEventListener("click", () => mobileGuideOverlay.classList.add("hidden"));
+  mobileGuideOverlay.addEventListener("click", (e) => {
+    if (e.target === mobileGuideOverlay) mobileGuideOverlay.classList.add("hidden");
+  });
+
+  function renderMobileGuide() {
+    const lang = getLang();
+    const sections = lang === "ko" ? [
+      { title: "기본 조작", items: [
+        ["탭", "블록 배치"],
+        ["길게 누르기", "블록 삭제"],
+        ["드래그", "카메라 회전"],
+        ["핀치", "줌 인/아웃"],
+      ]},
+      { title: "UI 버튼", items: [
+        ["조이스틱", "카메라 수평 이동"],
+        ["▲▼", "카메라 높이 이동"],
+        ["블록 종류", "블록 모양 선택"],
+        ["색상 원", "색상 선택/편집/삭제"],
+        ["0°", "회전 (탭하면 90° 순환)"],
+        ["일괄배치", "방향 순환 (길게: 수량 변경)"],
+        ["대칭배치", "끄기 → 좌우 → 앞뒤"],
+        ["레이어", "전체 → 해당층 → 이하 (길게: 층 변경)"],
+      ]},
+    ] : [
+      { title: "Basic Controls", items: [
+        ["Tap", "Place block"],
+        ["Long press", "Remove block"],
+        ["Drag", "Rotate camera"],
+        ["Pinch", "Zoom in/out"],
+      ]},
+      { title: "UI Buttons", items: [
+        ["Joystick", "Move camera horizontally"],
+        ["▲▼", "Move camera vertically"],
+        ["Shape", "Select block shape"],
+        ["Color dot", "Select/edit/delete color"],
+        ["0°", "Rotation (tap to cycle 90°)"],
+        ["Batch", "Cycle direction (hold: change count)"],
+        ["Symmetry", "Off → Left-Right → Front-Back"],
+        ["Layer", "All → Only → Below (hold: change level)"],
+      ]},
+    ];
+    let html = "";
+    for (const section of sections) {
+      html += `<h3>${section.title}</h3><ul>`;
+      for (const [key, desc] of section.items) {
+        html += `<li><kbd style="margin-right:8px">${key}</kbd> ${desc}</li>`;
+      }
+      html += "</ul>";
+    }
+    return html;
+  }
 
   // ── Animation Loop ──
   let lastTime = performance.now();
