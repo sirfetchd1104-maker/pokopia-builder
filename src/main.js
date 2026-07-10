@@ -52,6 +52,7 @@ if (isMobile) {
     removeCell: null,
     batch: { direction: "off", count: 2 },
     symmetryMode: "off",
+    swapMode: false,
   };
 
   // ── Batch / Symmetry helpers ──
@@ -172,6 +173,25 @@ if (isMobile) {
   // ── Touch Gestures ──
   touchCam.onTap = (sx, sy) => {
     const result = raycastAt(sx, sy);
+
+    // Swap mode
+    if (mobileState.swapMode) {
+      if (!result?.removeCell) return;
+      const targets = mobileGetSymmetryCells(result.removeCell);
+      const replaced = blocks.replaceBlocks(
+        targets.map((c) => ({ ...c, shape: mobileState.selectedShape, rotation: mobileState.selectedRotation }))
+      );
+      if (replaced.length > 0) {
+        undoMgr.push({ removed: replaced.map((r) => r.old), added: replaced.map((r) => r.new) });
+        markChanged();
+        mobileToast(t("toast_replaced", replaced.length));
+      }
+      lastTapScreen = { sx, sy };
+      updateMobileGhost();
+      return;
+    }
+
+    // Normal placement
     if (!result?.placeCell) return;
     const targets = mobileGetPlacementCells(result.placeCell)
       .flatMap((cell) => mobileGetSymmetryCells(cell))
@@ -328,6 +348,18 @@ if (isMobile) {
     updateMobileGhost();
   });
 
+  // ── Swap Button ──
+  function updateSwapBtn() {
+    document.querySelector("#mobileSwapValue").textContent = t(mobileState.swapMode ? "swap_on" : "batch_off");
+    document.querySelector("#mobileSwapBtn").classList.toggle("mobile-swap-active", mobileState.swapMode);
+  }
+
+  document.querySelector("#mobileSwapBtn").addEventListener("click", () => {
+    mobileState.swapMode = !mobileState.swapMode;
+    updateSwapBtn();
+    mobileToast(t(mobileState.swapMode ? "toast_swap_on" : "toast_swap_off"));
+  });
+
   // ── Color Picker ──
   function updateMobileColorIndicator() {
     const mat = blocks.getMaterial(mobileState.selectedMaterial);
@@ -479,9 +511,11 @@ if (isMobile) {
       mobileState.selectedRotation = 0;
       mobileState.batch = { direction: "off", count: 2 };
       mobileState.symmetryMode = "off";
+      mobileState.swapMode = false;
       updateMobileColorIndicator();
       updateMobileShapeUI();
       updateBatchBtn();
+      updateSwapBtn();
       document.querySelector("#mobileRotateBtn").textContent = "0°";
       document.querySelector("#mobileSymmetryValue").textContent = t("sym_off");
       markChanged();
@@ -775,8 +809,9 @@ if (isMobile) {
         ["색상 원", "색상 선택/편집/삭제"],
         ["0°", "회전 (탭하면 90° 순환)"],
         ["일괄배치", "방향 순환 (길게: 수량 변경)"],
+        ["교체", "켜면 탭이 블록 모양/회전 교체로 동작"],
         ["대칭배치", "끄기 → 좌우 → 앞뒤"],
-        ["레이어", "전체 → 해당층 → 이하 (길게: 층 변경)"],
+        ["레이어", "전체 → 해당층 → 이하 (모달에서 층 조절)"],
       ]},
     ] : [
       { title: "Basic Controls", items: [
@@ -792,8 +827,9 @@ if (isMobile) {
         ["Color dot", "Select/edit/delete color"],
         ["0°", "Rotation (tap to cycle 90°)"],
         ["Batch", "Cycle direction (hold: change count)"],
+        ["Swap", "When on, tap replaces block shape/rotation"],
         ["Symmetry", "Off → Left-Right → Front-Back"],
-        ["Layer", "All → Only → Below (hold: change level)"],
+        ["Layer", "All → Only → Below (modal: change level)"],
       ]},
     ];
     let html = "";
@@ -1145,6 +1181,19 @@ window.addEventListener("keydown", (event) => {
     toolbar.setSymmetry(state.symmetryMode);
     sidebar.setSymmetry(state.symmetryMode);
     toast(t("toast_symmetry", t(labels[state.symmetryMode])));
+  }
+  if (event.code === "KeyG" && !event.repeat) {
+    if (state.removeCell) {
+      const targets = getSymmetryCells(state.removeCell);
+      const replaced = blocks.replaceBlocks(
+        targets.map((c) => ({ ...c, shape: state.selectedShape, rotation: state.selectedRotation }))
+      );
+      if (replaced.length > 0) {
+        undoManager.push({ removed: replaced.map((r) => r.old), added: replaced.map((r) => r.new) });
+        markChanged();
+        toast(t("toast_replaced", replaced.length));
+      }
+    }
   }
   if (event.code === "KeyF" && !event.repeat) {
     handleBoxSelectPoint();
@@ -1511,6 +1560,7 @@ function renderGuide() {
       ["R", "회전 (0° → 90° → 180° → 270°)"],
       ["E", "일괄배치 방향 전환 (끄기 → 앞 → 오른쪽 → 위)"],
       ["T", "대칭배치 전환 (끄기 → 좌우 → 앞뒤)"],
+      ["G", "블록 교체 (조준 중인 블록의 모양/회전을 현재 선택으로 변경)"],
     ]},
     { title: "범위 선택", items: [
       ["F", "선택 시작점/끝점 지정 (블록 조준 후)"],
@@ -1544,6 +1594,7 @@ function renderGuide() {
       ["R", "Rotate (0° → 90° → 180° → 270°)"],
       ["E", "Batch direction (Off → Fwd → Right → Up)"],
       ["T", "Symmetry (Off → L-R → F-B)"],
+      ["G", "Swap block (replace shape/rotation of aimed block)"],
     ]},
     { title: "Box Select", items: [
       ["F", "Set start/end point (aim at a block)"],

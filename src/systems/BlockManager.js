@@ -103,6 +103,24 @@ export class BlockManager {
     return added;
   }
 
+  replaceBlocks(updates) {
+    const replaced = [];
+    for (const update of updates) {
+      const key = getKey(normalizeCell(update));
+      const existing = this.blocks.get(key);
+      if (!existing) continue;
+      const oldBlock = { ...existing };
+      const newShape = this.getValidShape(update.shape);
+      const newRotation = this.getValidRotation(update.rotation);
+      if (oldBlock.shape === newShape && oldBlock.rotation === newRotation) continue;
+      existing.shape = newShape;
+      existing.rotation = newRotation;
+      replaced.push({ old: oldBlock, new: { ...existing } });
+    }
+    if (replaced.length > 0) this.rebuildMeshes();
+    return replaced;
+  }
+
   removeBlock(cell) {
     const key = getKey(normalizeCell(cell));
     const existing = this.blocks.get(key);

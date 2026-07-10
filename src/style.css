@@ -857,6 +857,11 @@ kbd {
   white-space: nowrap;
 }
 
+.mobile-swap-active {
+  background: rgba(167, 139, 204, 0.35);
+  border-color: rgba(167, 139, 204, 0.6);
+}
+
 .mobile-tool-btn:active {
   background: rgba(255, 255, 255, 0.18);
 }
