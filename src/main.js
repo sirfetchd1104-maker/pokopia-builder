@@ -1376,18 +1376,38 @@ function getSelectedBlocks() {
   );
 }
 
+function getBoxSelectCell() {
+  // 1. Block under crosshair
+  if (state.removeCell) return { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z };
+  // 2. Adjacent placement cell (ground/block face)
+  if (state.selectedCell) return { x: state.selectedCell.x, y: state.selectedCell.y, z: state.selectedCell.z };
+  // 3. Project ray onto Y-plane at current layer value
+  const ray = sceneManager.raycaster;
+  ray.setFromCamera(sceneManager.pointer, sceneManager.camera);
+  const yPlane = state.layerFilter.value;
+  const origin = ray.ray.origin;
+  const dir = ray.ray.direction;
+  if (Math.abs(dir.y) < 0.001) return null;
+  const t_val = (yPlane - origin.y) / dir.y;
+  if (t_val < 0) return null;
+  const x = Math.round(origin.x + dir.x * t_val);
+  const z = Math.round(origin.z + dir.z * t_val);
+  return { x, y: yPlane, z };
+}
+
 function handleBoxSelectPoint() {
-  if (!state.removeCell) {
+  const cell = getBoxSelectCell();
+  if (!cell) {
     toast(t("toast_aim_select"));
     return;
   }
   if (!state.boxSelect.pointA || state.boxSelect.pointB) {
-    state.boxSelect.pointA = { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z };
+    state.boxSelect.pointA = cell;
     state.boxSelect.pointB = null;
     updateSelectionBox();
     toast(t("toast_select_start"));
   } else {
-    state.boxSelect.pointB = { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z };
+    state.boxSelect.pointB = cell;
     updateSelectionBox();
     toast(t("toast_select_done", getSelectedBlocks().length));
   }
