@@ -53,6 +53,8 @@ if (isMobile) {
     batch: { direction: "off", count: 2 },
     symmetryMode: "off",
     swapMode: false,
+    boxSelectMode: false,
+    boxSelect: { pointA: null, pointB: null },
   };
 
   // ── Batch / Symmetry helpers ──
@@ -146,6 +148,79 @@ if (isMobile) {
     if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
   });
 
+  // ── Mobile Box Select ──
+  const mobileSelectionBox = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)),
+    new THREE.LineBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.85 })
+  );
+  mobileSelectionBox.visible = false;
+  mobileSelectionBox.renderOrder = 999;
+  sceneManager.scene.add(mobileSelectionBox);
+
+  function mobileGetBoxSelectYRange(pA, pB) {
+    const bothEmpty = !pA.fromBlock && !pB.fromBlock;
+    const sameY = pA.y === pB.y;
+    if (bothEmpty && sameY) {
+      const allBlocks = blocks.getAllBlocks();
+      const maxBlockY = allBlocks.length > 0 ? Math.max(...allBlocks.map(b => b.y)) : 0;
+      return { minY: 0, maxY: Math.max(maxBlockY, pA.y) };
+    }
+    return { minY: Math.min(pA.y, pB.y), maxY: Math.max(pA.y, pB.y) };
+  }
+
+  function mobileUpdateSelectionBox() {
+    const { pointA, pointB } = mobileState.boxSelect;
+    if (!pointA) { mobileSelectionBox.visible = false; return; }
+    if (!pointB) {
+      mobileSelectionBox.position.set(pointA.x, pointA.y, pointA.z);
+      mobileSelectionBox.scale.set(1.02, 1.02, 1.02);
+      mobileSelectionBox.visible = true;
+      return;
+    }
+    const minX = Math.min(pointA.x, pointB.x);
+    const maxX = Math.max(pointA.x, pointB.x);
+    const { minY, maxY } = mobileGetBoxSelectYRange(pointA, pointB);
+    const minZ = Math.min(pointA.z, pointB.z);
+    const maxZ = Math.max(pointA.z, pointB.z);
+    const sizeX = maxX - minX + 1;
+    const sizeY = maxY - minY + 1;
+    const sizeZ = maxZ - minZ + 1;
+    mobileSelectionBox.position.set(minX + (sizeX - 1) / 2, minY + (sizeY - 1) / 2, minZ + (sizeZ - 1) / 2);
+    mobileSelectionBox.scale.set(sizeX + 0.02, sizeY + 0.02, sizeZ + 0.02);
+    mobileSelectionBox.visible = true;
+  }
+
+  function mobileGetSelectedBlocks() {
+    const { pointA, pointB } = mobileState.boxSelect;
+    if (!pointA || !pointB) return [];
+    const minX = Math.min(pointA.x, pointB.x);
+    const maxX = Math.max(pointA.x, pointB.x);
+    const { minY, maxY } = mobileGetBoxSelectYRange(pointA, pointB);
+    const minZ = Math.min(pointA.z, pointB.z);
+    const maxZ = Math.max(pointA.z, pointB.z);
+    return blocks.getAllBlocks().filter((b) =>
+      b.x >= minX && b.x <= maxX && b.y >= minY && b.y <= maxY && b.z >= minZ && b.z <= maxZ
+    );
+  }
+
+  function mobileClearBoxSelection() {
+    mobileState.boxSelect.pointA = null;
+    mobileState.boxSelect.pointB = null;
+    mobileUpdateSelectionBox();
+  }
+
+  function mobileDeleteSelectedBlocks() {
+    const selected = mobileGetSelectedBlocks();
+    if (selected.length === 0) { mobileToast(t("toast_select_empty")); return; }
+    const removed = blocks.removeBlocks(selected);
+    if (removed.length > 0) {
+      undoMgr.push({ added: [], removed });
+      markChanged();
+    }
+    mobileClearBoxSelection();
+    mobileToast(t("toast_removed_n", removed.length));
+  }
+
   // ── Raycast from touch position ──
   function raycastAt(sx, sy) {
     const hit = sceneManager.raycastFromScreen(sx, sy, [grid.ground, ...blocks.getRaycastTargets()]);
@@ -173,6 +248,30 @@ if (isMobile) {
   // ── Touch Gestures ──
   touchCam.onTap = (sx, sy) => {
     const result = raycastAt(sx, sy);
+
+    // Box select mode
+    if (mobileState.boxSelectMode) {
+      const cell = result?.removeCell
+        ? { x: result.removeCell.x, y: result.removeCell.y, z: result.removeCell.z, fromBlock: true }
+        : result?.placeCell
+          ? { x: result.placeCell.x, y: result.placeCell.y, z: result.placeCell.z, fromBlock: false }
+          : null;
+      if (!cell) return;
+      if (!mobileState.boxSelect.pointA || mobileState.boxSelect.pointB) {
+        mobileState.boxSelect.pointA = cell;
+        mobileState.boxSelect.pointB = null;
+        mobileUpdateSelectionBox();
+        updateBoxSelectBtn();
+        mobileToast(t("toast_select_start"));
+      } else {
+        mobileState.boxSelect.pointB = cell;
+        mobileUpdateSelectionBox();
+        updateBoxSelectBtn();
+        const count = mobileGetSelectedBlocks().length;
+        mobileToast(t("toast_select_done", count));
+      }
+      return;
+    }
 
     // Swap mode
     if (mobileState.swapMode) {
@@ -360,6 +459,35 @@ if (isMobile) {
     mobileToast(t(mobileState.swapMode ? "toast_swap_on" : "toast_swap_off"));
   });
 
+  // ── Box Select Button ──
+  function updateBoxSelectBtn() {
+    const active = mobileState.boxSelectMode;
+    const { pointA, pointB } = mobileState.boxSelect;
+    const hasSelection = pointA && pointB;
+    if (hasSelection) {
+      const count = mobileGetSelectedBlocks().length;
+      document.querySelector("#mobileBoxSelectValue").textContent = t("box_select_delete", count);
+    } else {
+      document.querySelector("#mobileBoxSelectValue").textContent = t(active ? "swap_on" : "batch_off");
+    }
+    document.querySelector("#mobileBoxSelectBtn").classList.toggle("mobile-boxselect-active", active);
+  }
+
+  document.querySelector("#mobileBoxSelectBtn").addEventListener("click", () => {
+    const { pointA, pointB } = mobileState.boxSelect;
+    if (mobileState.boxSelectMode && pointA && pointB) {
+      // Selection complete → delete blocks, stay in mode
+      mobileDeleteSelectedBlocks();
+      updateBoxSelectBtn();
+      return;
+    }
+    // Toggle mode
+    mobileState.boxSelectMode = !mobileState.boxSelectMode;
+    if (!mobileState.boxSelectMode) mobileClearBoxSelection();
+    updateBoxSelectBtn();
+    mobileToast(t(mobileState.boxSelectMode ? "toast_boxselect_on" : "toast_boxselect_off"));
+  });
+
   // ── Color Picker ──
   function updateMobileColorIndicator() {
     const mat = blocks.getMaterial(mobileState.selectedMaterial);
@@ -512,10 +640,13 @@ if (isMobile) {
       mobileState.batch = { direction: "off", count: 2 };
       mobileState.symmetryMode = "off";
       mobileState.swapMode = false;
+      mobileState.boxSelectMode = false;
+      mobileClearBoxSelection();
       updateMobileColorIndicator();
       updateMobileShapeUI();
       updateBatchBtn();
       updateSwapBtn();
+      updateBoxSelectBtn();
       document.querySelector("#mobileRotateBtn").textContent = "0°";
       document.querySelector("#mobileSymmetryValue").textContent = t("sym_off");
       markChanged();
@@ -772,10 +903,35 @@ if (isMobile) {
     mobileMoveUp: [0, 1, 0],
     mobileMoveDown: [0, -1, 0],
   };
+  function mobileMoveSelectedBlocks(dx, dy, dz) {
+    const selected = mobileGetSelectedBlocks();
+    if (selected.length === 0) { mobileToast(t("toast_select_empty")); return; }
+    if (selected.some((b) => b.y + dy < 0)) { mobileToast(t("toast_cant_move")); return; }
+    const removed = blocks.removeBlocks(selected);
+    const moved = removed.map((b) => ({
+      x: b.x + dx, y: b.y + dy, z: b.z + dz,
+      materialId: b.materialId, shape: b.shape, rotation: b.rotation,
+    }));
+    const added = blocks.addBlocks(moved);
+    if (removed.length > 0 || added.length > 0) {
+      undoMgr.push({ added, removed });
+      markChanged();
+    }
+    mobileState.boxSelect.pointA.x += dx; mobileState.boxSelect.pointA.y += dy; mobileState.boxSelect.pointA.z += dz;
+    mobileState.boxSelect.pointB.x += dx; mobileState.boxSelect.pointB.y += dy; mobileState.boxSelect.pointB.z += dz;
+    mobileUpdateSelectionBox();
+    updateBoxSelectBtn();
+    mobileToast(t("toast_selection_moved", added.length));
+  }
+
   for (const [id, [dx, dy, dz]] of Object.entries(moveActions)) {
     document.querySelector("#" + id).addEventListener("click", () => {
-      blocks.moveAll(dx, dy, dz);
-      markChanged();
+      if (mobileState.boxSelect.pointA && mobileState.boxSelect.pointB) {
+        mobileMoveSelectedBlocks(dx, dy, dz);
+      } else {
+        blocks.moveAll(dx, dy, dz);
+        markChanged();
+      }
       updateBlockCount();
     });
   }
@@ -810,6 +966,7 @@ if (isMobile) {
         ["0°", "회전 (탭하면 90° 순환)"],
         ["일괄배치", "방향 순환 (길게: 수량 변경)"],
         ["교체", "켜면 탭이 블록 모양/회전 교체로 동작"],
+        ["범위", "켜고 두 지점 탭 → 범위 선택, 버튼 탭 → 삭제, 이동 모달로 선택 이동"],
         ["대칭배치", "끄기 → 좌우 → 앞뒤"],
         ["레이어", "전체 → 해당층 → 이하 (모달에서 층 조절)"],
       ]},
@@ -828,6 +985,7 @@ if (isMobile) {
         ["0°", "Rotation (tap to cycle 90°)"],
         ["Batch", "Cycle direction (hold: change count)"],
         ["Swap", "When on, tap replaces block shape/rotation"],
+        ["Select", "Tap two points → select range, tap → delete, move modal → move selected"],
         ["Symmetry", "Off → Left-Right → Front-Back"],
         ["Layer", "All → Only → Below (modal: change level)"],
       ]},
@@ -1133,7 +1291,17 @@ document.addEventListener("keydown", (event) => {
       event.code === "ArrowLeft" || event.code === "ArrowRight" ||
       event.code === "Comma" || event.code === "Period") {
     event.preventDefault();
-    performMoveAll(event.code);
+    if (state.boxSelect.pointA && state.boxSelect.pointB) {
+      const dirs = {
+        ArrowUp: [0, 0, -1], ArrowDown: [0, 0, 1],
+        ArrowLeft: [-1, 0, 0], ArrowRight: [1, 0, 0],
+        Period: [0, 1, 0], Comma: [0, -1, 0],
+      };
+      const [dx, dy, dz] = dirs[event.code];
+      moveSelectedBlocks(dx, dy, dz);
+    } else {
+      performMoveAll(event.code);
+    }
   }
 }, { capture: true });
 
@@ -1344,8 +1512,7 @@ function updateSelectionBox() {
   }
   const minX = Math.min(pointA.x, pointB.x);
   const maxX = Math.max(pointA.x, pointB.x);
-  const minY = Math.min(pointA.y, pointB.y);
-  const maxY = Math.max(pointA.y, pointB.y);
+  const { minY, maxY } = getBoxSelectYRange(pointA, pointB);
   const minZ = Math.min(pointA.z, pointB.z);
   const maxZ = Math.max(pointA.z, pointB.z);
   const sizeX = maxX - minX + 1;
@@ -1367,8 +1534,7 @@ function getSelectedBlocks() {
   if (!pointA || !pointB) return [];
   const minX = Math.min(pointA.x, pointB.x);
   const maxX = Math.max(pointA.x, pointB.x);
-  const minY = Math.min(pointA.y, pointB.y);
-  const maxY = Math.max(pointA.y, pointB.y);
+  const { minY, maxY } = getBoxSelectYRange(pointA, pointB);
   const minZ = Math.min(pointA.z, pointB.z);
   const maxZ = Math.max(pointA.z, pointB.z);
   return blocks.getAllBlocks().filter((b) =>
@@ -1378,9 +1544,9 @@ function getSelectedBlocks() {
 
 function getBoxSelectCell() {
   // 1. Block under crosshair
-  if (state.removeCell) return { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z };
+  if (state.removeCell) return { x: state.removeCell.x, y: state.removeCell.y, z: state.removeCell.z, fromBlock: true };
   // 2. Adjacent placement cell (ground/block face)
-  if (state.selectedCell) return { x: state.selectedCell.x, y: state.selectedCell.y, z: state.selectedCell.z };
+  if (state.selectedCell) return { x: state.selectedCell.x, y: state.selectedCell.y, z: state.selectedCell.z, fromBlock: false };
   // 3. Project ray onto Y-plane at current layer value
   const ray = sceneManager.raycaster;
   ray.setFromCamera(sceneManager.pointer, sceneManager.camera);
@@ -1392,7 +1558,18 @@ function getBoxSelectCell() {
   if (t_val < 0) return null;
   const x = Math.round(origin.x + dir.x * t_val);
   const z = Math.round(origin.z + dir.z * t_val);
-  return { x, y: yPlane, z };
+  return { x, y: yPlane, z, fromBlock: false };
+}
+
+function getBoxSelectYRange(pointA, pointB) {
+  const bothEmpty = !pointA.fromBlock && !pointB.fromBlock;
+  const sameY = pointA.y === pointB.y;
+  if (bothEmpty && sameY) {
+    const allBlocks = blocks.getAllBlocks();
+    const maxBlockY = allBlocks.length > 0 ? Math.max(...allBlocks.map(b => b.y)) : 0;
+    return { minY: 0, maxY: Math.max(maxBlockY, pointA.y) };
+  }
+  return { minY: Math.min(pointA.y, pointB.y), maxY: Math.max(pointA.y, pointB.y) };
 }
 
 function handleBoxSelectPoint() {
@@ -1441,6 +1618,33 @@ function deleteSelectedBlocks() {
   }
   clearBoxSelection();
   toast(t("toast_removed_n", removed.length));
+}
+
+function moveSelectedBlocks(dx, dy, dz) {
+  const selected = getSelectedBlocks();
+  if (selected.length === 0) {
+    toast(t("toast_select_empty"));
+    return;
+  }
+  if (selected.some((b) => b.y + dy < 0)) {
+    toast(t("toast_cant_move"));
+    return;
+  }
+  const removed = blocks.removeBlocks(selected);
+  const moved = removed.map((b) => ({
+    x: b.x + dx, y: b.y + dy, z: b.z + dz,
+    materialId: b.materialId, shape: b.shape, rotation: b.rotation,
+  }));
+  const added = blocks.addBlocks(moved);
+  if (removed.length > 0 || added.length > 0) {
+    undoManager.push({ added, removed });
+    markChanged();
+  }
+  // Shift selection box
+  state.boxSelect.pointA.x += dx; state.boxSelect.pointA.y += dy; state.boxSelect.pointA.z += dz;
+  state.boxSelect.pointB.x += dx; state.boxSelect.pointB.y += dy; state.boxSelect.pointB.z += dz;
+  updateSelectionBox();
+  toast(t("toast_selection_moved", added.length));
 }
 
 function getSymmetryCells(cell) {
@@ -1585,6 +1789,8 @@ function renderGuide() {
     { title: "범위 선택", items: [
       ["F", "선택 시작점/끝점 지정 (블록 조준 후)"],
       ["Delete / Backspace", "선택 범위 블록 삭제"],
+      ["Ctrl+↑↓←→", "선택 블록 이동 (범위 선택 시)"],
+      ["Ctrl+. / Ctrl+,", "선택 블록 위/아래 이동"],
     ]},
     { title: "클립보드", items: [
       ["Ctrl+C", "복사 (범위 선택 또는 단일 블록)"],
@@ -1619,6 +1825,8 @@ function renderGuide() {
     { title: "Box Select", items: [
       ["F", "Set start/end point (aim at a block)"],
       ["Delete / Backspace", "Delete selected blocks"],
+      ["Ctrl+↑↓←→", "Move selected blocks (when selected)"],
+      ["Ctrl+. / Ctrl+,", "Move selected up/down"],
     ]},
     { title: "Clipboard", items: [
       ["Ctrl+C", "Copy (selection or single block)"],
