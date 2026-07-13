@@ -66,10 +66,22 @@ if (isMobile) {
 
   function mobileGetPlacementCells(origin) {
     if (mobileState.batch.direction === "off") return [{ x: origin.x, y: origin.y, z: origin.z }];
+    if (mobileState.batch.direction === "brush") return mobileGetBrushCells(origin, mobileState.batch.count);
     const d = mobileGetBatchDir(mobileState.batch.direction);
     const cells = [];
     for (let i = 0; i < mobileState.batch.count; i++) {
       cells.push({ x: origin.x + d.x * i, y: origin.y + d.y * i, z: origin.z + d.z * i });
+    }
+    return cells;
+  }
+
+  function mobileGetBrushCells(origin, size) {
+    const half = Math.floor(size / 2);
+    const cells = [];
+    for (let dx = 0; dx < size; dx++) {
+      for (let dz = 0; dz < size; dz++) {
+        cells.push({ x: origin.x + dx - half, y: origin.y, z: origin.z + dz - half });
+      }
     }
     return cells;
   }
@@ -401,39 +413,74 @@ if (isMobile) {
   });
 
   // ── Batch Button ──
-  const batchDirections = ["off", "forward", "right", "up"];
-  const batchLabels = { off: "batch_off", forward: "batch_forward", right: "batch_right", up: "batch_up" };
+  const batchDirections = ["off", "forward", "right", "up", "brush"];
+  const batchLabels = { off: "batch_off", forward: "batch_forward", right: "batch_right", up: "batch_up", brush: "batch_brush" };
 
   function updateBatchBtn() {
     const dir = mobileState.batch.direction;
-    const label = t(batchLabels[dir]) + (dir !== "off" ? ` ×${mobileState.batch.count}` : "");
-    document.querySelector("#mobileBatchValue").textContent = label;
+    const n = mobileState.batch.count;
+    const suffix = dir === "off" ? "" : dir === "brush" ? ` ${n}×${n}` : ` ×${n}`;
+    document.querySelector("#mobileBatchValue").textContent = t(batchLabels[dir]) + suffix;
   }
 
-  document.querySelector("#mobileBatchBtn").addEventListener("click", () => {
-    const idx = batchDirections.indexOf(mobileState.batch.direction);
-    const next = batchDirections[(idx + 1) % batchDirections.length];
-    mobileState.batch.direction = next;
-    if (next !== "off" && mobileState.batch.count < 2) mobileState.batch.count = 2;
-    updateBatchBtn();
-    mobileToast(t("toast_batch", t(batchLabels[next])));
-    updateMobileGhost();
-  });
+  // ── Batch Modal ──
+  const batchModal = document.querySelector("#mobileBatchModal");
+  const batchDirList = document.querySelector("#mobileBatchDirList");
+  const batchCountRow = document.querySelector("#mobileBatchCountRow");
+  const batchCountLabel = document.querySelector("#mobileBatchCountLabel");
 
-  // Long press on batch button to change count
-  let batchLongTimer = null;
-  document.querySelector("#mobileBatchBtn").addEventListener("touchstart", () => {
-    batchLongTimer = setTimeout(() => {
-      batchLongTimer = null;
-      if (mobileState.batch.direction === "off") return;
-      mobileState.batch.count = mobileState.batch.count >= 16 ? 2 : mobileState.batch.count + 1;
+  function openBatchModal() {
+    batchModal.classList.remove("hidden");
+    renderBatchModal();
+  }
+  function closeBatchModal() {
+    batchModal.classList.add("hidden");
+  }
+  function renderBatchModal() {
+    batchDirList.innerHTML = "";
+    for (const dir of batchDirections) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mobile-batch-dir-btn" + (mobileState.batch.direction === dir ? " active" : "");
+      btn.textContent = t(batchLabels[dir]);
+      btn.addEventListener("click", () => {
+        mobileState.batch.direction = dir;
+        if (dir !== "off" && mobileState.batch.count < 2) mobileState.batch.count = 2;
+        updateBatchBtn();
+        updateMobileGhost();
+        renderBatchModal();
+      });
+      batchDirList.appendChild(btn);
+    }
+    const isOff = mobileState.batch.direction === "off";
+    batchCountRow.classList.toggle("hidden", isOff);
+    if (!isOff) {
+      const n = mobileState.batch.count;
+      batchCountLabel.textContent = mobileState.batch.direction === "brush" ? `${n}×${n}` : `×${n}`;
+    }
+  }
+
+  document.querySelector("#mobileBatchBtn").addEventListener("click", openBatchModal);
+  document.querySelector("#mobileBatchModalClose").addEventListener("click", closeBatchModal);
+  batchModal.addEventListener("click", (e) => { if (e.target === batchModal) closeBatchModal(); });
+
+  document.querySelector("#mobileBatchCountDown").addEventListener("click", () => {
+    if (mobileState.batch.count > 2) {
+      mobileState.batch.count--;
       updateBatchBtn();
-      mobileToast(`×${mobileState.batch.count}`);
       updateMobileGhost();
-    }, 500);
-  }, { passive: true });
-  document.querySelector("#mobileBatchBtn").addEventListener("touchend", () => { clearTimeout(batchLongTimer); });
-  document.querySelector("#mobileBatchBtn").addEventListener("touchcancel", () => { clearTimeout(batchLongTimer); });
+      renderBatchModal();
+    }
+  });
+  document.querySelector("#mobileBatchCountUp").addEventListener("click", () => {
+    const max = mobileState.batch.direction === "brush" ? 8 : 16;
+    if (mobileState.batch.count < max) {
+      mobileState.batch.count++;
+      updateBatchBtn();
+      updateMobileGhost();
+      renderBatchModal();
+    }
+  });
 
   // ── Symmetry Button ──
   const symModes = ["off", "x", "z"];
@@ -1332,11 +1379,13 @@ window.addEventListener("keydown", (event) => {
     toast(t("toast_rotation", state.selectedRotation * 90));
   }
   if (event.code === "KeyE" && !event.repeat) {
-    const directions = ["off", "forward", "right", "up"];
+    const directions = ["off", "forward", "right", "up", "brush"];
     const currentIndex = directions.indexOf(state.batch.direction);
     const nextDirection = directions[(currentIndex + 1) % directions.length];
-    const count = nextDirection === "off" ? 1 : state.batch.count;
-    state.batch = { direction: nextDirection, count: count === 1 && nextDirection !== "off" ? 2 : count };
+    let count = nextDirection === "off" ? 1 : state.batch.count;
+    if (count === 1 && nextDirection !== "off") count = 2;
+    if (nextDirection === "brush" && count > 8) count = 8;
+    state.batch = { direction: nextDirection, count };
     toolbar.setBatch(state.batch);
     sidebar.setBatch(state.batch);
     toast(t("toast_batch", t("batch_dir_" + nextDirection)));
@@ -1662,6 +1711,9 @@ function getPlacementCells(origin) {
   if (state.batch.direction === "off") {
     return [{ x: origin.x, y: origin.y, z: origin.z }];
   }
+  if (state.batch.direction === "brush") {
+    return getBrushCells(origin, state.batch.count);
+  }
   const cells = [];
   const direction = getBatchDirectionVector(state.batch.direction);
   for (let index = 0; index < state.batch.count; index += 1) {
@@ -1670,6 +1722,21 @@ function getPlacementCells(origin) {
       y: origin.y + direction.y * index,
       z: origin.z + direction.z * index,
     });
+  }
+  return cells;
+}
+
+function getBrushCells(origin, size) {
+  const half = Math.floor(size / 2);
+  const cells = [];
+  for (let dx = 0; dx < size; dx++) {
+    for (let dz = 0; dz < size; dz++) {
+      cells.push({
+        x: origin.x + dx - half,
+        y: origin.y,
+        z: origin.z + dz - half,
+      });
+    }
   }
   return cells;
 }
@@ -1782,7 +1849,7 @@ function renderGuide() {
       ["우클릭", "블록 제거"],
       ["1~7", "블록 종류 (블록 / 지붕 / 지붕 모서리 / 원기둥 / 눕힌 원기둥 / 반원기둥 / 반블록)"],
       ["R", "회전 (0° → 90° → 180° → 270°)"],
-      ["E", "일괄배치 방향 전환 (끄기 → 앞 → 오른쪽 → 위)"],
+      ["E", "일괄배치 방향 전환 (끄기 → 앞 → 오른쪽 → 위 → 면적)"],
       ["T", "대칭배치 전환 (끄기 → 좌우 → 앞뒤)"],
       ["G", "블록 교체 (조준 중인 블록의 모양/회전을 현재 선택으로 변경)"],
     ]},
@@ -1818,7 +1885,7 @@ function renderGuide() {
       ["Right Click", "Remove block"],
       ["1~7", "Shape (Block / Wedge / Roof Corner / Cylinder / H-Cylinder / Half Cylinder / Half Block)"],
       ["R", "Rotate (0° → 90° → 180° → 270°)"],
-      ["E", "Batch direction (Off → Fwd → Right → Up)"],
+      ["E", "Batch direction (Off → Fwd → Right → Up → Area)"],
       ["T", "Symmetry (Off → L-R → F-B)"],
       ["G", "Swap block (replace shape/rotation of aimed block)"],
     ]},

@@ -129,9 +129,10 @@ export class Toolbar {
 
   emitBatchChange(onBatchChange) {
     const direction = this.batchDirection.value;
+    const max = direction === "brush" ? 8 : 64;
     onBatchChange({
       direction,
-      count: direction === "off" ? 1 : clampNumber(this.batchCount.value, 1, 64),
+      count: direction === "off" ? 1 : clampNumber(this.batchCount.value, 1, max),
     });
   }
 

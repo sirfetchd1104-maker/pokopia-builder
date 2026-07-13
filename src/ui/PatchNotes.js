@@ -1,9 +1,54 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.4";
+const CURRENT_VERSION = "2.5";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.5",
+    date: "2026.07.13",
+    changes: {
+      ko: [
+        { title: "면적 배치 (NxN)", items: [
+          "일괄배치에 '면적' 모드 추가 — XZ 평면에 NxN 그리드 배치",
+          "PC: E 키 순환 (끄기 → 앞 → 오른쪽 → 위 → 면적), 툴바 드롭다운",
+          "모바일: 배치 모달에서 방향 및 개수 선택",
+          "크기 최대 8×8 (64블록), 대칭과 조합 가능",
+          "고스트 프리뷰로 배치 영역 미리 확인",
+        ] },
+        { title: "모바일 배치 UI 개선", items: [
+          "배치 버튼 탭 시 모달 팝업으로 변경 (기존 길게 누르기 제거)",
+          "방향 버튼, ±개수 버튼으로 직관적 조작",
+        ] },
+      ],
+      en: [
+        { title: "Area Placement (NxN)", items: [
+          "New 'Area' mode in batch placement — NxN grid on XZ plane",
+          "PC: E key cycle (Off → Fwd → Right → Up → Area), toolbar dropdown",
+          "Mobile: select direction and count in batch modal",
+          "Max size 8×8 (64 blocks), combinable with symmetry",
+          "Ghost preview shows placement area",
+        ] },
+        { title: "Mobile Batch UI Improvement", items: [
+          "Batch button now opens a modal popup (removed long-press)",
+          "Direction buttons, ± count buttons for intuitive control",
+        ] },
+      ],
+      ja: [
+        { title: "面積配置 (NxN)", items: [
+          "一括配置に「面積」モード追加 — XZ平面にNxNグリッド配置",
+          "PC: Eキー循環（オフ → 前方 → 右 → 上 → 面積）、ツールバードロップダウン",
+          "モバイル: 配置モーダルで方向と個数を選択",
+          "最大サイズ 8×8（64ブロック）、対称と組み合わせ可能",
+          "ゴーストプレビューで配置範囲を事前確認",
+        ] },
+        { title: "モバイル配置UI改善", items: [
+          "配置ボタンタップでモーダルポップアップに変更（長押し廃止）",
+          "方向ボタン、±個数ボタンで直感的操作",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.4",
     date: "2026.07.10",

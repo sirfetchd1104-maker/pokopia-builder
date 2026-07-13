@@ -104,6 +104,7 @@
               <option value="forward" data-i18n="batch_forward">앞으로</option>
               <option value="right" data-i18n="batch_right">오른쪽</option>
               <option value="up" data-i18n="batch_up">위로</option>
+              <option value="brush" data-i18n="batch_brush">면적 배치</option>
             </select>
             <input id="batchCount" class="field-control number-control" type="number" min="2" max="64" step="1" value="2" disabled />
           </div>
@@ -479,6 +480,22 @@
               <span id="mobileLayerDisplay" class="mobile-layer-display">Y = 0</span>
               <button id="mobileLayerPlus" class="mobile-move-btn" type="button">+</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Batch Modal -->
+      <div id="mobileBatchModal" class="mobile-color-modal hidden">
+        <div class="mobile-color-modal-content">
+          <div class="mobile-color-modal-header">
+            <span data-i18n="batch">일괄배치</span>
+            <button id="mobileBatchModalClose" type="button">&times;</button>
+          </div>
+          <div class="mobile-batch-directions" id="mobileBatchDirList"></div>
+          <div class="mobile-batch-count-row hidden" id="mobileBatchCountRow">
+            <button id="mobileBatchCountDown" class="mobile-batch-count-btn" type="button">−</button>
+            <span id="mobileBatchCountLabel" class="mobile-batch-count-label">2</span>
+            <button id="mobileBatchCountUp" class="mobile-batch-count-btn" type="button">+</button>
           </div>
         </div>
       </div>

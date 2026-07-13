@@ -1569,3 +1569,58 @@ kbd {
     display: none;
   }
 }
+
+/* ── Mobile Batch Modal ── */
+.mobile-batch-directions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 20px;
+}
+.mobile-batch-dir-btn {
+  flex: 1 1 auto;
+  min-width: 60px;
+  padding: 10px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ccc;
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+}
+.mobile-batch-dir-btn.active {
+  background: rgba(79, 195, 247, 0.25);
+  border-color: rgba(79, 195, 247, 0.5);
+  color: #fff;
+}
+.mobile-batch-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+.mobile-batch-count-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ddd;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-batch-count-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+.mobile-batch-count-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: #eee;
+  min-width: 60px;
+  text-align: center;
+}

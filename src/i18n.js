@@ -13,6 +13,7 @@ const dict = {
     batch_forward: "앞으로",
     batch_right: "오른쪽",
     batch_up: "위로",
+    batch_brush: "면적 배치",
     move_all: "전체 이동",
     symmetry: "대칭배치",
     sym_off: "끄기",
@@ -78,6 +79,7 @@ const dict = {
     sidebar_dir_forward: "앞",
     sidebar_dir_right: "오른쪽",
     sidebar_dir_up: "위",
+    sidebar_dir_brush: "면적",
     sidebar_sym_lr: "좌우",
     sidebar_sym_fb: "앞뒤",
     n_items: "{0}개",
@@ -176,6 +178,7 @@ const dict = {
     batch_dir_forward: "앞으로",
     batch_dir_right: "오른쪽",
     batch_dir_up: "위로",
+    batch_dir_brush: "면적 배치",
 
     // Symmetry labels (toast)
     sym_label_off: "끄기",
@@ -231,6 +234,7 @@ const dict = {
     batch_forward: "Forward",
     batch_right: "Right",
     batch_up: "Up",
+    batch_brush: "Area",
     move_all: "Move All",
     symmetry: "Symmetry",
     sym_off: "Off",
@@ -292,6 +296,7 @@ const dict = {
     sidebar_dir_forward: "Fwd",
     sidebar_dir_right: "Right",
     sidebar_dir_up: "Up",
+    sidebar_dir_brush: "Area",
     sidebar_sym_lr: "L-R",
     sidebar_sym_fb: "F-B",
     n_items: "{0}",
@@ -384,6 +389,7 @@ const dict = {
     batch_dir_forward: "Forward",
     batch_dir_right: "Right",
     batch_dir_up: "Up",
+    batch_dir_brush: "Area",
 
     sym_label_off: "Off",
     sym_label_lr: "Left-Right",
@@ -436,6 +442,7 @@ const dict = {
     batch_forward: "前方",
     batch_right: "右",
     batch_up: "上",
+    batch_brush: "面積配置",
     move_all: "全体移動",
     symmetry: "対称配置",
     sym_off: "オフ",
@@ -501,6 +508,7 @@ const dict = {
     sidebar_dir_forward: "前方",
     sidebar_dir_right: "右",
     sidebar_dir_up: "上",
+    sidebar_dir_brush: "面積",
     sidebar_sym_lr: "左右",
     sidebar_sym_fb: "前後",
     n_items: "{0}個",
@@ -599,6 +607,7 @@ const dict = {
     batch_dir_forward: "前方",
     batch_dir_right: "右",
     batch_dir_up: "上",
+    batch_dir_brush: "面積配置",
 
     // Symmetry labels (toast)
     sym_label_off: "オフ",

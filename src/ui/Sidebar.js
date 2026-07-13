@@ -54,6 +54,10 @@ export class Sidebar {
       this.batchLabel.textContent = t("off");
       return;
     }
+    if (batch.direction === "brush") {
+      this.batchLabel.textContent = t("sidebar_dir_brush") + ` ${batch.count}×${batch.count}`;
+      return;
+    }
     const dirKey = { forward: "sidebar_dir_forward", right: "sidebar_dir_right", up: "sidebar_dir_up" };
     this.batchLabel.textContent = t("n_items", batch.count) + " " + t(dirKey[batch.direction] ?? "sidebar_dir_forward");
   }
