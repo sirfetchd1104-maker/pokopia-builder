@@ -71,4 +71,11 @@ export class SceneManager {
   render() {
     this.renderer.render(this.scene, this.camera);
   }
+
+  captureScreenshot(callback) {
+    this.renderer.render(this.scene, this.camera);
+    this.renderer.domElement.toBlob((blob) => {
+      if (blob) callback(blob);
+    });
+  }
 }

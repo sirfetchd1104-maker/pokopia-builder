@@ -1,9 +1,93 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.5";
+const CURRENT_VERSION = "2.6";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.6",
+    date: "2026.07.15",
+    changes: {
+      ko: [
+        { title: "새 블록 7종 추가 (총 14종)", items: [
+          "창문/대각선 창문/아치/계단/사다리/로프/울타리 추가",
+        ] },
+        { title: "블록 선택 UI 개편", items: [
+          "드롭다운 → 아이콘 버튼 타입으로 변경",
+          "Q키로 14종 블록 순차 전환",
+        ] },
+        { title: "색상 스와치 UI", items: [
+          "셀렉트 박스 → 실제 색상이 보이는 원형 스와치 버튼으로 변경",
+          "기본 6색 제공 (보라, 빨강, 주황, 초록, 파랑, 회색)",
+          "색상 변경 시 스와치 실시간 업데이트",
+        ] },
+        { title: "범위 회전", items: [
+          "범위 선택 후 Ctrl+R로 90° 시계 방향 회전",
+          "모바일: 이동 모달에 회전 버튼 추가",
+          "블록 좌표 + 개별 회전값 모두 중심 기준 회전",
+        ] },
+        { title: "스크린샷", items: [
+          "P키로 현재 화면 PNG 캡처 및 다운로드",
+          "모바일: 툴바 스크린샷 버튼",
+        ] },
+        { title: "모바일 UX 개선", items: [
+          "모바일 UX 개선",
+        ] },
+      ],
+      en: [
+        { title: "7 New Block Types (14 Total)", items: [
+          "Window / Sloped Window / Arch / Stair / Ladder / Rope / Fence",
+        ] },
+        { title: "Block Selection UI Overhaul", items: [
+          "Dropdown → icon button style",
+          "Q key to cycle through 14 blocks",
+        ] },
+        { title: "Color Swatch UI", items: [
+          "Select box → circular color swatch buttons",
+          "6 default colors (purple, red, orange, green, blue, gray)",
+          "Real-time swatch update on color change",
+        ] },
+        { title: "Selection Rotation", items: [
+          "Ctrl+R to rotate selected blocks 90° clockwise",
+          "Mobile: rotation button in move modal",
+          "Both coordinates and individual rotation values rotate around center",
+        ] },
+        { title: "Screenshot", items: [
+          "P key to capture current view as PNG",
+          "Mobile: screenshot button in toolbar",
+        ] },
+        { title: "Mobile UX Improvements", items: [
+          "Mobile UX improvements",
+        ] },
+      ],
+      ja: [
+        { title: "新ブロック7種追加（全14種）", items: [
+          "窓/斜め窓/アーチ/階段/はしご/ロープ/フェンス追加",
+        ] },
+        { title: "ブロック選択UIリニューアル", items: [
+          "ドロップダウン → アイコンボタン形式に変更",
+          "Qキーで14種ブロックを順次切り替え",
+        ] },
+        { title: "カラースウォッチUI", items: [
+          "セレクトボックス → 実際の色が見える丸型スウォッチボタンに変更",
+          "デフォルト6色（紫、赤、オレンジ、緑、青、グレー）",
+          "色変更時にスウォッチをリアルタイム更新",
+        ] },
+        { title: "範囲回転", items: [
+          "範囲選択後 Ctrl+R で90°時計回りに回転",
+          "モバイル: 移動モーダルに回転ボタン追加",
+          "座標と個別の回転値を中心基準で回転",
+        ] },
+        { title: "スクリーンショット", items: [
+          "Pキーで現在の画面をPNGキャプチャ＆ダウンロード",
+          "モバイル: ツールバーにスクリーンショットボタン",
+        ] },
+        { title: "モバイルUX改善", items: [
+          "モバイルUX改善",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.5",
     date: "2026.07.13",

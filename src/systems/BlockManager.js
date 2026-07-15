@@ -5,6 +5,11 @@ const INITIAL_CAPACITY = 16;
 const GHOST_CAPACITY = 64;
 const DEFAULT_MATERIALS = [
   { id: "default", label: "기본 블록", color: "#bc90e9", memo: "" },
+  { id: "note-1", color: "#e07070", memo: "" },
+  { id: "note-2", color: "#e8a84c", memo: "" },
+  { id: "note-3", color: "#6cc26c", memo: "" },
+  { id: "note-4", color: "#5ba4e0", memo: "" },
+  { id: "note-5", color: "#cccccc", memo: "" },
 ];
 const LEGACY_TYPE_TO_MATERIAL = {
   default: "default",
@@ -28,6 +33,13 @@ export class BlockManager {
       hCylinder: [],
       halfCylinder: [],
       halfCube: [],
+      window: [],
+      slopedWindow: [],
+      arch: [],
+      stair: [],
+      ladder: [],
+      rope: [],
+      fence: [],
     };
 
     this.geometries = {
@@ -38,6 +50,13 @@ export class BlockManager {
       hCylinder: createHorizontalCylinderGeometry(),
       halfCylinder: createHalfCylinderGeometry(),
       halfCube: createHalfCubeGeometry(),
+      window: createWindowGeometry(),
+      slopedWindow: createSlopedWindowGeometry(),
+      arch: createArchGeometry(),
+      stair: createStairGeometry(),
+      ladder: createLadderGeometry(),
+      rope: createRopeGeometry(),
+      fence: createFenceGeometry(),
     };
     this.material = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -67,6 +86,42 @@ export class BlockManager {
       this.ghosts[s] = this.createGhostMesh(s);
     }
     scene.add(...Object.values(this.ghosts));
+
+    this.glassMaterial = new THREE.MeshStandardMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.2,
+      roughness: 0.1,
+      metalness: 0.0,
+      side: THREE.DoubleSide,
+    });
+    const glassT = 0.08;
+    const glassInner = 0.5 - glassT;
+    const n707 = 1 / Math.SQRT2;
+    this.glassGeometries = {
+      window: new THREE.PlaneGeometry(glassInner * 2, glassInner * 2),
+      slopedWindow: new THREE.PlaneGeometry(glassInner * 2, glassInner * 2).applyMatrix4(
+        new THREE.Matrix4().set(0,-1,-n707,0, 0,1,-n707,0, 1,0,0,0, 0,0,0,1)
+      ),
+    };
+    this.glassShapes = new Set(["window", "slopedWindow"]);
+    this.glassCapacity = {};
+    this.glassMeshes = {};
+    for (const s of this.glassShapes) {
+      this.glassCapacity[s] = INITIAL_CAPACITY;
+      this.glassMeshes[s] = this.createGlassMesh(s, INITIAL_CAPACITY);
+    }
+    scene.add(...Object.values(this.glassMeshes));
+
+    this.thinShapes = new Set(["ladder", "rope", "fence", "window", "slopedWindow"]);
+    this.hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    this.hitboxCapacity = {};
+    this.hitboxes = {};
+    for (const s of this.thinShapes) {
+      this.hitboxCapacity[s] = INITIAL_CAPACITY;
+      this.hitboxes[s] = this.createHitboxMesh(s, INITIAL_CAPACITY);
+    }
+    scene.add(...Object.values(this.hitboxes));
 
     this.matrix = new THREE.Matrix4();
     this.normalMatrix = new THREE.Matrix3();
@@ -292,7 +347,7 @@ export class BlockManager {
   }
 
   rebuildMeshes() {
-    this.instanceBlocks = { cube: [], wedge: [], corner: [], cylinder: [], hCylinder: [], halfCylinder: [], halfCube: [] };
+    this.instanceBlocks = { cube: [], wedge: [], corner: [], cylinder: [], hCylinder: [], halfCylinder: [], halfCube: [], window: [], slopedWindow: [], arch: [], stair: [], ladder: [], rope: [], fence: [] };
     for (const block of this.blocks.values()) {
       if (this.isVisibleInLayer(block)) {
         this.instanceBlocks[block.shape].push(block);
@@ -332,6 +387,63 @@ export class BlockManager {
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       mesh.boundingSphere = null;
       mesh.boundingBox = null;
+    }
+
+    for (const shape of this.thinShapes) {
+      const items = this.instanceBlocks[shape];
+      const needed = items.length;
+      const capacity = this.hitboxCapacity[shape];
+
+      if (needed > capacity || (capacity > 32 && needed < capacity / 4)) {
+        this.scene.remove(this.hitboxes[shape]);
+        this.hitboxCapacity[shape] = Math.max(needed * 2, INITIAL_CAPACITY);
+        this.hitboxes[shape] = this.createHitboxMesh(shape, this.hitboxCapacity[shape]);
+        this.scene.add(this.hitboxes[shape]);
+      }
+
+      const hb = this.hitboxes[shape];
+      for (let i = 0; i < items.length; i++) {
+        const block = items[i];
+        this.tempPosition.set(block.x, block.y, block.z);
+        this.tempQuaternion.identity();
+        this.matrix.compose(this.tempPosition, this.tempQuaternion, this.tempScale);
+        hb.setMatrixAt(i, this.matrix);
+      }
+      hb.count = needed;
+      hb.instanceMatrix.needsUpdate = true;
+      hb.boundingSphere = null;
+      hb.boundingBox = null;
+    }
+
+    for (const shape of this.glassShapes) {
+      const items = this.instanceBlocks[shape];
+      const needed = items.length;
+      const capacity = this.glassCapacity[shape];
+
+      if (needed > capacity || (capacity > 32 && needed < capacity / 4)) {
+        this.scene.remove(this.glassMeshes[shape]);
+        this.glassCapacity[shape] = Math.max(needed * 2, INITIAL_CAPACITY);
+        this.glassMeshes[shape] = this.createGlassMesh(shape, this.glassCapacity[shape]);
+        this.scene.add(this.glassMeshes[shape]);
+      }
+
+      const gm = this.glassMeshes[shape];
+      for (let i = 0; i < items.length; i++) {
+        const block = items[i];
+        this.tempPosition.set(block.x, block.y, block.z);
+        const rot = block.rotation || 0;
+        if (rot !== 0) {
+          this.tempQuaternion.setFromAxisAngle(this.yAxis, rot * Math.PI / 2);
+        } else {
+          this.tempQuaternion.identity();
+        }
+        this.matrix.compose(this.tempPosition, this.tempQuaternion, this.tempScale);
+        gm.setMatrixAt(i, this.matrix);
+      }
+      gm.count = needed;
+      gm.instanceMatrix.needsUpdate = true;
+      gm.boundingSphere = null;
+      gm.boundingBox = null;
     }
 
     this.mesh = this.meshes.cube;
@@ -415,7 +527,7 @@ export class BlockManager {
   }
 
   getRaycastTargets() {
-    return Object.values(this.meshes);
+    return [...Object.values(this.meshes), ...Object.values(this.hitboxes)];
   }
 
   getBlockFromInstance(shape, instanceId) {
@@ -446,6 +558,20 @@ export class BlockManager {
     mesh.receiveShadow = true;
     mesh.userData.kind = "blocks";
     mesh.userData.shape = shape;
+    return mesh;
+  }
+
+  createHitboxMesh(shape, capacity) {
+    const mesh = new THREE.InstancedMesh(this.geometries.cube, this.hitboxMaterial, capacity);
+    mesh.userData.kind = "blocks";
+    mesh.userData.shape = shape;
+    return mesh;
+  }
+
+  createGlassMesh(shape, capacity) {
+    const mesh = new THREE.InstancedMesh(this.glassGeometries[shape], this.glassMaterial, capacity);
+    mesh.count = 0;
+    mesh.renderOrder = 1;
     return mesh;
   }
 
@@ -598,6 +724,198 @@ function createHorizontalCylinderGeometry() {
 function createHalfCubeGeometry() {
   const geo = new THREE.BoxGeometry(1, 0.5, 1);
   geo.translate(0, -0.25, 0);
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function addBoxVerts(positions, normals, x1, y1, z1, x2, y2, z2) {
+  const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+  const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+  const minZ = Math.min(z1, z2), maxZ = Math.max(z1, z2);
+  const faces = [
+    { verts: [minX,minY,maxZ, maxX,minY,maxZ, maxX,maxY,maxZ, minX,minY,maxZ, maxX,maxY,maxZ, minX,maxY,maxZ], normal: [0,0,1] },
+    { verts: [minX,minY,minZ, minX,maxY,minZ, maxX,maxY,minZ, minX,minY,minZ, maxX,maxY,minZ, maxX,minY,minZ], normal: [0,0,-1] },
+    { verts: [minX,maxY,minZ, minX,maxY,maxZ, maxX,maxY,maxZ, minX,maxY,minZ, maxX,maxY,maxZ, maxX,maxY,minZ], normal: [0,1,0] },
+    { verts: [minX,minY,minZ, maxX,minY,minZ, maxX,minY,maxZ, minX,minY,minZ, maxX,minY,maxZ, minX,minY,maxZ], normal: [0,-1,0] },
+    { verts: [maxX,minY,minZ, maxX,maxY,minZ, maxX,maxY,maxZ, maxX,minY,minZ, maxX,maxY,maxZ, maxX,minY,maxZ], normal: [1,0,0] },
+    { verts: [minX,minY,minZ, minX,minY,maxZ, minX,maxY,maxZ, minX,minY,minZ, minX,maxY,maxZ, minX,maxY,minZ], normal: [-1,0,0] },
+  ];
+  for (const face of faces) {
+    for (let i = 0; i < face.verts.length; i += 3) {
+      positions.push(face.verts[i], face.verts[i+1], face.verts[i+2]);
+      normals.push(face.normal[0], face.normal[1], face.normal[2]);
+    }
+  }
+}
+
+function createWindowGeometry() {
+  const s = 0.5;
+  const t = 0.08;
+  const d = t / 2;
+  const positions = [];
+  const normals = [];
+
+  addBoxVerts(positions, normals, -s, -s, -d, s, -s + t, d);
+  addBoxVerts(positions, normals, -s, s - t, -d, s, s, d);
+  addBoxVerts(positions, normals, -s, -s + t, -d, -s + t, s - t, d);
+  addBoxVerts(positions, normals, s - t, -s + t, -d, s, s - t, d);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createSlopedWindowGeometry() {
+  // Reuse window frame, scale+rotate onto wedge slope
+  const geo = createWindowGeometry();
+  const n = 1 / Math.SQRT2;
+  geo.applyMatrix4(new THREE.Matrix4().set(
+    0, -1, -n, 0,
+    0,  1, -n, 0,
+    1,  0,  0, 0,
+    0,  0,  0, 1
+  ));
+  return geo;
+}
+
+function createArchGeometry() {
+  const segments = 12;
+  const r = 1.0;
+  const s = 0.5;
+  const cx = -s, cy = -s;
+  const positions = [];
+  const normals = [];
+
+  for (let i = 0; i < segments; i++) {
+    const t1 = (i / segments) * Math.PI / 2;
+    const t2 = ((i + 1) / segments) * Math.PI / 2;
+    const x1 = cx + Math.cos(t1) * r, y1 = cy + Math.sin(t1) * r;
+    const x2 = cx + Math.cos(t2) * r, y2 = cy + Math.sin(t2) * r;
+    const nx1 = Math.cos(t1), ny1 = Math.sin(t1);
+    const nx2 = Math.cos(t2), ny2 = Math.sin(t2);
+
+    positions.push(x1, y1, -s, x2, y2, -s, x2, y2, s);
+    normals.push(nx1, ny1, 0, nx2, ny2, 0, nx2, ny2, 0);
+    positions.push(x1, y1, -s, x2, y2, s, x1, y1, s);
+    normals.push(nx1, ny1, 0, nx2, ny2, 0, nx1, ny1, 0);
+  }
+
+  for (let i = 0; i < segments; i++) {
+    const t1 = (i / segments) * Math.PI / 2;
+    const t2 = ((i + 1) / segments) * Math.PI / 2;
+    const x1 = cx + Math.cos(t1) * r, y1 = cy + Math.sin(t1) * r;
+    const x2 = cx + Math.cos(t2) * r, y2 = cy + Math.sin(t2) * r;
+    positions.push(cx, cy, s, x1, y1, s, x2, y2, s);
+    normals.push(0, 0, 1, 0, 0, 1, 0, 0, 1);
+  }
+
+  for (let i = 0; i < segments; i++) {
+    const t1 = (i / segments) * Math.PI / 2;
+    const t2 = ((i + 1) / segments) * Math.PI / 2;
+    const x1 = cx + Math.cos(t1) * r, y1 = cy + Math.sin(t1) * r;
+    const x2 = cx + Math.cos(t2) * r, y2 = cy + Math.sin(t2) * r;
+    positions.push(cx, cy, -s, x2, y2, -s, x1, y1, -s);
+    normals.push(0, 0, -1, 0, 0, -1, 0, 0, -1);
+  }
+
+  positions.push(cx, cy, -s, s, cy, -s, s, cy, s);
+  normals.push(0, -1, 0, 0, -1, 0, 0, -1, 0);
+  positions.push(cx, cy, -s, s, cy, s, cx, cy, s);
+  normals.push(0, -1, 0, 0, -1, 0, 0, -1, 0);
+
+  positions.push(cx, cy, -s, cx, cy, s, cx, s, s);
+  normals.push(-1, 0, 0, -1, 0, 0, -1, 0, 0);
+  positions.push(cx, cy, -s, cx, s, s, cx, s, -s);
+  normals.push(-1, 0, 0, -1, 0, 0, -1, 0, 0);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createStairGeometry() {
+  const s = 0.5;
+  const stepH = 1 / 4;
+  const stepD = 1 / 4;
+  const positions = [];
+  const normals = [];
+
+  for (let i = 0; i < 4; i++) {
+    const y0 = -s + i * stepH;
+    const y1 = y0 + stepH;
+    const z0 = -s + i * stepD;
+    const z1 = s;
+    addBoxVerts(positions, normals, -s, y0, z0, s, y1, z1);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createLadderGeometry() {
+  const positions = [];
+  const normals = [];
+  const w = 0.08;
+  const railW = 0.08;
+  const inset = 0.15; // 양쪽 여백으로 폭 줄임
+
+  // Left rail
+  addBoxVerts(positions, normals, -0.5 + inset, -0.5, 0.5 - w, -0.5 + inset + railW, 0.5, 0.5);
+  // Right rail
+  addBoxVerts(positions, normals, 0.5 - inset - railW, -0.5, 0.5 - w, 0.5 - inset, 0.5, 0.5);
+
+  // Rungs evenly spaced for seamless vertical stacking
+  const rungH = 0.06;
+  const spacing = 0.25;
+  for (let i = 0; i < 4; i++) {
+    const cy = -0.5 + spacing * (i + 0.5);
+    addBoxVerts(positions, normals, -0.5 + inset, cy - rungH / 2, 0.5 - w, 0.5 - inset, cy + rungH / 2, 0.5);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createRopeGeometry() {
+  const geo = new THREE.CylinderGeometry(0.08, 0.08, 1, 8);
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+function createFenceGeometry() {
+  const positions = [];
+  const normals = [];
+  const pw = 0.12;
+  const barH = 0.08;
+
+  // Left post
+  addBoxVerts(positions, normals, -0.5, -0.5, -pw/2, -0.5 + pw, 0.5, pw/2);
+  // Right post
+  addBoxVerts(positions, normals, 0.5 - pw, -0.5, -pw/2, 0.5, 0.5, pw/2);
+
+  // Horizontal bars between posts
+  addBoxVerts(positions, normals, -0.5 + pw, -0.2, -barH/2, 0.5 - pw, -0.2 + barH, barH/2);
+  addBoxVerts(positions, normals, -0.5 + pw, 0.2, -barH/2, 0.5 - pw, 0.2 + barH, barH/2);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
   geo.computeBoundingBox();
   geo.computeBoundingSphere();
   return geo;

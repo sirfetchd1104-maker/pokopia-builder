@@ -14,10 +14,10 @@ export class Toolbar {
     onLoad,
     onReset,
   }) {
-    this.materialSelect = document.querySelector("#materialSelect");
+    this.materialSwatches = document.querySelector("#materialSwatches");
     this.materialColor = document.querySelector("#materialColor");
     this.materialMemo = document.querySelector("#materialMemo");
-    this.shapeSelect = document.querySelector("#shapeSelect");
+    this.shapePanel = document.querySelector("#shapePanel");
     this.rotationSelect = document.querySelector("#rotationSelect");
     this.batchDirection = document.querySelector("#batchDirection");
     this.batchCount = document.querySelector("#batchCount");
@@ -25,34 +25,38 @@ export class Toolbar {
     this.layerMode = document.querySelector("#layerMode");
     this.layerValue = document.querySelector("#layerValue");
 
+    this.selectedMaterialId = null;
+    this.materials = [];
+    this.onMaterialChange = onMaterialChange;
     this.renderMaterials(materials);
     this.updateBatchCountVisibility();
 
-    this.materialSelect.addEventListener("change", () => {
-      const material = this.getCurrentMaterial();
-      this.materialColor.value = material.color;
-      this.materialMemo.value = material.memo;
-      onMaterialChange(material.id);
-    });
     this.materialColor.addEventListener("input", () => {
-      const updated = onMaterialUpdate(this.materialSelect.value, {
+      const updated = onMaterialUpdate(this.selectedMaterialId, {
         color: this.materialColor.value,
         memo: this.materialMemo.value,
       });
-      if (updated) this.updateCurrentOption(updated);
+      if (updated) this.updateCurrentSwatch(updated);
     });
     this.materialMemo.addEventListener("input", () => {
-      const updated = onMaterialUpdate(this.materialSelect.value, {
+      const updated = onMaterialUpdate(this.selectedMaterialId, {
         color: this.materialColor.value,
         memo: this.materialMemo.value,
       });
-      if (updated) this.updateCurrentOption(updated);
+      if (updated) this.updateCurrentSwatch(updated);
     });
     document.querySelector("#addMaterialButton").addEventListener("click", () => onMaterialAdd());
     document.querySelector("#removeMaterialButton").addEventListener("click", () => {
-      onMaterialRemove(this.materialSelect.value);
+      onMaterialRemove(this.selectedMaterialId);
     });
-    this.shapeSelect.addEventListener("change", () => onShapeChange(this.shapeSelect.value));
+
+    // Shape panel buttons
+    this.shapePanel.addEventListener("click", (e) => {
+      const btn = e.target.closest(".shape-btn");
+      if (!btn) return;
+      onShapeChange(btn.dataset.shape);
+    });
+
     this.rotationSelect.addEventListener("change", () => onRotationChange(Number.parseInt(this.rotationSelect.value, 10)));
     this.batchDirection.addEventListener("change", () => {
       this.updateBatchCountVisibility();
@@ -71,42 +75,62 @@ export class Toolbar {
   }
 
   renderMaterials(materials, selectId) {
-    this.materialSelect.replaceChildren();
+    this.materials = materials;
+    this.materialSwatches.replaceChildren();
     for (const material of materials) {
-      const option = document.createElement("option");
-      option.value = material.id;
-      option.textContent = getMaterialLabel(material);
-      option.dataset.color = material.color;
-      option.dataset.memo = material.memo;
-      this.materialSelect.append(option);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "swatch-btn";
+      btn.dataset.id = material.id;
+      btn.dataset.color = material.color;
+      btn.dataset.memo = material.memo ?? "";
+      btn.style.backgroundColor = material.color;
+      btn.title = getMaterialLabel(material);
+      btn.addEventListener("click", () => this.selectMaterial(material.id));
+      this.materialSwatches.append(btn);
     }
-    if (selectId) {
-      this.materialSelect.value = selectId;
+    const targetId = selectId || materials[0]?.id;
+    this.selectMaterial(targetId, true);
+  }
+
+  selectMaterial(id, skipCallback) {
+    this.selectedMaterialId = id;
+    for (const btn of this.materialSwatches.querySelectorAll(".swatch-btn")) {
+      btn.classList.toggle("active", btn.dataset.id === id);
     }
-    const current = this.getCurrentMaterial();
-    this.materialColor.value = current.color;
-    this.materialMemo.value = current.memo;
+    const material = this.materials.find((m) => m.id === id) || this.materials[0];
+    if (material) {
+      this.materialColor.value = material.color;
+      this.materialMemo.value = material.memo ?? "";
+    }
+    if (!skipCallback) this.onMaterialChange(id);
   }
 
   getCurrentMaterial() {
-    const option = this.materialSelect.selectedOptions[0] ?? this.materialSelect.options[0];
+    const material = this.materials.find((m) => m.id === this.selectedMaterialId) || this.materials[0];
     return {
-      id: option.value,
-      color: option.dataset.color,
-      memo: option.dataset.memo ?? "",
+      id: material?.id ?? "default",
+      color: material?.color ?? "#bc90e9",
+      memo: material?.memo ?? "",
     };
   }
 
-  updateCurrentOption(material) {
-    const option = this.materialSelect.selectedOptions[0];
-    if (!option) return;
-    option.textContent = getMaterialLabel(material);
-    option.dataset.color = material.color;
-    option.dataset.memo = material.memo;
+  updateCurrentSwatch(material) {
+    const btn = this.materialSwatches.querySelector(`.swatch-btn[data-id="${material.id}"]`);
+    if (!btn) return;
+    btn.style.backgroundColor = material.color;
+    btn.dataset.color = material.color;
+    btn.dataset.memo = material.memo ?? "";
+    btn.title = getMaterialLabel(material);
+    // Update local materials array
+    const m = this.materials.find((m) => m.id === material.id);
+    if (m) { m.color = material.color; m.memo = material.memo; }
   }
 
   setShape(shape) {
-    this.shapeSelect.value = shape;
+    for (const btn of this.shapePanel.querySelectorAll(".shape-btn")) {
+      btn.classList.toggle("active", btn.dataset.shape === shape);
+    }
   }
 
   setRotation(rotation) {

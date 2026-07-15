@@ -293,6 +293,84 @@ select option {
   cursor: pointer;
 }
 
+/* Shape panel grid */
+.shape-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.shape-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  min-height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #aab6b0;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  font-size: 11px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.shape-btn:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef3f0;
+}
+
+.shape-btn.active {
+  border-color: rgba(167, 139, 204, 0.84);
+  background: rgba(167, 139, 204, 0.18);
+  color: #eef3f0;
+}
+
+.shape-btn svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.shape-btn.active svg {
+  opacity: 1;
+}
+
+/* Material swatches */
+.mobile-move-label {
+  font-size: 10px;
+  color: #a78bcc;
+  white-space: nowrap;
+}
+
+.material-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.swatch-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: border-color 120ms ease, transform 120ms ease;
+  padding: 0;
+}
+
+.swatch-btn:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.15);
+}
+
+.swatch-btn.active {
+  border-color: rgba(167, 139, 204, 0.9);
+  box-shadow: 0 0 0 2px rgba(167, 139, 204, 0.4);
+  transform: scale(1.1);
+}
+
 .number-control {
   text-align: center;
 }

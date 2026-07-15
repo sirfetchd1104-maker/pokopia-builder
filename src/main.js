@@ -50,7 +50,7 @@ if (isMobile) {
     selectedRotation: 0,
     selectedCell: null,
     removeCell: null,
-    batch: { direction: "off", count: 2 },
+    batch: { direction: "off", count: 1 },
     symmetryMode: "off",
     swapMode: false,
     boxSelectMode: false,
@@ -364,7 +364,7 @@ if (isMobile) {
   });
 
   // ── Shape Picker (modal) ──
-  const SHAPES = ["cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube"];
+  const SHAPES = ["cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube", "window", "slopedWindow", "arch", "stair", "ladder", "rope", "fence"];
 
   function updateMobileShapeUI() {
     document.querySelector("#mobileShapeLabel").textContent = t("shape_" + mobileState.selectedShape);
@@ -375,13 +375,30 @@ if (isMobile) {
     const list = document.querySelector("#mobileShapeList");
     list.replaceChildren();
 
+    const SHAPE_ICONS = {
+      cube: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/>',
+      wedge: '<path d="M4 20h16L20 4 4 20z"/>',
+      corner: '<path d="M4 20h16V4L4 20z"/>',
+      cylinder: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>',
+      hCylinder: '<ellipse cx="6" cy="12" rx="3" ry="8"/><path d="M6 4h12c1.66 0 3 3.58 3 8s-1.34 8-3 8H6"/>',
+      halfCylinder: '<path d="M4 20h16V12a8 8 0 0 0-16 0v8z"/>',
+      halfCube: '<rect x="3" y="12" width="18" height="9" rx="1"/>',
+      window: '<rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" rx="0"/>',
+      slopedWindow: '<path d="M4 20L20 4"/><path d="M7 17L17 7"/><path d="M4 20l3-3M20 4l-3 3"/>',
+      arch: '<path d="M4 20V4a16 16 0 0 1 16 16"/>',
+      stair: '<path d="M4 20h5v-5h5v-5h5V4"/>',
+      ladder: '<path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/>',
+      rope: '<path d="M12 2v20" stroke-dasharray="3 2"/>',
+      fence: '<path d="M6 3v18M18 3v18M6 8h12M6 15h12"/>',
+    };
     for (const shape of SHAPES) {
       const btn = document.createElement("button");
       btn.className = "mobile-color-item";
       if (shape === mobileState.selectedShape) btn.classList.add("active");
       const label = t("shape_" + shape);
       const check = shape === mobileState.selectedShape ? "✓" : "";
-      btn.innerHTML = `<span class="mobile-color-name">${label}</span><span class="mobile-color-count">${check}</span>`;
+      const svg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${SHAPE_ICONS[shape]}</svg>`;
+      btn.innerHTML = `${svg}<span class="mobile-color-name">${label}</span><span class="mobile-color-count">${check}</span>`;
       btn.addEventListener("click", () => {
         mobileState.selectedShape = shape;
         updateMobileShapeUI();
@@ -518,6 +535,8 @@ if (isMobile) {
       document.querySelector("#mobileBoxSelectValue").textContent = t(active ? "swap_on" : "batch_off");
     }
     document.querySelector("#mobileBoxSelectBtn").classList.toggle("mobile-boxselect-active", active);
+    const moveLabel = document.querySelector("#mobileMoveLabel");
+    if (moveLabel) moveLabel.style.display = hasSelection ? "" : "none";
   }
 
   document.querySelector("#mobileBoxSelectBtn").addEventListener("click", () => {
@@ -866,6 +885,18 @@ if (isMobile) {
   document.querySelector("#mobilePixelArtBtn").addEventListener("click", () => {
     pixelArtMobile.open();
   });
+  document.querySelector("#mobileScreenshotBtn").addEventListener("click", () => {
+    blocks.setGhost([]);
+    sceneManager.captureScreenshot((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pokopia-screenshot-${new Date().toISOString().slice(0, 10)}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      mobileToast(t("toast_screenshot_saved"));
+    });
+  });
 
   // ── Layer Filter ──
   const layerModes = ["all", "only", "below"];
@@ -982,6 +1013,53 @@ if (isMobile) {
       updateBlockCount();
     });
   }
+
+  function mobileRotateSelectedBlocks(delta) {
+    const selected = mobileGetSelectedBlocks();
+    if (selected.length === 0) { mobileToast(t("toast_select_empty")); return; }
+    const xs = selected.map((b) => b.x);
+    const zs = selected.map((b) => b.z);
+    const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const centerZ = (Math.min(...zs) + Math.max(...zs)) / 2;
+    const removed = blocks.removeBlocks(selected);
+    const rotated = removed.map((b) => ({
+      x: Math.round(centerX + (b.z - centerZ)),
+      y: b.y,
+      z: Math.round(centerZ - (b.x - centerX)),
+      materialId: b.materialId, shape: b.shape,
+      rotation: ((b.rotation || 0) + delta) % 4,
+    }));
+    if (rotated.some((b) => b.y < 0)) {
+      blocks.addBlocks(removed);
+      mobileToast(t("toast_cant_move"));
+      return;
+    }
+    const added = blocks.addBlocks(rotated);
+    if (removed.length > 0 || added.length > 0) {
+      undoMgr.push({ added, removed });
+      markChanged();
+    }
+    const pA = mobileState.boxSelect.pointA;
+    const pB = mobileState.boxSelect.pointB;
+    const newAx = Math.round(centerX + (pA.z - centerZ));
+    const newAz = Math.round(centerZ - (pA.x - centerX));
+    const newBx = Math.round(centerX + (pB.z - centerZ));
+    const newBz = Math.round(centerZ - (pB.x - centerX));
+    pA.x = newAx; pA.z = newAz;
+    pB.x = newBx; pB.z = newBz;
+    mobileUpdateSelectionBox();
+    updateBoxSelectBtn();
+    mobileToast(t("toast_selection_rotated", added.length));
+  }
+
+  document.querySelector("#mobileMoveRotate").addEventListener("click", () => {
+    if (mobileState.boxSelect.pointA && mobileState.boxSelect.pointB) {
+      mobileRotateSelectedBlocks(1);
+      updateBlockCount();
+    } else {
+      mobileToast(t("toast_select_empty"));
+    }
+  });
 
   // ── Guide Button ──
   const mobileGuideOverlay = document.querySelector("#guideModal");
@@ -1129,6 +1207,7 @@ const toolbar = new Toolbar({
   },
   onShapeChange: (shape) => {
     state.selectedShape = shape;
+    toolbar.setShape(shape);
     sidebar.setShape(shape);
     toast(t("toast_shape", t("shape_" + shape)));
   },
@@ -1254,6 +1333,23 @@ document.querySelector("#pixelArtButton").addEventListener("click", () => {
   pixelArt.open();
 });
 
+function takeScreenshot() {
+  sceneManager.captureScreenshot((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pokopia-screenshot-${new Date().toISOString().slice(0, 10)}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(t("toast_screenshot_saved"));
+  });
+}
+document.querySelector("#screenshotButton").addEventListener("click", () => {
+  if (document.pointerLockElement) document.exitPointerLock();
+  blocks.setGhost([]);
+  takeScreenshot();
+});
+
 const state = {
   selectedMaterial: "default",
   selectedShape: "cube",
@@ -1334,6 +1430,12 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     performRedo();
   }
+  if (event.code === "KeyR") {
+    event.preventDefault();
+    if (state.boxSelect.pointA && state.boxSelect.pointB) {
+      rotateSelectedBlocks(1);
+    }
+  }
   if (event.code === "ArrowUp" || event.code === "ArrowDown" ||
       event.code === "ArrowLeft" || event.code === "ArrowRight" ||
       event.code === "Comma" || event.code === "Period") {
@@ -1365,9 +1467,10 @@ window.addEventListener("keydown", (event) => {
 
   if (document.pointerLockElement !== canvas) return;
   if (event.ctrlKey || event.metaKey || event.altKey) return;
-  if (!event.repeat && ["Digit1","Digit2","Digit3","Digit4","Digit5","Digit6","Digit7"].includes(event.code)) {
-    const shapes = { Digit1: "cube", Digit2: "wedge", Digit3: "corner", Digit4: "cylinder", Digit5: "hCylinder", Digit6: "halfCylinder", Digit7: "halfCube" };
-    state.selectedShape = shapes[event.code];
+  if (event.code === "KeyQ" && !event.repeat) {
+    const SHAPES = ["cube","wedge","corner","cylinder","hCylinder","halfCylinder","halfCube","window","slopedWindow","arch","stair","ladder","rope","fence"];
+    const idx = SHAPES.indexOf(state.selectedShape);
+    state.selectedShape = SHAPES[(idx + 1) % SHAPES.length];
     toolbar.setShape(state.selectedShape);
     sidebar.setShape(state.selectedShape);
     toast(t("toast_shape", t("shape_" + state.selectedShape)));
@@ -1414,6 +1517,10 @@ window.addEventListener("keydown", (event) => {
   }
   if (event.code === "KeyF" && !event.repeat) {
     handleBoxSelectPoint();
+  }
+  if (event.code === "KeyP" && !event.repeat) {
+    blocks.setGhost([]);
+    takeScreenshot();
   }
   if ((event.code === "Delete" || event.code === "Backspace") && !event.repeat && state.boxSelect.pointA && state.boxSelect.pointB) {
     deleteSelectedBlocks();
@@ -1488,7 +1595,7 @@ function updateGhost() {
       .flatMap((cell) => getSymmetryCells(cell));
     blocks.setGhost(previewCells, state.selectedShape, state.selectedMaterial, state.selectedRotation);
   } else {
-    blocks.setGhost(null);
+    blocks.setGhost([]);
   }
 }
 
@@ -1694,6 +1801,48 @@ function moveSelectedBlocks(dx, dy, dz) {
   state.boxSelect.pointB.x += dx; state.boxSelect.pointB.y += dy; state.boxSelect.pointB.z += dz;
   updateSelectionBox();
   toast(t("toast_selection_moved", added.length));
+}
+
+function rotateSelectedBlocks(delta) {
+  const selected = getSelectedBlocks();
+  if (selected.length === 0) {
+    toast(t("toast_select_empty"));
+    return;
+  }
+  const xs = selected.map((b) => b.x);
+  const zs = selected.map((b) => b.z);
+  const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const centerZ = (Math.min(...zs) + Math.max(...zs)) / 2;
+  const removed = blocks.removeBlocks(selected);
+  const rotated = removed.map((b) => ({
+    x: Math.round(centerX + (b.z - centerZ)),
+    y: b.y,
+    z: Math.round(centerZ - (b.x - centerX)),
+    materialId: b.materialId,
+    shape: b.shape,
+    rotation: ((b.rotation || 0) + delta) % 4,
+  }));
+  if (rotated.some((b) => b.y < 0)) {
+    blocks.addBlocks(removed);
+    toast(t("toast_cant_move"));
+    return;
+  }
+  const added = blocks.addBlocks(rotated);
+  if (removed.length > 0 || added.length > 0) {
+    undoManager.push({ added, removed });
+    markChanged();
+  }
+  // Rotate selection box
+  const pA = state.boxSelect.pointA;
+  const pB = state.boxSelect.pointB;
+  const newAx = Math.round(centerX + (pA.z - centerZ));
+  const newAz = Math.round(centerZ - (pA.x - centerX));
+  const newBx = Math.round(centerX + (pB.z - centerZ));
+  const newBz = Math.round(centerZ - (pB.x - centerX));
+  pA.x = newAx; pA.z = newAz;
+  pB.x = newBx; pB.z = newBz;
+  updateSelectionBox();
+  toast(t("toast_selection_rotated", added.length));
 }
 
 function getSymmetryCells(cell) {
