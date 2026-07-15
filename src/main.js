@@ -218,6 +218,7 @@ if (isMobile) {
   function mobileClearBoxSelection() {
     mobileState.boxSelect.pointA = null;
     mobileState.boxSelect.pointB = null;
+    mobileState.boxSelect.rotationCenter = null;
     mobileUpdateSelectionBox();
   }
 
@@ -272,11 +273,13 @@ if (isMobile) {
       if (!mobileState.boxSelect.pointA || mobileState.boxSelect.pointB) {
         mobileState.boxSelect.pointA = cell;
         mobileState.boxSelect.pointB = null;
+        mobileState.boxSelect.rotationCenter = null;
         mobileUpdateSelectionBox();
         updateBoxSelectBtn();
         mobileToast(t("toast_select_start"));
       } else {
         mobileState.boxSelect.pointB = cell;
+        mobileState.boxSelect.rotationCenter = null;
         mobileUpdateSelectionBox();
         updateBoxSelectBtn();
         const count = mobileGetSelectedBlocks().length;
@@ -1017,15 +1020,17 @@ if (isMobile) {
   function mobileRotateSelectedBlocks(delta) {
     const selected = mobileGetSelectedBlocks();
     if (selected.length === 0) { mobileToast(t("toast_select_empty")); return; }
-    const xs = selected.map((b) => b.x);
-    const zs = selected.map((b) => b.z);
-    const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const centerZ = (Math.min(...zs) + Math.max(...zs)) / 2;
+    const pA = mobileState.boxSelect.pointA;
+    const pB = mobileState.boxSelect.pointB;
+    if (!mobileState.boxSelect.rotationCenter) {
+      mobileState.boxSelect.rotationCenter = getRotationCenter(pA, pB);
+    }
+    const { x: centerX, z: centerZ } = mobileState.boxSelect.rotationCenter;
     const removed = blocks.removeBlocks(selected);
     const rotated = removed.map((b) => ({
-      x: Math.round(centerX + (b.z - centerZ)),
+      x: centerX + (b.z - centerZ),
       y: b.y,
-      z: Math.round(centerZ - (b.x - centerX)),
+      z: centerZ - (b.x - centerX),
       materialId: b.materialId, shape: b.shape,
       rotation: ((b.rotation || 0) + delta) % 4,
     }));
@@ -1039,12 +1044,10 @@ if (isMobile) {
       undoMgr.push({ added, removed });
       markChanged();
     }
-    const pA = mobileState.boxSelect.pointA;
-    const pB = mobileState.boxSelect.pointB;
-    const newAx = Math.round(centerX + (pA.z - centerZ));
-    const newAz = Math.round(centerZ - (pA.x - centerX));
-    const newBx = Math.round(centerX + (pB.z - centerZ));
-    const newBz = Math.round(centerZ - (pB.x - centerX));
+    const newAx = centerX + (pA.z - centerZ);
+    const newAz = centerZ - (pA.x - centerX);
+    const newBx = centerX + (pB.z - centerZ);
+    const newBz = centerZ - (pB.x - centerX);
     pA.x = newAx; pA.z = newAz;
     pB.x = newBx; pB.z = newBz;
     mobileUpdateSelectionBox();
@@ -1682,6 +1685,7 @@ function updateSelectionBox() {
 function clearBoxSelection() {
   state.boxSelect.pointA = null;
   state.boxSelect.pointB = null;
+  state.boxSelect.rotationCenter = null;
   updateSelectionBox();
 }
 
@@ -1737,10 +1741,12 @@ function handleBoxSelectPoint() {
   if (!state.boxSelect.pointA || state.boxSelect.pointB) {
     state.boxSelect.pointA = cell;
     state.boxSelect.pointB = null;
+    state.boxSelect.rotationCenter = null;
     updateSelectionBox();
     toast(t("toast_select_start"));
   } else {
     state.boxSelect.pointB = cell;
+    state.boxSelect.rotationCenter = null;
     updateSelectionBox();
     toast(t("toast_select_done", getSelectedBlocks().length));
   }
@@ -1803,21 +1809,37 @@ function moveSelectedBlocks(dx, dy, dz) {
   toast(t("toast_selection_moved", added.length));
 }
 
+function getRotationCenter(pA, pB) {
+  let cx = (pA.x + pB.x) / 2;
+  let cz = (pA.z + pB.z) / 2;
+  // Both must be same parity (both integer or both half-integer)
+  // so rotation always produces exact integers without rounding
+  const xIsHalf = cx % 1 !== 0;
+  const zIsHalf = cz % 1 !== 0;
+  if (xIsHalf !== zIsHalf) {
+    if (!xIsHalf) cx += 0.5;
+    else cz += 0.5;
+  }
+  return { x: cx, z: cz };
+}
+
 function rotateSelectedBlocks(delta) {
   const selected = getSelectedBlocks();
   if (selected.length === 0) {
     toast(t("toast_select_empty"));
     return;
   }
-  const xs = selected.map((b) => b.x);
-  const zs = selected.map((b) => b.z);
-  const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
-  const centerZ = (Math.min(...zs) + Math.max(...zs)) / 2;
+  const pA = state.boxSelect.pointA;
+  const pB = state.boxSelect.pointB;
+  if (!state.boxSelect.rotationCenter) {
+    state.boxSelect.rotationCenter = getRotationCenter(pA, pB);
+  }
+  const { x: centerX, z: centerZ } = state.boxSelect.rotationCenter;
   const removed = blocks.removeBlocks(selected);
   const rotated = removed.map((b) => ({
-    x: Math.round(centerX + (b.z - centerZ)),
+    x: centerX + (b.z - centerZ),
     y: b.y,
-    z: Math.round(centerZ - (b.x - centerX)),
+    z: centerZ - (b.x - centerX),
     materialId: b.materialId,
     shape: b.shape,
     rotation: ((b.rotation || 0) + delta) % 4,
@@ -1832,13 +1854,11 @@ function rotateSelectedBlocks(delta) {
     undoManager.push({ added, removed });
     markChanged();
   }
-  // Rotate selection box
-  const pA = state.boxSelect.pointA;
-  const pB = state.boxSelect.pointB;
-  const newAx = Math.round(centerX + (pA.z - centerZ));
-  const newAz = Math.round(centerZ - (pA.x - centerX));
-  const newBx = Math.round(centerX + (pB.z - centerZ));
-  const newBz = Math.round(centerZ - (pB.x - centerX));
+  // Rotate selection box (exact integers, no rounding needed)
+  const newAx = centerX + (pA.z - centerZ);
+  const newAz = centerZ - (pA.x - centerX);
+  const newBx = centerX + (pB.z - centerZ);
+  const newBz = centerZ - (pB.x - centerX);
   pA.x = newAx; pA.z = newAz;
   pB.x = newBx; pB.z = newBz;
   updateSelectionBox();
