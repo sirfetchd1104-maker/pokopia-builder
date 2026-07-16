@@ -182,8 +182,7 @@ const dict = {
     dotview_save: "PNG 저장",
 
     // Guide
-    guide_button: "조작 가이드",
-    guide_title: "조작 가이드",
+    guide_page: "사용 가이드",
 
     // Batch direction labels (toast)
     batch_dir_off: "끄기",
@@ -406,8 +405,7 @@ const dict = {
     dotview_back: "Back",
     dotview_save: "Save PNG",
 
-    guide_button: "Controls",
-    guide_title: "Controls Guide",
+    guide_page: "User Guide",
 
     batch_dir_off: "Off",
     batch_dir_forward: "Forward",
@@ -635,8 +633,7 @@ const dict = {
     dotview_save: "PNG保存",
 
     // Guide
-    guide_button: "操作ガイド",
-    guide_title: "操作ガイド",
+    guide_page: "使い方ガイド",
 
     // Batch direction labels (toast)
     batch_dir_off: "オフ",

@@ -1,9 +1,48 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.6";
+const CURRENT_VERSION = "2.7";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.7",
+    date: "2026.07.16",
+    changes: {
+      ko: [
+        { title: "사용 가이드 페이지 추가", items: [
+          "별도 페이지(guide.html)로 전체 기능 사용법 제공",
+          "9개 섹션: 기본 조작, 블록 종류(14종), 색상 관리, 일괄/대칭 배치, 범위 선택, 레이어 필터, 픽셀아트, 저장/공유, 모바일 조작",
+          "한국어/영어/일본어 3개 국어 지원",
+          "PC 하단 패널 + 모바일 툴바에서 가이드 페이지 바로가기 버튼 추가",
+        ] },
+        { title: "조작 가이드 모달 제거", items: [
+          "기존 인앱 조작 가이드 모달을 가이드 페이지로 대체",
+        ] },
+      ],
+      en: [
+        { title: "User Guide Page", items: [
+          "Dedicated page (guide.html) with full feature documentation",
+          "9 sections: basics, block types (14), colors, batch/symmetry, box select, layer filter, pixel art, save/share, mobile controls",
+          "Korean / English / Japanese support",
+          "Guide page shortcut added to PC bottom panel + mobile toolbar",
+        ] },
+        { title: "Controls Modal Removed", items: [
+          "Replaced in-app controls modal with the guide page",
+        ] },
+      ],
+      ja: [
+        { title: "使い方ガイドページ追加", items: [
+          "専用ページ（guide.html）で全機能の使い方を提供",
+          "9セクション: 基本操作、ブロック種類（14種）、色管理、一括/対称配置、範囲選択、レイヤーフィルター、ピクセルアート、保存/共有、モバイル操作",
+          "韓国語/英語/日本語の3言語対応",
+          "PC下部パネル + モバイルツールバーにガイドページショートカットボタン追加",
+        ] },
+        { title: "操作ガイドモーダル削除", items: [
+          "アプリ内操作ガイドモーダルをガイドページに置き換え",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.6",
     date: "2026.07.15",
