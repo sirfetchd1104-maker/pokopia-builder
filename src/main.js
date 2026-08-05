@@ -3,7 +3,7 @@ import { SceneManager } from "./core/SceneManager.js";
 import { CameraController } from "./core/CameraController.js";
 import { TouchOrbitCamera } from "./core/TouchOrbitCamera.js";
 import { InputManager } from "./core/InputManager.js";
-import { BlockManager } from "./systems/BlockManager.js";
+import { BlockManager, isMultiCellShape, getObjectFootprint, getMultiCellAnchorOffset } from "./systems/BlockManager.js";
 import { GridManager } from "./systems/GridManager.js";
 import { SaveManager } from "./systems/SaveManager.js";
 import { UndoManager } from "./systems/UndoManager.js";
@@ -36,6 +36,18 @@ const saveManager = new SaveManager(blocks);
 
 // Apply saved language on load
 applyLang();
+
+function getRotationCenter(pA, pB) {
+  let cx = (pA.x + pB.x) / 2;
+  let cz = (pA.z + pB.z) / 2;
+  const xIsHalf = cx % 1 !== 0;
+  const zIsHalf = cz % 1 !== 0;
+  if (xIsHalf !== zIsHalf) {
+    if (!xIsHalf) cx += 0.5;
+    else cz += 0.5;
+  }
+  return { x: cx, z: cz };
+}
 
 if (isMobile) {
   document.body.classList.add("mobile-editor");
@@ -307,19 +319,29 @@ if (isMobile) {
 
     // Normal placement
     if (!result?.placeCell) return;
-    const targets = mobileGetPlacementCells(result.placeCell)
-      .flatMap((cell) => mobileGetSymmetryCells(cell))
-      .map((cell) => ({
-        ...cell,
-        materialId: mobileState.selectedMaterial,
-        shape: mobileState.selectedShape,
-        rotation: mobileState.selectedRotation,
-      }));
-    const added = blocks.addBlocks(targets);
-    if (added.length > 0) {
-      undoMgr.push({ added, removed: [] });
-      markChanged();
-      mobileToast(t("toast_placed"));
+    if (isMultiCellShape(mobileState.selectedShape)) {
+      if (!blocks.canPlaceMultiCell(result.placeCell, mobileState.selectedShape, mobileState.selectedRotation)) return;
+      const added = blocks.placeMultiCell(result.placeCell, mobileState.selectedShape, mobileState.selectedMaterial, mobileState.selectedRotation);
+      if (added.length > 0) {
+        undoMgr.push({ added, removed: [] });
+        markChanged();
+        mobileToast(t("toast_placed"));
+      }
+    } else {
+      const targets = mobileGetPlacementCells(result.placeCell)
+        .flatMap((cell) => mobileGetSymmetryCells(cell))
+        .map((cell) => ({
+          ...cell,
+          materialId: mobileState.selectedMaterial,
+          shape: mobileState.selectedShape,
+          rotation: mobileState.selectedRotation,
+        }));
+      const added = blocks.addBlocks(targets);
+      if (added.length > 0) {
+        undoMgr.push({ added, removed: [] });
+        markChanged();
+        mobileToast(t("toast_placed"));
+      }
     }
     lastTapScreen = { sx, sy };
     updateMobileGhost();
@@ -367,7 +389,8 @@ if (isMobile) {
   });
 
   // ── Shape Picker (modal) ──
-  const SHAPES = ["cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube", "window", "slopedWindow", "arch", "stair", "ladder", "rope", "fence"];
+  const BLOCK_SHAPES = ["cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube", "arch"];
+  const OBJECT_SHAPES = ["chair", "table", "table2x2", "bed1x2", "bed2x2", "sofa", "lamp", "tree", "bush", "window", "slopedWindow", "stair", "ladder", "rope", "fence"];
 
   function updateMobileShapeUI() {
     document.querySelector("#mobileShapeLabel").textContent = t("shape_" + mobileState.selectedShape);
@@ -393,23 +416,44 @@ if (isMobile) {
       ladder: '<path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/>',
       rope: '<path d="M12 2v20" stroke-dasharray="3 2"/>',
       fence: '<path d="M6 3v18M18 3v18M6 8h12M6 15h12"/>',
+      chair: '<path d="M6 3v18M18 11v10M6 11h14M8 3v8"/>',
+      table: '<path d="M4 8h16M4 8v12M20 8v12M12 8v12"/>',
+      table2x2: '<rect x="3" y="6" width="18" height="3" rx="1"/><path d="M5 9v11M19 9v11M12 9v11"/>',
+      bed1x2: '<path d="M3 10h18v7H3z"/><path d="M3 8h18v2H3z"/><path d="M3 17v2M21 17v2"/>',
+      bed2x2: '<path d="M2 10h20v7H2z"/><path d="M2 8h20v2H2z"/><path d="M2 17v2M22 17v2M12 10v-2"/>',
+      sofa: '<path d="M3 10h18v6H3z"/><path d="M3 7h18v3H3z"/><path d="M3 10v6M21 10v6"/>',
+      lamp: '<path d="M12 22v-14"/><path d="M8 8h8l-1-4H9z"/><circle cx="12" cy="5" r="1"/><path d="M9 22h6"/>',
+      tree: '<rect x="10" y="14" width="4" height="8"/><circle cx="12" cy="10" r="7"/>',
+      bush: '<circle cx="12" cy="11" r="8"/><path d="M12 19v3"/>',
     };
-    for (const shape of SHAPES) {
-      const btn = document.createElement("button");
-      btn.className = "mobile-color-item";
-      if (shape === mobileState.selectedShape) btn.classList.add("active");
-      const label = t("shape_" + shape);
-      const check = shape === mobileState.selectedShape ? "✓" : "";
-      const svg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${SHAPE_ICONS[shape]}</svg>`;
-      btn.innerHTML = `${svg}<span class="mobile-color-name">${label}</span><span class="mobile-color-count">${check}</span>`;
-      btn.addEventListener("click", () => {
-        mobileState.selectedShape = shape;
-        updateMobileShapeUI();
-        closeMobileShapePicker();
-        mobileToast(t("toast_shape", label));
-        updateMobileGhost();
-      });
-      list.append(btn);
+    const categories = [
+      { key: "category_blocks", shapes: BLOCK_SHAPES },
+      { key: "category_objects", shapes: OBJECT_SHAPES },
+    ];
+    for (const cat of categories) {
+      const header = document.createElement("div");
+      header.className = "mobile-shape-category-header";
+      header.textContent = t(cat.key);
+      list.append(header);
+      const grid = document.createElement("div");
+      grid.className = "mobile-shape-grid";
+      for (const shape of cat.shapes) {
+        const btn = document.createElement("button");
+        btn.className = "mobile-shape-grid-item";
+        if (shape === mobileState.selectedShape) btn.classList.add("active");
+        const label = t("shape_" + shape);
+        const svg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${SHAPE_ICONS[shape]}</svg>`;
+        btn.innerHTML = `${svg}<span>${label}</span>`;
+        btn.addEventListener("click", () => {
+          mobileState.selectedShape = shape;
+          updateMobileShapeUI();
+          closeMobileShapePicker();
+          mobileToast(t("toast_shape", label));
+          updateMobileGhost();
+        });
+        grid.append(btn);
+      }
+      list.append(grid);
     }
     modal.classList.remove("hidden");
   }
@@ -747,6 +791,20 @@ if (isMobile) {
   mobileLangSelect.value = getLang();
   mobileLangSelect.addEventListener("change", () => {
     setLang(mobileLangSelect.value);
+    updateBlockCount();
+  });
+
+  const langs = ["ko", "en", "ja"];
+  const langLabels = { ko: "한국어", en: "English", ja: "日本語" };
+  const mobileLangBtn = document.querySelector("#mobileLangBtn");
+  const mobileLangLabel = document.querySelector("#mobileLangLabel");
+  mobileLangLabel.textContent = langLabels[getLang()] || langLabels.ko;
+  mobileLangBtn.addEventListener("click", () => {
+    const cur = langs.indexOf(getLang());
+    const next = langs[(cur + 1) % langs.length];
+    setLang(next);
+    mobileLangLabel.textContent = langLabels[next];
+    mobileLangSelect.value = next;
     updateBlockCount();
   });
 
@@ -1301,11 +1359,45 @@ const state = {
   hasUnsavedChanges: false,
   lastTime: performance.now(),
   boxSelect: { pointA: null, pointB: null },
+  grab: null, // { shape, materialId, rotation, removed }
 };
 
 input.onPrimaryAction = () => {
   if (state.boxSelect.pointA) clearBoxSelection();
   if (!state.selectedCell) return;
+  // Grab mode: place grabbed object
+  if (state.grab) {
+    const g = state.grab;
+    if (isMultiCellShape(g.shape)) {
+      if (!blocks.canPlaceMultiCell(state.selectedCell, g.shape, g.rotation)) return;
+      const added = blocks.placeMultiCell(state.selectedCell, g.shape, g.materialId, g.rotation);
+      if (added.length > 0) {
+        undoManager.push({ added, removed: g.removed });
+        markChanged();
+        toast(t("toast_placed"));
+      }
+    } else {
+      const added = blocks.addBlocks([{ ...state.selectedCell, materialId: g.materialId, shape: g.shape, rotation: g.rotation }]);
+      if (added.length > 0) {
+        undoManager.push({ added, removed: g.removed });
+        markChanged();
+        toast(t("toast_placed"));
+      }
+    }
+    state.grab = null;
+    return;
+  }
+  if (isMultiCellShape(state.selectedShape)) {
+    // Multi-cell: place single object, no batch/symmetry
+    if (!blocks.canPlaceMultiCell(state.selectedCell, state.selectedShape, state.selectedRotation)) return;
+    const added = blocks.placeMultiCell(state.selectedCell, state.selectedShape, state.selectedMaterial, state.selectedRotation);
+    if (added.length > 0) {
+      undoManager.push({ added, removed: [] });
+      markChanged();
+      toast(t("toast_placed"));
+    }
+    return;
+  }
   const targets = getPlacementCells(state.selectedCell)
     .flatMap((cell) => getSymmetryCells(cell))
     .map((cell) => ({
@@ -1323,6 +1415,13 @@ input.onPrimaryAction = () => {
 };
 
 input.onSecondaryAction = () => {
+  // Cancel grab mode — restore original object
+  if (state.grab) {
+    blocks.addBlocks(state.grab.removed);
+    state.grab = null;
+    toast(t("toast_grab_cancel"));
+    return;
+  }
   if (state.boxSelect.pointA) clearBoxSelection();
   const target = state.removeCell ?? state.selectedCell;
   if (!target) return;
@@ -1406,9 +1505,11 @@ window.addEventListener("keydown", (event) => {
   if (document.pointerLockElement !== canvas) return;
   if (event.ctrlKey || event.metaKey || event.altKey) return;
   if (event.code === "KeyQ" && !event.repeat) {
-    const SHAPES = ["cube","wedge","corner","cylinder","hCylinder","halfCylinder","halfCube","window","slopedWindow","arch","stair","ladder","rope","fence"];
-    const idx = SHAPES.indexOf(state.selectedShape);
-    state.selectedShape = SHAPES[(idx + 1) % SHAPES.length];
+    const BLOCK_SHAPES = ["cube","wedge","corner","cylinder","hCylinder","halfCylinder","halfCube","arch"];
+    const OBJECT_SHAPES = ["chair", "table", "table2x2", "bed1x2", "bed2x2", "sofa", "lamp", "tree", "bush", "window", "slopedWindow", "stair", "ladder", "rope", "fence"];
+    const catShapes = toolbar.activeCategory === "object" ? OBJECT_SHAPES : BLOCK_SHAPES;
+    const idx = catShapes.indexOf(state.selectedShape);
+    state.selectedShape = catShapes[(idx + 1) % catShapes.length];
     toolbar.setShape(state.selectedShape);
     sidebar.setShape(state.selectedShape);
     toast(t("toast_shape", t("shape_" + state.selectedShape)));
@@ -1450,6 +1551,19 @@ window.addEventListener("keydown", (event) => {
         undoManager.push({ removed: replaced.map((r) => r.old), added: replaced.map((r) => r.new) });
         markChanged();
         toast(t("toast_replaced", replaced.length));
+      }
+    }
+  }
+  if (event.code === "KeyM" && !event.repeat) {
+    if (state.removeCell) {
+      const target = blocks.getBlock(state.removeCell);
+      if (target && (isMultiCellShape(target.shape) || target.shape === "_occupied")) {
+        const removed = blocks.removeBlocks([state.removeCell]);
+        if (removed.length > 0) {
+          const anchor = removed.find((b) => b.shape !== "_occupied") || removed[0];
+          state.grab = { shape: anchor.shape, materialId: anchor.materialId, rotation: anchor.rotation, removed };
+          toast(t("toast_grab"));
+        }
       }
     }
   }
@@ -1528,10 +1642,24 @@ function updateGhost() {
   state.selectedCell = result?.placeCell ?? null;
   state.removeCell = result?.removeCell ?? null;
 
+  // Center multi-cell objects on cursor
+  if (state.selectedCell && isMultiCellShape(state.selectedShape) && !state.grab) {
+    const off = getMultiCellAnchorOffset(state.selectedShape, state.selectedRotation);
+    state.selectedCell = { x: state.selectedCell.x + off.x, y: state.selectedCell.y, z: state.selectedCell.z + off.z };
+  }
+
   if (state.selectedCell) {
-    const previewCells = getPlacementCells(state.selectedCell)
-      .flatMap((cell) => getSymmetryCells(cell));
-    blocks.setGhost(previewCells, state.selectedShape, state.selectedMaterial, state.selectedRotation);
+    if (state.grab) {
+      // Grab mode: show grabbed object ghost
+      blocks.setGhost([state.selectedCell], state.grab.shape, state.grab.materialId, state.grab.rotation);
+    } else if (isMultiCellShape(state.selectedShape)) {
+      // Multi-cell: show single ghost at anchor position
+      blocks.setGhost([state.selectedCell], state.selectedShape, state.selectedMaterial, state.selectedRotation);
+    } else {
+      const previewCells = getPlacementCells(state.selectedCell)
+        .flatMap((cell) => getSymmetryCells(cell));
+      blocks.setGhost(previewCells, state.selectedShape, state.selectedMaterial, state.selectedRotation);
+    }
   } else {
     blocks.setGhost([]);
   }
@@ -1742,20 +1870,6 @@ function moveSelectedBlocks(dx, dy, dz) {
   state.boxSelect.pointB.x += dx; state.boxSelect.pointB.y += dy; state.boxSelect.pointB.z += dz;
   updateSelectionBox();
   toast(t("toast_selection_moved", added.length));
-}
-
-function getRotationCenter(pA, pB) {
-  let cx = (pA.x + pB.x) / 2;
-  let cz = (pA.z + pB.z) / 2;
-  // Both must be same parity (both integer or both half-integer)
-  // so rotation always produces exact integers without rounding
-  const xIsHalf = cx % 1 !== 0;
-  const zIsHalf = cz % 1 !== 0;
-  if (xIsHalf !== zIsHalf) {
-    if (!xIsHalf) cx += 0.5;
-    else cz += 0.5;
-  }
-  return { x: cx, z: cz };
 }
 
 function rotateSelectedBlocks(delta) {

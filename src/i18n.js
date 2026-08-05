@@ -55,6 +55,10 @@ const dict = {
     stat_clipboard: "클립보드",
     stat_color_stats: "색상별 블록 수",
 
+    // Shape categories
+    category_blocks: "블록",
+    category_objects: "오브젝트",
+
     // Shapes
     shape_cube: "블록",
     shape_wedge: "지붕",
@@ -70,6 +74,15 @@ const dict = {
     shape_ladder: "사다리",
     shape_rope: "밧줄",
     shape_fence: "울타리",
+    shape_chair: "의자",
+    shape_table: "테이블",
+    shape_table2x2: "큰 테이블",
+    shape_bed1x2: "싱글 침대",
+    shape_bed2x2: "더블 침대",
+    shape_sofa: "소파",
+    shape_lamp: "가로등",
+    shape_tree: "나무",
+    shape_bush: "수풀",
 
     // Directions
     dir_front: "앞",
@@ -142,6 +155,8 @@ const dict = {
     toast_swap_on: "교체 모드 켜짐 — 블록을 탭하면 모양 교체",
     toast_swap_off: "교체 모드 꺼짐",
     toast_replaced: "블록 {0}개 교체됨",
+    toast_grab: "오브젝트 이동 — 좌클릭으로 배치, 우클릭으로 취소",
+    toast_grab_cancel: "이동 취소됨",
     box_select: "범위",
     box_select_delete: "삭제 {0}개",
     toast_boxselect_on: "범위 선택 모드 — 두 지점을 탭하세요",
@@ -286,6 +301,9 @@ const dict = {
     stat_clipboard: "Clipboard",
     stat_color_stats: "Blocks by Color",
 
+    category_blocks: "Blocks",
+    category_objects: "Objects",
+
     shape_cube: "Block",
     shape_wedge: "Wedge",
     shape_corner: "Roof Corner",
@@ -300,6 +318,15 @@ const dict = {
     shape_ladder: "Ladder",
     shape_rope: "Rope",
     shape_fence: "Fence",
+    shape_chair: "Chair",
+    shape_table: "Table",
+    shape_table2x2: "Large Table",
+    shape_bed1x2: "Single Bed",
+    shape_bed2x2: "Double Bed",
+    shape_sofa: "Sofa",
+    shape_lamp: "Street Lamp",
+    shape_tree: "Tree",
+    shape_bush: "Bush",
 
     dir_front: "F",
     dir_back: "B",
@@ -367,6 +394,8 @@ const dict = {
     toast_swap_on: "Swap mode ON — tap a block to replace its shape",
     toast_swap_off: "Swap mode OFF",
     toast_replaced: "{0} block(s) replaced",
+    toast_grab: "Grab object — left click to place, right click to cancel",
+    toast_grab_cancel: "Grab cancelled",
     box_select: "Select",
     box_select_delete: "Delete {0}",
     toast_boxselect_on: "Box select — tap two points",
@@ -506,6 +535,9 @@ const dict = {
     stat_clipboard: "クリップボード",
     stat_color_stats: "色別ブロック数",
 
+    category_blocks: "ブロック",
+    category_objects: "オブジェクト",
+
     // Shapes
     shape_cube: "ブロック",
     shape_wedge: "屋根",
@@ -521,6 +553,15 @@ const dict = {
     shape_ladder: "はしご",
     shape_rope: "ロープ",
     shape_fence: "フェンス",
+    shape_chair: "椅子",
+    shape_table: "テーブル",
+    shape_table2x2: "大テーブル",
+    shape_bed1x2: "シングルベッド",
+    shape_bed2x2: "ダブルベッド",
+    shape_sofa: "ソファ",
+    shape_lamp: "街灯",
+    shape_tree: "木",
+    shape_bush: "茂み",
 
     // Directions
     dir_front: "前",
@@ -593,6 +634,8 @@ const dict = {
     toast_swap_on: "交換モードON — ブロックをタップで形状交換",
     toast_swap_off: "交換モードOFF",
     toast_replaced: "ブロック{0}個を交換しました",
+    toast_grab: "オブジェクト移動 — 左クリックで配置、右クリックでキャンセル",
+    toast_grab_cancel: "移動キャンセル",
     box_select: "範囲",
     box_select_delete: "削除 {0}個",
     toast_boxselect_on: "範囲選択 — 2点をタップしてください",

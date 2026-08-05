@@ -1,9 +1,57 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.7";
+const CURRENT_VERSION = "2.8";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.8",
+    date: "2026.08.05",
+    changes: {
+      ko: [
+        { title: "블록 / 오브젝트 탭 구분", items: [
+          "기존에 사용되던 블록과 창문, 밧줄, 울타리 등등 각 역할 별로 분류",
+        ] },
+        { title: "새 오브젝트: 나무, 수풀", items: [
+          "나무 — 3×3×4 멀티셀 오브젝트, 둥근 나뭇잎 + 원기둥 기둥",
+          "수풀 — 1×1 오브젝트, 원기둥 + 반구 조합",
+          "나무 기둥 주변 빈 칸에 다른 블록 배치 가능",
+        ] },
+        { title: "버그 수정", items: [
+          "모바일 범위 회전이 동작하지 않던 문제 수정",
+          "멀티셀 오브젝트 배치 시 커서 위치 싱크 개선",
+        ] },
+      ],
+      en: [
+        { title: "Block / Object Tab Separation", items: [
+          "Blocks, windows, ropes, fences, etc. are now categorized by role",
+        ] },
+        { title: "New Objects: Tree, Bush", items: [
+          "Tree — 3×3×4 multi-cell object with rounded leaves + cylinder trunk",
+          "Bush — 1×1 object, cylinder + hemisphere dome",
+          "Blocks can be placed around tree trunk's empty cells",
+        ] },
+        { title: "Bug Fixes", items: [
+          "Fixed mobile range rotation not working",
+          "Improved cursor sync for multi-cell object placement",
+        ] },
+      ],
+      ja: [
+        { title: "ブロック / オブジェクト タブ分離", items: [
+          "ブロック、窓、ロープ、フェンスなどを役割ごとに分類",
+        ] },
+        { title: "新オブジェクト: 木、茂み", items: [
+          "木 — 3×3×4マルチセルオブジェクト、丸い葉 + 円柱の幹",
+          "茂み — 1×1オブジェクト、円柱 + 半球の組み合わせ",
+          "木の幹周辺の空きマスに他のブロックを配置可能",
+        ] },
+        { title: "バグ修正", items: [
+          "モバイルで範囲回転が動作しない問題を修正",
+          "マルチセルオブジェクト配置時のカーソル位置同期を改善",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.7",
     date: "2026.07.16",

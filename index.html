@@ -75,62 +75,102 @@
 
         <div class="tool-group compact-group" role="group" aria-label="블록 종류">
           <label class="field-label" data-i18n="stat_shape">블록 종류</label>
+          <div id="shapeTabs" class="shape-tab-group">
+            <button class="shape-tab active" data-cat="block" type="button" data-i18n="category_blocks">블록</button>
+            <button class="shape-tab" data-cat="object" type="button" data-i18n="category_objects">오브젝트</button>
+          </div>
           <div id="shapePanel" class="shape-panel">
-            <button class="shape-btn active" data-shape="cube" type="button" title="블록">
+            <button class="shape-btn active" data-shape="cube" data-cat="block" type="button" title="블록">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg>
               <span data-i18n="shape_cube">블록</span>
             </button>
-            <button class="shape-btn" data-shape="wedge" type="button" title="지붕">
+            <button class="shape-btn" data-shape="wedge" data-cat="block" type="button" title="지붕">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16L20 4 4 20z"/></svg>
               <span data-i18n="shape_wedge">지붕</span>
             </button>
-            <button class="shape-btn" data-shape="corner" type="button" title="모서리">
+            <button class="shape-btn" data-shape="corner" data-cat="block" type="button" title="모서리">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16V4L4 20z"/></svg>
               <span data-i18n="shape_corner">모서리</span>
             </button>
-            <button class="shape-btn" data-shape="cylinder" type="button" title="원기둥">
+            <button class="shape-btn" data-shape="cylinder" data-cat="block" type="button" title="원기둥">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/></svg>
               <span data-i18n="shape_cylinder">원기둥</span>
             </button>
-            <button class="shape-btn" data-shape="hCylinder" type="button" title="눕힌 원기둥">
+            <button class="shape-btn" data-shape="hCylinder" data-cat="block" type="button" title="눕힌 원기둥">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="6" cy="12" rx="3" ry="8"/><path d="M6 4h12c1.66 0 3 3.58 3 8s-1.34 8-3 8H6"/></svg>
               <span data-i18n="shape_hCylinder">눕힌 원기둥</span>
             </button>
-            <button class="shape-btn" data-shape="halfCylinder" type="button" title="반원기둥">
+            <button class="shape-btn" data-shape="halfCylinder" data-cat="block" type="button" title="반원기둥">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16V12a8 8 0 0 0-16 0v8z"/></svg>
               <span data-i18n="shape_halfCylinder">반원기둥</span>
             </button>
-            <button class="shape-btn" data-shape="halfCube" type="button" title="반블록">
+            <button class="shape-btn" data-shape="halfCube" data-cat="block" type="button" title="반블록">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="18" height="9" rx="1"/></svg>
               <span data-i18n="shape_halfCube">반블록</span>
             </button>
-            <button class="shape-btn" data-shape="window" type="button" title="창문">
+            <button class="shape-btn" data-shape="window" data-cat="object" type="button" title="창문" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" rx="0"/></svg>
               <span data-i18n="shape_window">창문</span>
             </button>
-            <button class="shape-btn" data-shape="slopedWindow" type="button" title="대각선 창문">
+            <button class="shape-btn" data-shape="slopedWindow" data-cat="object" type="button" title="대각선 창문" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20L20 4"/><path d="M7 17L17 7"/><path d="M4 20l3-3M20 4l-3 3"/></svg>
               <span data-i18n="shape_slopedWindow">대각선 창문</span>
             </button>
-            <button class="shape-btn" data-shape="arch" type="button" title="아치">
+            <button class="shape-btn" data-shape="arch" data-cat="block" type="button" title="아치">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V4a16 16 0 0 1 16 16"/></svg>
               <span data-i18n="shape_arch">아치</span>
             </button>
-            <button class="shape-btn" data-shape="stair" type="button" title="계단">
+            <button class="shape-btn" data-shape="stair" data-cat="object" type="button" title="계단" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h5v-5h5v-5h5V4"/></svg>
               <span data-i18n="shape_stair">계단</span>
             </button>
-            <button class="shape-btn" data-shape="ladder" type="button" title="사다리">
+            <button class="shape-btn" data-shape="ladder" data-cat="object" type="button" title="사다리" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/></svg>
               <span data-i18n="shape_ladder">사다리</span>
             </button>
-            <button class="shape-btn" data-shape="rope" type="button" title="밧줄">
+            <button class="shape-btn" data-shape="rope" data-cat="object" type="button" title="밧줄" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20" stroke-dasharray="3 2"/></svg>
               <span data-i18n="shape_rope">밧줄</span>
             </button>
-            <button class="shape-btn" data-shape="fence" type="button" title="울타리">
+            <button class="shape-btn" data-shape="fence" data-cat="object" type="button" title="울타리" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v18M18 3v18M6 8h12M6 15h12"/></svg>
               <span data-i18n="shape_fence">울타리</span>
+            </button>
+            <button class="shape-btn" data-shape="chair" data-cat="object" type="button" title="의자" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v18M18 11v10M6 11h14M8 3v8"/></svg>
+              <span data-i18n="shape_chair">의자</span>
+            </button>
+            <button class="shape-btn" data-shape="table" data-cat="object" type="button" title="테이블" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 8v12M20 8v12M12 8v12"/></svg>
+              <span data-i18n="shape_table">테이블</span>
+            </button>
+            <button class="shape-btn" data-shape="table2x2" data-cat="object" type="button" title="큰 테이블 (2×2)" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="3" rx="1"/><path d="M5 9v11M19 9v11M12 9v11"/></svg>
+              <span data-i18n="shape_table2x2">큰 테이블</span>
+            </button>
+            <button class="shape-btn" data-shape="bed1x2" data-cat="object" type="button" title="싱글 침대 (1×2)" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18v7H3z"/><path d="M3 8h18v2H3z"/><path d="M3 17v2M21 17v2"/></svg>
+              <span data-i18n="shape_bed1x2">싱글 침대</span>
+            </button>
+            <button class="shape-btn" data-shape="bed2x2" data-cat="object" type="button" title="더블 침대 (2×2)" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10h20v7H2z"/><path d="M2 8h20v2H2z"/><path d="M2 17v2M22 17v2M12 10v-2"/></svg>
+              <span data-i18n="shape_bed2x2">더블 침대</span>
+            </button>
+            <button class="shape-btn" data-shape="sofa" data-cat="object" type="button" title="소파 (2×1)" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18v6H3z"/><path d="M3 7h18v3H3z"/><path d="M3 10v6M21 10v6"/></svg>
+              <span data-i18n="shape_sofa">소파</span>
+            </button>
+            <button class="shape-btn" data-shape="lamp" data-cat="object" type="button" title="가로등 (1×3)" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22v-14"/><path d="M8 8h8l-1-4H9z"/><circle cx="12" cy="5" r="1"/><path d="M9 22h6"/></svg>
+              <span data-i18n="shape_lamp">가로등</span>
+            </button>
+            <button class="shape-btn" data-shape="tree" data-cat="object" type="button" title="나무 (3×3×4)" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="14" width="4" height="8"/><circle cx="12" cy="10" r="7"/></svg>
+              <span data-i18n="shape_tree">나무</span>
+            </button>
+            <button class="shape-btn" data-shape="bush" data-cat="object" type="button" title="수풀" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="11" r="8"/><path d="M12 19v3"/></svg>
+              <span data-i18n="shape_bush">수풀</span>
             </button>
           </div>
         </div>
@@ -466,11 +506,12 @@
             <button id="mobileLayerBtn" class="mobile-tool-btn mobile-labeled-btn" type="button"><span class="mobile-btn-title" data-i18n="stat_layer">레이어</span><span id="mobileLayerValue" data-i18n="layer_all">전체</span></button>
             <span class="mobile-toolbar-divider"></span>
             <button id="mobileScreenshotBtn" class="mobile-tool-btn" type="button" title="Screenshot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
-            <button id="mobilePixelArtBtn" class="mobile-tool-btn" type="button" title="Pixel Art"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><rect x="13" y="13" width="4" height="4"/></svg>픽셀아트</button>
-            <button id="mobileResetBtn" class="mobile-tool-btn mobile-reset-btn" type="button" title="Reset"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>초기화</button>
+            <button id="mobilePixelArtBtn" class="mobile-tool-btn" type="button" title="Pixel Art"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><rect x="13" y="13" width="4" height="4"/></svg><span data-i18n="pixelart_button">픽셀아트</span></button>
+            <button id="mobileResetBtn" class="mobile-tool-btn mobile-reset-btn" type="button" title="Reset"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span data-i18n="reset">초기화</span></button>
             <span class="mobile-toolbar-divider"></span>
             <a id="mobileGuideBtn" class="mobile-tool-btn" href="./guide.html" target="_blank" title="Guide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></a>
-            <button id="mobilePatchBtn" class="mobile-tool-btn" type="button" title="Patch Notes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>패치노트</button>
+            <button id="mobilePatchBtn" class="mobile-tool-btn" type="button" title="Patch Notes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><span data-i18n="patch_button">패치노트</span></button>
+            <button id="mobileLangBtn" class="mobile-tool-btn" type="button" title="Language"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="mobileLangLabel">한국어</span></button>
           </div>
         </div>
         <p class="mobile-toolbar-hint" data-i18n="mobile_edit_hint">탭: 배치 · 길게: 삭제 · 드래그: 회전</p>

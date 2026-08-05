@@ -15,12 +15,20 @@ const SHAPE_ICONS = {
   ladder: '<path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/>',
   rope: '<path d="M12 2v20" stroke-dasharray="3 2"/>',
   fence: '<path d="M6 3v18M18 3v18M6 8h12M6 15h12"/>',
+  chair: '<path d="M6 3v18M18 11v10M6 11h14M8 3v8"/>',
+  table: '<path d="M4 8h16M4 8v12M20 8v12M12 8v12"/>',
+  table2x2: '<rect x="3" y="6" width="18" height="3" rx="1"/><path d="M5 9v11M19 9v11M12 9v11"/>',
+  bed1x2: '<path d="M3 10h18v7H3z"/><path d="M3 8h18v2H3z"/><path d="M3 17v2M21 17v2"/>',
+  bed2x2: '<path d="M2 10h20v7H2z"/><path d="M2 8h20v2H2z"/><path d="M2 17v2M22 17v2M12 10v-2"/>',
+  sofa: '<path d="M3 10h18v6H3z"/><path d="M3 7h18v3H3z"/><path d="M3 10v6M21 10v6"/>',
+  lamp: '<path d="M12 22v-14"/><path d="M8 8h8l-1-4H9z"/><circle cx="12" cy="5" r="1"/><path d="M9 22h6"/>',
+  tree: '<rect x="10" y="14" width="4" height="8"/><circle cx="12" cy="10" r="7"/>',
 };
 
-const SHAPES = [
-  "cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube",
-  "window", "slopedWindow", "arch", "stair", "ladder", "rope", "fence",
+const BLOCK_SHAPES = [
+  "cube", "wedge", "corner", "cylinder", "hCylinder", "halfCylinder", "halfCube", "arch",
 ];
+const OBJECT_SHAPES = ["chair", "table", "table2x2", "bed1x2", "bed2x2", "sofa", "lamp", "tree", "window", "slopedWindow", "stair", "ladder", "rope", "fence"];
 
 const guideContent = {
   ko: {
@@ -530,6 +538,14 @@ const shapeDescriptions = {
     ladder: "양쪽 레일 + 4단 발판 (위아래 연결 가능)",
     rope: "가는 세로줄 블록",
     fence: "두 기둥 + 가로대 블록",
+    chair: "좌석 + 등받이 + 다리 4개 의자",
+    table: "상판 + 다리 4개 테이블 (1×1)",
+    table2x2: "넓은 상판 + 다리 4개 큰 테이블 (2×2)",
+    bed1x2: "매트리스 + 헤드보드 싱글 침대 (1×2)",
+    bed2x2: "매트리스 + 헤드보드 더블 침대 (2×2)",
+    sofa: "좌석 + 등받이 + 팔걸이 소파 (2×1)",
+    lamp: "기둥 + 램프 헤드 가로등 (높이 3칸)",
+    tree: "줄기 + 둥근 수관 나무 (3×3×4)",
   },
   en: {
     cube: "Standard cube block",
@@ -546,6 +562,14 @@ const shapeDescriptions = {
     ladder: "Both rails + 4 rungs (stackable vertically)",
     rope: "Thin vertical line block",
     fence: "Two posts + crossbar block",
+    chair: "Seat + backrest + 4 legs chair",
+    table: "Tabletop + 4 legs table (1×1)",
+    table2x2: "Large tabletop + 4 legs table (2×2)",
+    bed1x2: "Mattress + headboard single bed (1×2)",
+    bed2x2: "Mattress + headboard double bed (2×2)",
+    sofa: "Seat + backrest + armrests sofa (2×1)",
+    lamp: "Pole + lamp head street lamp (3 tall)",
+    tree: "Trunk + rounded canopy tree (3×3×4)",
   },
   ja: {
     cube: "標準の立方体ブロック",
@@ -562,24 +586,39 @@ const shapeDescriptions = {
     ladder: "両側レール + 4段（上下連結可能）",
     rope: "細い縦線ブロック",
     fence: "2本の柱 + 横桟ブロック",
+    chair: "座面 + 背もたれ + 脚4本の椅子",
+    table: "天板 + 脚4本のテーブル (1×1)",
+    table2x2: "大きな天板 + 脚4本の大テーブル (2×2)",
+    bed1x2: "マットレス + ヘッドボードのシングルベッド (1×2)",
+    bed2x2: "マットレス + ヘッドボードのダブルベッド (2×2)",
+    sofa: "座面 + 背もたれ + 肘掛けのソファ (2×1)",
+    lamp: "ポール + ランプヘッドの街灯 (高さ3マス)",
+    tree: "幹 + 丸い樹冠の木 (3×3×4)",
   },
 };
 
 function renderBlocksGrid(lang) {
   const descs = shapeDescriptions[lang] || shapeDescriptions.en;
-  let html = '<div class="guide-blocks-grid">';
-  for (const shape of SHAPES) {
-    const name = t("shape_" + shape);
-    const desc = descs[shape] || "";
-    const svgPath = SHAPE_ICONS[shape];
-    html += `
-      <div class="guide-block-card">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${svgPath}</svg>
-        <strong>${name}</strong>
-        <span class="guide-block-desc">${desc}</span>
-      </div>`;
+  const categories = [
+    { key: "category_blocks", shapes: BLOCK_SHAPES },
+    { key: "category_objects", shapes: OBJECT_SHAPES },
+  ];
+  let html = "";
+  for (const cat of categories) {
+    html += `<h4>${t(cat.key)}</h4><div class="guide-blocks-grid">`;
+    for (const shape of cat.shapes) {
+      const name = t("shape_" + shape);
+      const desc = descs[shape] || "";
+      const svgPath = SHAPE_ICONS[shape];
+      html += `
+        <div class="guide-block-card">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${svgPath}</svg>
+          <strong>${name}</strong>
+          <span class="guide-block-desc">${desc}</span>
+        </div>`;
+    }
+    html += "</div>";
   }
-  html += "</div>";
   return html;
 }
 

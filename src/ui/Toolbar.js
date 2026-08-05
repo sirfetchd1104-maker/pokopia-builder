@@ -18,6 +18,8 @@ export class Toolbar {
     this.materialColor = document.querySelector("#materialColor");
     this.materialMemo = document.querySelector("#materialMemo");
     this.shapePanel = document.querySelector("#shapePanel");
+    this.shapeTabs = document.querySelector("#shapeTabs");
+    this.activeCategory = "block";
     this.rotationSelect = document.querySelector("#rotationSelect");
     this.batchDirection = document.querySelector("#batchDirection");
     this.batchCount = document.querySelector("#batchCount");
@@ -48,6 +50,13 @@ export class Toolbar {
     document.querySelector("#addMaterialButton").addEventListener("click", () => onMaterialAdd());
     document.querySelector("#removeMaterialButton").addEventListener("click", () => {
       onMaterialRemove(this.selectedMaterialId);
+    });
+
+    // Shape category tabs
+    this.shapeTabs.addEventListener("click", (e) => {
+      const tab = e.target.closest(".shape-tab");
+      if (!tab) return;
+      this.switchCategory(tab.dataset.cat);
     });
 
     // Shape panel buttons
@@ -127,9 +136,24 @@ export class Toolbar {
     if (m) { m.color = material.color; m.memo = material.memo; }
   }
 
-  setShape(shape) {
+  switchCategory(cat) {
+    this.activeCategory = cat;
+    for (const tab of this.shapeTabs.querySelectorAll(".shape-tab")) {
+      tab.classList.toggle("active", tab.dataset.cat === cat);
+    }
     for (const btn of this.shapePanel.querySelectorAll(".shape-btn")) {
-      btn.classList.toggle("active", btn.dataset.shape === shape);
+      btn.hidden = btn.dataset.cat !== cat;
+    }
+  }
+
+  setShape(shape) {
+    // Auto-switch category tab if needed
+    const btn = this.shapePanel.querySelector(`.shape-btn[data-shape="${shape}"]`);
+    if (btn && btn.dataset.cat !== this.activeCategory) {
+      this.switchCategory(btn.dataset.cat);
+    }
+    for (const b of this.shapePanel.querySelectorAll(".shape-btn")) {
+      b.classList.toggle("active", b.dataset.shape === shape);
     }
   }
 
