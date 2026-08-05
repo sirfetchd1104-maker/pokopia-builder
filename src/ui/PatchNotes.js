@@ -12,9 +12,8 @@ const patchNotes = [
         { title: "블록 / 오브젝트 탭 구분", items: [
           "기존에 사용되던 블록과 창문, 밧줄, 울타리 등등 각 역할 별로 분류",
         ] },
-        { title: "새 오브젝트: 나무, 수풀", items: [
-          "나무 — 3×3×4 멀티셀 오브젝트, 둥근 나뭇잎 + 원기둥 기둥",
-          "수풀 — 1×1 오브젝트, 원기둥 + 반구 조합",
+        { title: "새 오브젝트 9종 추가", items: [
+          "의자, 테이블, 큰 테이블(2×2), 싱글 침대(1×2), 더블 침대(2×2), 소파(2×1), 가로등(1×1×3), 나무(3×3×4), 수풀",
           "나무 기둥 주변 빈 칸에 다른 블록 배치 가능",
         ] },
         { title: "버그 수정", items: [
@@ -26,9 +25,8 @@ const patchNotes = [
         { title: "Block / Object Tab Separation", items: [
           "Blocks, windows, ropes, fences, etc. are now categorized by role",
         ] },
-        { title: "New Objects: Tree, Bush", items: [
-          "Tree — 3×3×4 multi-cell object with rounded leaves + cylinder trunk",
-          "Bush — 1×1 object, cylinder + hemisphere dome",
+        { title: "9 New Object Types", items: [
+          "Chair, Table, Large Table (2×2), Single Bed (1×2), Double Bed (2×2), Sofa (2×1), Lamp (1×1×3), Tree (3×3×4), Bush",
           "Blocks can be placed around tree trunk's empty cells",
         ] },
         { title: "Bug Fixes", items: [
@@ -40,9 +38,8 @@ const patchNotes = [
         { title: "ブロック / オブジェクト タブ分離", items: [
           "ブロック、窓、ロープ、フェンスなどを役割ごとに分類",
         ] },
-        { title: "新オブジェクト: 木、茂み", items: [
-          "木 — 3×3×4マルチセルオブジェクト、丸い葉 + 円柱の幹",
-          "茂み — 1×1オブジェクト、円柱 + 半球の組み合わせ",
+        { title: "新オブジェクト9種追加", items: [
+          "椅子、テーブル、大テーブル(2×2)、シングルベッド(1×2)、ダブルベッド(2×2)、ソファ(2×1)、街灯(1×1×3)、木(3×3×4)、茂み",
           "木の幹周辺の空きマスに他のブロックを配置可能",
         ] },
         { title: "バグ修正", items: [
