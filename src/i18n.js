@@ -196,8 +196,9 @@ const dict = {
     dotview_back: "돌아가기",
     dotview_save: "PNG 저장",
 
-    // Guide
+    // Guide & Privacy
     guide_page: "사용 가이드",
+    privacy_link: "개인정보처리방침",
 
     // Batch direction labels (toast)
     batch_dir_off: "끄기",
@@ -435,6 +436,7 @@ const dict = {
     dotview_save: "Save PNG",
 
     guide_page: "User Guide",
+    privacy_link: "Privacy Policy",
 
     batch_dir_off: "Off",
     batch_dir_forward: "Forward",
@@ -675,8 +677,9 @@ const dict = {
     dotview_back: "戻る",
     dotview_save: "PNG保存",
 
-    // Guide
+    // Guide & Privacy
     guide_page: "使い方ガイド",
+    privacy_link: "プライバシーポリシー",
 
     // Batch direction labels (toast)
     batch_dir_off: "オフ",

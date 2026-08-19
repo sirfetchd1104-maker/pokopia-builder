@@ -1,9 +1,36 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.8";
+const CURRENT_VERSION = "2.8.1";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.8.1",
+    date: "2026.08.18",
+    changes: {
+      ko: [
+        { title: "개인정보처리방침 페이지 추가", items: [
+          "별도 페이지(privacy.html)로 개인정보 처리 방침 안내",
+          "한국어/영어/일본어 3개 국어 지원",
+          "PC 하단 패널 + 모바일 툴바에서 바로가기 링크 추가",
+        ] },
+      ],
+      en: [
+        { title: "Privacy Policy Page", items: [
+          "Added a dedicated Privacy Policy page (privacy.html)",
+          "Supports Korean, English, and Japanese",
+          "Quick link added to PC bottom panel and mobile toolbar",
+        ] },
+      ],
+      ja: [
+        { title: "プライバシーポリシーページ追加", items: [
+          "専用ページ(privacy.html)でプライバシーポリシーを案内",
+          "韓国語・英語・日本語の3か国語対応",
+          "PC下部パネル＋モバイルツールバーにリンク追加",
+        ] },
+      ],
+    },
+  },
   {
     version: "2.8",
     date: "2026.08.05",

@@ -513,6 +513,10 @@ select option {
   font-size: 12px;
 }
 
+.control-guide.privacy {
+  right: 90px;
+}
+
 .control-guide:hover {
   border-color: #fff;
   color: #fff;
