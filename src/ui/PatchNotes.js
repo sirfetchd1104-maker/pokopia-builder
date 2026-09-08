@@ -1,9 +1,33 @@
 import { t, getLang } from "../i18n.js";
 
-const CURRENT_VERSION = "2.8.1";
+const CURRENT_VERSION = "2.8.2";
 const STORAGE_KEY = "pokopia-seen-version";
 
 const patchNotes = [
+  {
+    version: "2.8.2",
+    date: "2026.09.04",
+    changes: {
+      ko: [
+        { title: "소개 모달 추가", items: [
+          "포코피아 빌더의 주요 기능과 사용 방법을 소개하는 모달 팝업 추가",
+          "PC 하단 패널 + 모바일 툴바에서 \"소개\" 버튼으로 열기",
+        ]},
+      ],
+      en: [
+        { title: "About Modal", items: [
+          "Added a modal popup introducing key features and usage of Pokopia Builder",
+          "Accessible via \"About\" button on PC bottom panel and mobile toolbar",
+        ]},
+      ],
+      ja: [
+        { title: "紹介モーダル追加", items: [
+          "Pokopia Builderの主な機能と使い方を紹介するモーダルポップアップを追加",
+          "PC下部パネル＋モバイルツールバーの「紹介」ボタンから表示",
+        ]},
+      ],
+    },
+  },
   {
     version: "2.8.1",
     date: "2026.08.18",

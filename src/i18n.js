@@ -196,8 +196,9 @@ const dict = {
     dotview_back: "돌아가기",
     dotview_save: "PNG 저장",
 
-    // Guide & Privacy
+    // Guide & Privacy & About
     guide_page: "사용 가이드",
+    about_button: "소개",
     privacy_link: "개인정보처리방침",
 
     // Batch direction labels (toast)
@@ -242,6 +243,28 @@ const dict = {
     toast_pixelart_applied: "픽셀아트 적용! 블록 {0}개 배치",
     toast_pixelart_no_image: "먼저 이미지를 업로드해 주세요.",
     toast_pixelart_no_blocks: "변환할 블록이 없습니다.",
+
+    // Landing
+    landing_subtitle: "나만의 포코피아 건물을 3D로 설계하세요",
+    landing_description: "Pokopia Builder는 포코피아의 블록 건물을 브라우저에서 바로 설계할 수 있는 무료 3D 블록 플래너입니다. 게임 속에서 건축하기 전에 미리 계획하고, 다양한 블록과 오브젝트를 조합해 창의적인 구조물을 만들어 보세요.",
+    landing_features_title: "주요 기능",
+    landing_feat_blocks: "21가지 블록 & 오브젝트",
+    landing_feat_blocks_desc: "큐브, 지붕, 원기둥, 아치, 계단, 나무, 가구 등 다양한 형태의 블록과 오브젝트를 자유롭게 조합하세요.",
+    landing_feat_tools: "강력한 건축 도구",
+    landing_feat_tools_desc: "일괄배치, 대칭배치, 범위 선택, 회전, 되돌리기 등 효율적인 건축 도구로 빠르게 설계하세요.",
+    landing_feat_pixelart: "픽셀아트 변환",
+    landing_feat_pixelart_desc: "이미지를 업로드하면 자동으로 블록 픽셀아트로 변환됩니다. 도트 그림을 쉽게 재현하세요.",
+    landing_feat_share: "설계도 공유",
+    landing_feat_share_desc: "완성한 설계도를 링크 하나로 공유하세요. JSON 저장/불러오기, 스크린샷, 평면도 내보내기를 지원합니다.",
+    landing_feat_mobile: "모바일 지원",
+    landing_feat_mobile_desc: "PC와 모바일 모두 지원합니다. 터치 조작으로 언제 어디서나 건축할 수 있습니다.",
+    landing_feat_i18n: "다국어 지원",
+    landing_feat_i18n_desc: "한국어, English, 日本語 3개 국어를 지원합니다.",
+    landing_how_title: "사용 방법",
+    landing_step1: "좌클릭으로 블록을 배치하고, 우클릭으로 제거합니다.",
+    landing_step2: "WASD로 이동하고, Space/Shift로 높이를 조절합니다.",
+    landing_step3: "Q키로 블록 종류를 변경하고, R키로 회전합니다.",
+    landing_step4: "완성 후 공유 버튼으로 링크를 생성하거나 JSON으로 저장하세요.",
 
     // WebGL error
     webgl_title: "WebGL을 사용할 수 없습니다",
@@ -436,6 +459,7 @@ const dict = {
     dotview_save: "Save PNG",
 
     guide_page: "User Guide",
+    about_button: "About",
     privacy_link: "Privacy Policy",
 
     batch_dir_off: "Off",
@@ -476,6 +500,28 @@ const dict = {
     toast_pixelart_applied: "Pixel art applied! {0} blocks placed.",
     toast_pixelart_no_image: "Please upload an image first.",
     toast_pixelart_no_blocks: "No blocks to convert.",
+
+    // Landing
+    landing_subtitle: "Design your Pokopia buildings in 3D",
+    landing_description: "Pokopia Builder is a free browser-based 3D block planner for Pokopia. Plan your builds before you start in-game — combine diverse blocks and objects to create unique structures with ease.",
+    landing_features_title: "Key Features",
+    landing_feat_blocks: "21 Blocks & Objects",
+    landing_feat_blocks_desc: "Cubes, wedges, cylinders, arches, stairs, trees, furniture, and more — freely combine a wide variety of block shapes and decorative objects.",
+    landing_feat_tools: "Powerful Building Tools",
+    landing_feat_tools_desc: "Batch placement, symmetry, box select, rotation, undo/redo, and more tools to speed up your designs.",
+    landing_feat_pixelart: "Pixel Art Converter",
+    landing_feat_pixelart_desc: "Upload any image and it will be automatically converted into block pixel art.",
+    landing_feat_share: "Share Designs",
+    landing_feat_share_desc: "Share your finished designs with a single link. Also supports JSON save/load, screenshots, and floor plan export.",
+    landing_feat_mobile: "Mobile Support",
+    landing_feat_mobile_desc: "Works on both PC and mobile. Build anywhere with touch controls.",
+    landing_feat_i18n: "Multilingual",
+    landing_feat_i18n_desc: "Available in Korean, English, and Japanese.",
+    landing_how_title: "How to Use",
+    landing_step1: "Left-click to place blocks, right-click to remove them.",
+    landing_step2: "Move with WASD, adjust height with Space/Shift.",
+    landing_step3: "Press Q to cycle block shapes, R to rotate.",
+    landing_step4: "Share your design via link or save it as JSON.",
 
     webgl_title: "WebGL Unavailable",
     webgl_msg: "Please check if your browser supports WebGL.",
@@ -677,8 +723,9 @@ const dict = {
     dotview_back: "戻る",
     dotview_save: "PNG保存",
 
-    // Guide & Privacy
+    // Guide & Privacy & About
     guide_page: "使い方ガイド",
+    about_button: "紹介",
     privacy_link: "プライバシーポリシー",
 
     // Batch direction labels (toast)
@@ -723,6 +770,28 @@ const dict = {
     toast_pixelart_applied: "ピクセルアート適用！ブロック{0}個を配置",
     toast_pixelart_no_image: "まず画像をアップロードしてください。",
     toast_pixelart_no_blocks: "変換するブロックがありません。",
+
+    // Landing
+    landing_subtitle: "ポコピアの建物を3Dで設計しよう",
+    landing_description: "Pokopia Builderは、ポコピアのブロック建築をブラウザで設計できる無料の3Dブロックプランナーです。ゲーム内で建築する前に計画を立て、多様なブロックとオブジェクトを組み合わせて創造的な構造物を作りましょう。",
+    landing_features_title: "主な機能",
+    landing_feat_blocks: "21種のブロック＆オブジェクト",
+    landing_feat_blocks_desc: "キューブ、屋根、円柱、アーチ、階段、木、家具など様々な形のブロックとオブジェクトを自由に組み合わせましょう。",
+    landing_feat_tools: "強力な建築ツール",
+    landing_feat_tools_desc: "一括配置、対称配置、範囲選択、回転、元に戻すなど効率的なツールで素早く設計できます。",
+    landing_feat_pixelart: "ピクセルアート変換",
+    landing_feat_pixelart_desc: "画像をアップロードすると自動的にブロックピクセルアートに変換されます。",
+    landing_feat_share: "設計図の共有",
+    landing_feat_share_desc: "完成した設計図をリンク1つで共有できます。JSON保存・読み込み、スクリーンショット、平面図エクスポートにも対応。",
+    landing_feat_mobile: "モバイル対応",
+    landing_feat_mobile_desc: "PCとモバイル両方に対応。タッチ操作でいつでもどこでも建築できます。",
+    landing_feat_i18n: "多言語対応",
+    landing_feat_i18n_desc: "韓国語・English・日本語の3か国語に対応。",
+    landing_how_title: "使い方",
+    landing_step1: "左クリックでブロックを配置、右クリックで削除します。",
+    landing_step2: "WASDで移動、Space/Shiftで高さを調整します。",
+    landing_step3: "Qキーでブロック種類を変更、Rキーで回転します。",
+    landing_step4: "完成後、共有ボタンでリンクを作成するかJSONで保存しましょう。",
 
     // WebGL error
     webgl_title: "WebGLが利用できません",

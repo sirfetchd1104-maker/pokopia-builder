@@ -37,6 +37,17 @@ const saveManager = new SaveManager(blocks);
 // Apply saved language on load
 applyLang();
 
+// ── Landing modal (About) ──
+const landingOverlay = document.querySelector("#landing");
+function openLanding() { landingOverlay?.classList.add("open"); }
+function closeLanding() { landingOverlay?.classList.remove("open"); }
+document.querySelector("#landingClose")?.addEventListener("click", closeLanding);
+document.querySelector("#aboutBtn")?.addEventListener("click", openLanding);
+document.querySelector("#mobileAboutBtn")?.addEventListener("click", openLanding);
+landingOverlay?.addEventListener("click", (e) => {
+  if (e.target === landingOverlay || e.target.classList.contains("landing-scroll")) closeLanding();
+});
+
 function getRotationCenter(pA, pB) {
   let cx = (pA.x + pB.x) / 2;
   let cz = (pA.z + pB.z) / 2;
